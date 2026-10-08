@@ -1,0 +1,6 @@
+{
+  "name": "Roopa Deva — 3D Animatic Globe Portfolio",
+  "description": "Interactive 3D diorama globe portfolio with animatic hand-drawn loader, mint diorama world, girl on globe profile, and anti-gravity physics.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
