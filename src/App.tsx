@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { EarthGlobeScene } from './components/canvas/EarthGlobeScene';
+import { CertificateGallery3D } from './components/canvas/CertificateGallery3D';
 import { AnimaticLoader } from './components/ui/AnimaticLoader';
 import { IntroHeroOverlay } from './components/ui/IntroHeroOverlay';
 import { ProfileShowcase } from './components/ui/ProfileShowcase';
@@ -10,9 +11,11 @@ import {
   fetchProfile,
   fetchProjects,
   fetchLandmarks,
+  fetchCertificates,
   fallbackLandmarks,
+  fallbackCertificates,
 } from './services/api';
-import { Landmark, ProfileData, ProjectItem } from './types';
+import { Landmark, ProfileData, ProjectItem, CertificateItem } from './types';
 import { sound } from './utils/audio';
 
 export default function App() {
@@ -27,10 +30,12 @@ export default function App() {
   const [landmarks, setLandmarks] = useState<Landmark[]>(fallbackLandmarks);
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [certificates, setCertificates] = useState<CertificateItem[]>(fallbackCertificates);
 
   // 3D & UI Interaction State
   const [selectedLandmark, setSelectedLandmark] = useState<Landmark | null>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCertGalleryOpen, setIsCertGalleryOpen] = useState(false);
   const [isLandmarkModalOpen, setIsLandmarkModalOpen] = useState(false);
   const [isContactOpen, setIsContactOpen] = useState(false);
 
@@ -45,15 +50,17 @@ export default function App() {
     let isMounted = true;
     async function loadData() {
       try {
-        const [lData, pData, prjData] = await Promise.all([
+        const [lData, pData, prjData, cData] = await Promise.all([
           fetchLandmarks(),
           fetchProfile(),
           fetchProjects(),
+          fetchCertificates(),
         ]);
         if (isMounted) {
           if (lData && lData.length > 0) setLandmarks(lData);
           if (pData) setProfile(pData);
           if (prjData) setProjects(prjData);
+          if (cData && cData.length > 0) setCertificates(cData);
         }
       } catch (err) {
         console.error('Initialization error:', err);
@@ -97,6 +104,11 @@ export default function App() {
       setTimeout(() => {
         setIsProfileOpen(true);
       }, 700);
+    } else if (landmark.id === 'cozy_house') {
+      // Zoom camera in to house and reveal 3D Certificate Gallery
+      setTimeout(() => {
+        setIsCertGalleryOpen(true);
+      }, 700);
     } else if (landmark.id === 'hot_air_balloon') {
       setTimeout(() => {
         setIsContactOpen(true);
@@ -122,6 +134,7 @@ export default function App() {
     setSelectedLandmark(null);
     setZoomFovOffset(0);
     setIsProfileOpen(false);
+    setIsCertGalleryOpen(false);
     setIsLandmarkModalOpen(false);
   }, []);
 
@@ -163,7 +176,7 @@ export default function App() {
         onIntroZoomComplete={handleIntroZoomComplete}
         onResetView={handleResetView}
         zoomFovOffset={zoomFovOffset}
-        isPaused={isProfileOpen || isLandmarkModalOpen || isContactOpen}
+        isPaused={isProfileOpen || isCertGalleryOpen || isLandmarkModalOpen || isContactOpen}
       />
 
       {/* 3. Title / Hero Intro Overlay with the "BEGIN" button (from video 00:06) */}
@@ -213,7 +226,20 @@ export default function App() {
         }}
       />
 
-      {/* 6. Detail Modal for other landmarks (Skyscrapers, House, Rocket, Crane) */}
+      {/* 6. Interactive 3D Hallway Certificate Gallery */}
+      <CertificateGallery3D
+        isOpen={isCertGalleryOpen}
+        onClose={() => {
+          setIsCertGalleryOpen(false);
+          setSelectedLandmark(null);
+        }}
+        certificates={certificates}
+        onCertificateAdded={(newCert) => {
+          setCertificates((prev) => [newCert, ...prev]);
+        }}
+      />
+
+      {/* 7. Detail Modal for other landmarks (Skyscrapers, Rocket, Crane) */}
       <LandmarkModal
         landmark={selectedLandmark}
         isOpen={isLandmarkModalOpen}
@@ -237,7 +263,7 @@ export default function App() {
         isAntiGravity={isAntiGravity}
       />
 
-      {/* 7. Contact Modal */}
+      {/* 8. Contact Modal */}
       <ContactModal
         isOpen={isContactOpen}
         onClose={() => setIsContactOpen(false)}

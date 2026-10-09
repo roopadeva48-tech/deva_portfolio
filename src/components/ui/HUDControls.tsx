@@ -182,7 +182,11 @@ export const HUDControls: React.FC<HUDControlsProps> = ({
               >
                 <span>{getIconForLandmark(landmark.id)}</span>
                 <span className="hidden sm:inline">
-                  {landmark.id === 'girl_me' ? 'devaroopa (Me)' : landmark.name.split(' ')[0]}
+                  {landmark.id === 'girl_me'
+                    ? 'devaroopa (Me)'
+                    : landmark.id === 'cozy_house'
+                    ? 'Certificates'
+                    : landmark.name.split(' ')[0]}
                 </span>
               </button>
             );

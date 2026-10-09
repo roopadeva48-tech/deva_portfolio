@@ -3,6 +3,7 @@ import { profileRouter } from './routes/profile';
 import { projectsRouter } from './routes/projects';
 import { landmarksRouter } from './routes/landmarks';
 import { contactRouter } from './routes/contact';
+import { certificatesRouter } from './routes/certificates';
 
 export function createApiApp(): Express {
   const app = express();
@@ -23,6 +24,7 @@ export function createApiApp(): Express {
   app.use('/api/projects', projectsRouter);
   app.use('/api/landmarks', landmarksRouter);
   app.use('/api/contact', contactRouter);
+  app.use('/api/certificates', certificatesRouter);
 
   return app;
 }

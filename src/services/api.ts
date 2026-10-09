@@ -1,4 +1,83 @@
-import { ProfileData, ProjectItem, Landmark } from '../types';
+import { ProfileData, ProjectItem, Landmark, CertificateItem } from '../types';
+
+export const fallbackCertificates: CertificateItem[] = [
+  {
+    id: 'threejs-journey-mastery',
+    title: 'Three.js & WebGL Spatial Computing Specialization',
+    category: '3D Graphics & Spatial',
+    issuer: 'Bruno Simon / Three.js Journey Academy',
+    issueDate: 'October 2024',
+    credentialId: 'CERT-TJ-89241-DV',
+    verificationUrl: 'https://threejs-journey.com',
+    skills: ['Three.js', 'Custom GLSL Shaders', 'Raymarching', 'Physics Engines', 'Performance Profiling'],
+    description: 'Advanced mastery in mathematical vector projection, custom lighting models, PBR materials, procedural particle physics, and WebGL pipeline optimization.',
+    gradeScore: 'Top 1% Distinction',
+    badgeIcon: '🪐',
+    doorNumber: 101,
+    accentColor: '#38bdf8'
+  },
+  {
+    id: 'meta-advanced-frontend',
+    title: 'Meta Advanced Frontend & Spatial Architecture',
+    category: 'Frontend Engineering',
+    issuer: 'Meta Platforms & Coursera',
+    issueDate: 'June 2024',
+    credentialId: 'META-FE-90812-RD',
+    verificationUrl: 'https://coursera.org/verify/META-FE-90812-RD',
+    skills: ['React 19', 'Next.js 15', 'TypeScript', 'State Machines', 'Framer Motion'],
+    description: 'Architecting scalable enterprise frontends, micro-frontends, high-performance DOM render cycles, and design token integration.',
+    gradeScore: '100% Grade with Honors',
+    badgeIcon: '⚛️',
+    doorNumber: 102,
+    accentColor: '#0ea5e9'
+  },
+  {
+    id: 'aws-cloud-solutions',
+    title: 'AWS Certified Solutions Architect — Spatial & Web',
+    category: 'Cloud & Infrastructure',
+    issuer: 'Amazon Web Services',
+    issueDate: 'January 2024',
+    expiryDate: 'January 2027',
+    credentialId: 'AWS-PSA-44109-DEV',
+    verificationUrl: 'https://aws.amazon.com/verification',
+    skills: ['CloudFront CDN', 'Asset Streaming', 'Lambda@Edge', 'S3 Static Assets', 'Serverless APIs'],
+    description: 'Design and deployment of highly available, fault-tolerant, and low-latency global delivery pipelines for real-time 3D web applications.',
+    gradeScore: 'Score: 920 / 1000',
+    badgeIcon: '☁️',
+    doorNumber: 103,
+    accentColor: '#f59e0b'
+  },
+  {
+    id: 'google-ux-spatial',
+    title: 'Google Spatial UI & Immersive Interaction Design',
+    category: 'UI/UX & Design',
+    issuer: 'Google Design Certification',
+    issueDate: 'August 2023',
+    credentialId: 'GOOG-UX-77312-RD',
+    verificationUrl: 'https://grow.google/certificates',
+    skills: ['Spatial UX', 'Accessibility Tokens', 'Micro-Interactions', 'Ergonomic HUDs', 'Design Systems'],
+    description: 'Crafting intuitive 3D spatial user interfaces, tactile affordances, spatial sound design, and WCAG accessibility standards for immersive applications.',
+    gradeScore: 'Distinction Capstone',
+    badgeIcon: '🎨',
+    doorNumber: 104,
+    accentColor: '#ec4899'
+  },
+  {
+    id: 'blender-procedural-modeling',
+    title: 'Procedural 3D Modeling & Asset Optimization',
+    category: '3D Art & Modeling',
+    issuer: 'CG Cookie & Blender Artists Guild',
+    issueDate: 'March 2023',
+    credentialId: 'BLND-MDL-55201-DV',
+    verificationUrl: 'https://cgcookie.com',
+    skills: ['Geometry Nodes', 'Draco Mesh Compression', 'Texture Baking', 'UV Mapping', 'Low-Poly Dioramas'],
+    description: 'Procedural generation of architectural structures, low-polygon miniature planet models, and Draco compression pipelines for instantaneous web loading.',
+    gradeScore: 'Certified Master Practitioner',
+    badgeIcon: '🏛️',
+    doorNumber: 105,
+    accentColor: '#10b981'
+  }
+];
 
 export const fallbackLandmarks: Landmark[] = [
   {
@@ -37,7 +116,7 @@ export const fallbackLandmarks: Landmark[] = [
     details: {
       title: 'Studio Highlights',
       items: [
-        'Anti-Gravity Physics Sandbox (120 FPS Web Workers)',
+        'Spatial Physics Sandbox (120 FPS Web Workers)',
         'Orbit City: Curvature Architectural Studio',
         'Pulsar 3D Spatial Design System & UI Kit'
       ]
@@ -45,22 +124,22 @@ export const fallbackLandmarks: Landmark[] = [
   },
   {
     id: 'cozy_house',
-    name: 'The Creative Haven (Story & Life)',
-    category: 'Philosophy & Story',
-    tagline: 'A warm red-roofed sanctuary where curiosity and sketches begin.',
-    description: 'Every great engineering breakthrough starts with a quiet sketch and an insatiable curiosity for how the physical and digital intersect.',
+    name: 'The 3D Certificate Hallway (Gallery & Awards)',
+    category: '3D Hallway Gallery',
+    tagline: 'Step into the interactive 3D Hallway with cinematic doors & rooms.',
+    description: 'Walk through the 3D gallery corridor. Click on any door to enter exhibition rooms showcasing accredited certifications in spatial WebGL, frontend engineering, and cloud architecture.',
     cameraPosition: [5.0, -0.6, 4.2],
     cameraTarget: [2.5, -0.5, 0],
     fov: 42,
-    highlightAction: 'Discover My Story',
+    highlightAction: 'Enter 3D Certificate Gallery',
     modalTarget: 'about',
-    statsBadge: 'Personal Origins',
+    statsBadge: 'Interactive 3D Rooms',
     details: {
-      title: 'Creative Tenets',
+      title: 'Hallway Features',
       items: [
-        'Tactile Delight: Digital experiences should feel physically rewarding',
-        'Anti-Slop Discipline: Clean typographic hierarchy and intentional color palettes',
-        'Performant Craft: 60 FPS minimum budget on every screen'
+        'Cinematic door swing & camera glide transitions',
+        'High-resolution certificate inspect & verification',
+        'Dynamic real-time certificate addition with automatic door generation'
       ]
     }
   },
@@ -89,7 +168,7 @@ export const fallbackLandmarks: Landmark[] = [
     id: 'crane',
     name: 'Harbor Dock & Crane (Lab Experiments)',
     category: 'WIP & Prototypes',
-    tagline: 'Harbor dock with boat & crane — testing anti-gravity and experimental shaders.',
+    tagline: 'Harbor dock with boat & crane — testing experimental shaders and physics.',
     description: 'The dock and crane keep building new ideas. Here lies the experimental sandbox of cutting-edge creative code and upcoming releases.',
     cameraPosition: [0.8, -5.2, 4.6],
     cameraTarget: [-0.3, -2.6, 0],
@@ -100,9 +179,9 @@ export const fallbackLandmarks: Landmark[] = [
     details: {
       title: 'Current Experiments',
       items: [
-        'Anti-Gravity gesture physics with magnetic cursor pull',
         'Procedural atmospheric ray-marching shaders',
-        'Generative audio synthesizers triggered by scroll dynamics'
+        'Generative audio synthesizers triggered by scroll dynamics',
+        'Spatial gesture particle physics engine'
       ]
     }
   },
@@ -165,7 +244,7 @@ export async function fetchProfile(): Promise<ProfileData> {
             { name: 'Shader Development (GLSL)', level: 85 },
             { name: 'Blender & Procedural Modeling', level: 90, highlight: true },
             { name: 'Spline & Asset Optimization', level: 92 },
-            { name: 'Physics & Anti-Gravity Systems', level: 88, highlight: true }
+            { name: 'Physics & Spatial Systems', level: 88, highlight: true }
           ]
         },
         {
@@ -243,7 +322,7 @@ export async function fetchProjects(): Promise<ProjectItem[]> {
     return [
       {
         id: 'anti-gravity-sandbox',
-        title: 'Aetheria: Anti-Gravity Physics Engine',
+        title: 'Aetheria: Spatial Physics Engine',
         category: '3D Spatial',
         year: '2025',
         tagline: 'Real-time zero-G spatial sandbox with 10,000 instanced floating artifacts.',
@@ -297,6 +376,31 @@ export async function fetchProjects(): Promise<ProjectItem[]> {
       }
     ];
   }
+}
+
+export async function fetchCertificates(): Promise<CertificateItem[]> {
+  try {
+    const res = await fetch('/api/certificates');
+    if (!res.ok) throw new Error('Failed to fetch certificates');
+    const json = await res.json();
+    return json.data;
+  } catch (err) {
+    console.warn('Using fallback certificates:', err);
+    return fallbackCertificates;
+  }
+}
+
+export async function createCertificate(payload: Partial<CertificateItem>): Promise<CertificateItem> {
+  const res = await fetch('/api/certificates', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to add certificate');
+  }
+  return data.data;
 }
 
 export async function fetchLandmarks(): Promise<Landmark[]> {

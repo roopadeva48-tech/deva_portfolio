@@ -90,3 +90,22 @@ export interface ProjectItem {
   };
   features: string[];
 }
+
+export interface CertificateItem {
+  id: string;
+  title: string;
+  category: string;
+  issuer: string;
+  issueDate: string;
+  expiryDate?: string;
+  credentialId: string;
+  verificationUrl?: string;
+  skills: string[];
+  description: string;
+  gradeScore?: string;
+  badgeIcon?: string;
+  doorNumber?: number;
+  accentColor?: string;
+  imageUrl?: string;
+}
+
