@@ -114,26 +114,8 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               <span className="text-sm">🌍</span>
             </button>
 
-            {/* Center Brand */}
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-sm font-extrabold tracking-wider font-mono text-slate-900 uppercase">
-                devaroopa
-              </span>
-              <span className="hidden md:inline-block text-xs text-slate-400 font-mono">
-                · Creative Portfolio
-              </span>
-            </div>
-
             {/* Right: Actions */}
             <div className="flex items-center gap-2">
-              <button
-                onClick={handleCelebrate}
-                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-semibold transition-all cursor-pointer"
-              >
-                <span>✨</span>
-                <span>Send Sparks</span>
-              </button>
               <a
                 href="#contact-section"
                 className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
@@ -219,26 +201,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Quick Metrics Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-8 border-t border-slate-100">
-              {profile.stats.map((st, i) => (
-                <div
-                  key={i}
-                  className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/80 hover:border-slate-300 transition-colors"
-                >
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">
-                    {st.value}
-                  </div>
-                  <div className="text-xs font-bold text-slate-800 mt-0.5">
-                    {st.label}
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-1 leading-snug">
-                    {st.description}
-                  </div>
-                </div>
-              ))}
             </div>
           </section>
 

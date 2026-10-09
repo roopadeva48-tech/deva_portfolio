@@ -163,6 +163,7 @@ export default function App() {
         onIntroZoomComplete={handleIntroZoomComplete}
         onResetView={handleResetView}
         zoomFovOffset={zoomFovOffset}
+        isPaused={isProfileOpen || isLandmarkModalOpen || isContactOpen}
       />
 
       {/* 3. Title / Hero Intro Overlay with the "BEGIN" button (from video 00:06) */}

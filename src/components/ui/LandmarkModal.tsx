@@ -10,8 +10,8 @@ interface LandmarkModalProps {
   projects: ProjectItem[];
   onOpenContact: () => void;
   onSwitchLandmark: (id: Landmark['id']) => void;
-  onToggleAntiGravity: () => void;
-  isAntiGravity: boolean;
+  onToggleAntiGravity?: () => void;
+  isAntiGravity?: boolean;
 }
 
 export const LandmarkModal: React.FC<LandmarkModalProps> = ({
@@ -21,8 +21,6 @@ export const LandmarkModal: React.FC<LandmarkModalProps> = ({
   projects,
   onOpenContact,
   onSwitchLandmark,
-  onToggleAntiGravity,
-  isAntiGravity,
 }) => {
   const [projectCategory, setProjectCategory] = useState<string>('all');
 
@@ -37,74 +35,147 @@ export const LandmarkModal: React.FC<LandmarkModalProps> = ({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-40 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={() => {
-            sound.playClick();
-            onClose();
-          }}
-          className="fixed inset-0 bg-slate-950/60 backdrop-blur-md"
-        />
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.94, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.94, y: 20 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="relative w-full max-w-3xl bg-white text-slate-900 rounded-2xl shadow-2xl border border-slate-200 overflow-hidden z-50 my-auto flex flex-col max-h-[88vh]"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/80">
-            <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
-              <span>LANDMARK EXPLORER</span>
-              <span aria-hidden="true">·</span>
-              <span className="text-slate-900 font-semibold">{landmark.name}</span>
-            </div>
-
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 30 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed inset-0 z-40 bg-slate-50 text-slate-900 overflow-y-auto flex flex-col selection:bg-teal-500 selection:text-white"
+      >
+        {/* Sticky Header */}
+        <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+          <div className="max-w-5xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+            {/* Left: Back to Globe */}
             <button
               onClick={() => {
                 sound.playClick();
                 onClose();
               }}
-              className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-200/60 rounded-lg transition-colors"
+              className="flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl text-xs font-bold transition-all hover:-translate-x-0.5 cursor-pointer border border-slate-200"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 6L6 18M6 6l12 12" />
-              </svg>
+              <span>←</span>
+              <span>Back to 3D Globe</span>
+              <span className="text-sm">🌍</span>
             </button>
-          </div>
 
-          {/* Content */}
-          <div className="overflow-y-auto px-6 py-6 sm:px-8 space-y-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold tracking-wider uppercase text-teal-800">
-                  {landmark.category}
-                </span>
-                <span aria-hidden="true" className="text-slate-300">·</span>
-                <span className="text-xs font-mono text-slate-500">
-                  {landmark.statsBadge}
-                </span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-                {landmark.name}
-              </h2>
-              <p className="text-sm text-slate-600 font-medium">
-                {landmark.tagline}
-              </p>
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed pt-1">
-                {landmark.description}
-              </p>
+            {/* Right: Actions */}
+            <div className="flex items-center gap-2.5">
+              <button
+                onClick={() => {
+                  sound.playChime();
+                  onClose();
+                  onSwitchLandmark('girl_me');
+                }}
+                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs font-bold rounded-xl border border-slate-200 transition-all cursor-pointer"
+              >
+                Go to devaroopa's Profile
+              </button>
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onClose();
+                  onOpenContact();
+                }}
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                Get in Touch
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Full Page Content */}
+        <main className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-8 py-10 sm:py-16 space-y-12">
+          {/* Header Title Section */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs font-mono font-bold tracking-widest uppercase text-teal-800">
+                {landmark.category}
+              </span>
+              <span className="text-slate-300">·</span>
+              <span className="text-xs font-mono text-slate-500">
+                {landmark.statsBadge}
+              </span>
             </div>
 
-            {/* Skyscrapers: Projects */}
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900">
+              {landmark.name}
+            </h1>
+
+            <p className="text-lg sm:text-xl font-semibold text-teal-900/90 max-w-3xl leading-snug">
+              {landmark.tagline}
+            </p>
+
+            <p className="text-base text-slate-600 leading-relaxed max-w-3xl pt-1">
+              {landmark.description}
+            </p>
+          </section>
+
+          {/* Clean Content Area (No artificial cards or boxed card grids) */}
+          <section className="space-y-10 pt-4 border-t border-slate-200">
+            {/* 1. Rocket: Tech Stack */}
+            {landmark.id === 'rocket' && (
+              <div className="space-y-10 max-w-3xl">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                    Performance Rigs & Architecture
+                  </h2>
+                  <p className="text-base text-slate-600 leading-relaxed">
+                    Circumnavigating the digital globe with supersonic speeds, optimized asset streaming, and guaranteed 60 FPS frame rates. Built with procedural geometry synthesis and custom WebGL shaders to eliminate external 3D asset lag.
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  <h3 className="text-sm font-mono font-bold tracking-wider text-slate-400 uppercase">
+                    Key Architectural Pillars
+                  </h3>
+                  <ul className="space-y-4 text-slate-700 text-base">
+                    <li className="flex items-start gap-3">
+                      <span className="text-teal-700 font-bold mt-1 text-sm">✦</span>
+                      <div>
+                        <strong className="text-slate-900 font-bold block">Dynamic Procedural Geometries</strong>
+                        <span className="text-slate-600 text-sm leading-relaxed block">
+                          Generates 3D planetary terrain, architectural blocks, and vehicles in code, achieving zero initial 3D mesh network stalls and instant scene initialization.
+                        </span>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-teal-700 font-bold mt-1 text-sm">✦</span>
+                      <div>
+                        <strong className="text-slate-900 font-bold block">Slerp Camera Transitions</strong>
+                        <span className="text-slate-600 text-sm leading-relaxed block">
+                          Seamless spherical interpolation (Slerp) and custom FOV damping for smooth landmark focusing without frame drops.
+                        </span>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-teal-700 font-bold mt-1 text-sm">✦</span>
+                      <div>
+                        <strong className="text-slate-900 font-bold block">Throttled Raycasting & Efficient Event Listeners</strong>
+                        <span className="text-slate-600 text-sm leading-relaxed block">
+                          Subpixel pointer calculations throttled to frame ticks to preserve CPU and battery life on mobile and high-refresh displays.
+                        </span>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-teal-700 font-bold mt-1 text-sm">✦</span>
+                      <div>
+                        <strong className="text-slate-900 font-bold block">Modular Full-Stack Backend</strong>
+                        <span className="text-slate-600 text-sm leading-relaxed block">
+                          Decoupled Node.js Express REST microservices managing dynamic landmark payloads, contact dispatch, and profile metrics.
+                        </span>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* 2. Skyscrapers: Projects */}
             {landmark.id === 'skyscrapers' && (
-              <div className="space-y-6 pt-2">
-                <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
+              <div className="space-y-8">
+                {/* Category filters */}
+                <div className="flex flex-wrap items-center gap-2">
                   {['all', '3D Spatial', 'Animatic & Motion', 'Creative Lab'].map((cat) => (
                     <button
                       key={cat}
@@ -112,10 +183,10 @@ export const LandmarkModal: React.FC<LandmarkModalProps> = ({
                         sound.playClick();
                         setProjectCategory(cat);
                       }}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
+                      className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
                         projectCategory === cat
-                          ? 'bg-white text-slate-900 shadow-sm'
-                          : 'text-slate-600 hover:text-slate-900'
+                          ? 'bg-slate-900 text-white shadow-xs'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
                       }`}
                     >
                       {cat === 'all' ? 'All Works' : cat}
@@ -123,173 +194,119 @@ export const LandmarkModal: React.FC<LandmarkModalProps> = ({
                   ))}
                 </div>
 
-                <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-10 pt-4">
                   {filteredProjects.map((proj) => (
                     <div
                       key={proj.id}
-                      className="p-5 bg-slate-50 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:shadow-sm transition-all space-y-3"
+                      className="space-y-3 pb-8 border-b border-slate-200 last:border-0"
                     >
-                      <div className="flex items-baseline justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-                          <span>{proj.category}</span>
-                          <span aria-hidden="true">·</span>
+                          <span className="font-bold text-teal-800 uppercase">{proj.category}</span>
+                          <span>·</span>
                           <span>{proj.year}</span>
                         </div>
                         {proj.metrics && (
-                          <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          <span className="text-xs font-mono text-emerald-800 font-semibold">
                             {proj.metrics}
                           </span>
                         )}
                       </div>
 
-                      <div>
-                        <h3 className="text-base font-bold text-slate-900">
-                          {proj.title}
-                        </h3>
-                        <p className="text-xs text-slate-600 mt-1">
-                          {proj.description}
-                        </p>
-                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900">
+                        {proj.title}
+                      </h3>
 
-                      <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs text-slate-600">
+                      <p className="text-base text-slate-600 leading-relaxed max-w-3xl">
+                        {proj.description}
+                      </p>
+
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-600">
                         {proj.technologies.map((tech, tIdx) => (
                           <span
                             key={tIdx}
-                            className="bg-white px-2.5 py-1 rounded-md border border-slate-200 font-mono text-[11px]"
+                            className="bg-slate-100 px-3 py-1 rounded-lg font-mono text-xs text-slate-800 font-medium"
                           >
                             {tech}
                           </span>
                         ))}
                       </div>
 
-                      <ul className="list-disc list-inside text-xs text-slate-500 space-y-1 pt-1">
+                      <ul className="space-y-1.5 text-sm text-slate-600 pt-2 list-disc list-inside">
                         {proj.features.map((feat, fIdx) => (
                           <li key={fIdx}>{feat}</li>
                         ))}
                       </ul>
 
-                      <div className="flex items-center gap-3 pt-2">
-                        {proj.links.github && (
+                      {proj.links.github && (
+                        <div className="pt-2">
                           <a
                             href={proj.links.github}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-semibold text-slate-800 hover:underline flex items-center gap-1"
+                            className="text-xs font-bold text-slate-900 hover:underline inline-flex items-center gap-1"
                           >
                             View Repository ↗
                           </a>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Cozy House: Story */}
+            {/* 3. Cozy House: Story */}
             {landmark.id === 'cozy_house' && (
-              <div className="space-y-4 pt-2">
-                <div className="p-4 bg-amber-50/70 border border-amber-200/80 rounded-xl space-y-2 text-xs sm:text-sm text-amber-950">
-                  <h4 className="font-bold text-amber-900">
+              <div className="space-y-8 max-w-3xl">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-slate-900">
                     The Origin of Miniature World Building
-                  </h4>
-                  <p>
+                  </h2>
+                  <p className="text-base text-slate-600 leading-relaxed">
                     "Ever since I sketched my first miniature diorama, I realized that bounding an entire world into a single playful orb changes how people interact with code. Instead of infinite flat pages, a miniature globe feels tangible, intimate, and alive."
                   </p>
                 </div>
 
-                <div className="space-y-3 text-xs sm:text-sm text-slate-600">
-                  <h4 className="font-semibold text-slate-900">Key Pillars of My Creative Process:</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                      <div className="font-bold text-slate-900 text-xs">Tactile Animatics</div>
-                      <div className="text-[11px] text-slate-500 mt-1">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-mono font-bold tracking-wider text-slate-400 uppercase">
+                    Creative Tenets
+                  </h3>
+                  <div className="space-y-4 text-base text-slate-700">
+                    <div>
+                      <strong className="text-slate-900 font-bold block">Tactile Animatics</strong>
+                      <p className="text-slate-600 text-sm leading-relaxed">
                         Hand-drawn linework and wobbly physics bring human warmth to sterile 3D shaders.
-                      </div>
+                      </p>
                     </div>
-                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
-                      <div className="font-bold text-slate-900 text-xs">Anti-Gravity Wonder</div>
-                      <div className="text-[11px] text-slate-500 mt-1">
-                        Allowing digital structures to escape gravity unlocks novel gestures and interactive exploration.
-                      </div>
+                    <div>
+                      <strong className="text-slate-900 font-bold block">Spatial Wonder</strong>
+                      <p className="text-slate-600 text-sm leading-relaxed">
+                        Allowing digital structures to transcend flat layouts unlocks novel gestures and interactive exploration.
+                      </p>
                     </div>
                   </div>
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    onClick={() => {
-                      sound.playChime();
-                      onSwitchLandmark('girl_me');
-                    }}
-                    className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
-                  >
-                    Meet the Creator on the Globe →
-                  </button>
                 </div>
               </div>
             )}
 
-            {/* Rocket: Tech Stack */}
-            {landmark.id === 'rocket' && (
-              <div className="space-y-4 pt-2">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
-                    <div className="text-xl font-bold font-mono text-slate-900">16.6ms</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Frame Budget (60 FPS)</div>
-                  </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
-                    <div className="text-xl font-bold font-mono text-slate-900">&lt; 0.8s</div>
-                    <div className="text-xs text-slate-500 mt-0.5">Scene Initialization</div>
-                  </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-center">
-                    <div className="text-xl font-bold font-mono text-slate-900">0 KB</div>
-                    <div className="text-xs text-slate-500 mt-0.5">External Model Lag</div>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2 text-xs text-slate-600">
-                  <h4 className="font-bold text-slate-900">Optimized 3D Scene Architecture:</h4>
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>Dynamic procedural geometries: zero external network asset stalls.</li>
-                    <li>Slerp camera transitions: seamless interpolated navigation without frame stutter.</li>
-                    <li>Pointer raycasting with throttled hover matrix tests for battery efficiency.</li>
-                    <li>Decoupled Node.js Express backend with REST modular structure.</li>
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {/* Crane & Harbor: Lab experiments */}
+            {/* 4. Crane: Lab Experiments */}
             {landmark.id === 'crane' && (
-              <div className="space-y-4 pt-2">
-                <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-xl space-y-2 text-xs sm:text-sm text-yellow-950">
-                  <h4 className="font-bold text-yellow-900">
-                    Active Anti-Gravity Prototype
-                  </h4>
-                  <p>
-                    Test the zero-G physics system directly! When activated, gravitational anchors release and structures float into weightless orbital equilibrium.
+              <div className="space-y-8 max-w-3xl">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-slate-900">
+                    Active Experiments & Creative Code Lab
+                  </h2>
+                  <p className="text-base text-slate-600 leading-relaxed">
+                    The harbor dock and crane represent the ongoing workspace where creative experiments, custom shaders, and experimental interaction patterns are forged.
                   </p>
-                  <div className="pt-2">
-                    <button
-                      onClick={() => {
-                        sound.playAntiGravity();
-                        onToggleAntiGravity();
-                      }}
-                      className={`px-4 py-2 text-xs font-bold rounded-lg shadow-sm transition-all ${
-                        isAntiGravity
-                          ? 'bg-amber-500 text-slate-950 ring-2 ring-amber-600'
-                          : 'bg-slate-900 text-white hover:bg-slate-800'
-                      }`}
-                    >
-                      {isAntiGravity ? '✓ Anti-Gravity Active (Float ON)' : '⚡ Activate Anti-Gravity Float'}
-                    </button>
-                  </div>
                 </div>
 
-                <div className="space-y-2 text-xs text-slate-600">
-                  <h4 className="font-semibold text-slate-900">Upcoming Experiments in Progress:</h4>
-                  <ul className="list-disc list-inside space-y-1 text-slate-500">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-mono font-bold tracking-wider text-slate-400 uppercase">
+                    Upcoming Experiments in Progress
+                  </h3>
+                  <ul className="space-y-3 text-base text-slate-700 list-disc list-inside">
                     <li>Volumetric Raymarched Cloud Shadows on Earth Continents</li>
                     <li>Audio Reactive Water Ripples on Procedural Oceans</li>
                     <li>Multiplayer Globe Orbit with Real-time Presence Cursors</li>
@@ -298,51 +315,53 @@ export const LandmarkModal: React.FC<LandmarkModalProps> = ({
               </div>
             )}
 
-            {/* Hot Air Balloon: Contact */}
+            {/* 5. Hot Air Balloon: Contact */}
             {landmark.id === 'hot_air_balloon' && (
-              <div className="space-y-4 pt-2">
-                <p className="text-xs sm:text-sm text-slate-600">
-                  The aero balloons carry messages around the globe. Send a transmission to devaroopa to collaborate on upcoming spatial or web engineering projects.
-                </p>
+              <div className="space-y-8 max-w-3xl">
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold text-slate-900">
+                    Aero Expeditions & Collaboration
+                  </h2>
+                  <p className="text-base text-slate-600 leading-relaxed">
+                    The aero balloons carry messages around the globe. Send a transmission to devaroopa to collaborate on upcoming spatial, WebGL, or creative frontend engineering projects.
+                  </p>
+                </div>
+
                 <button
                   onClick={() => {
                     sound.playClick();
                     onClose();
                     onOpenContact();
                   }}
-                  className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-all"
+                  className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm cursor-pointer"
                 >
-                  Open Contact Transmission Form →
+                  Open Contact Form →
                 </button>
               </div>
             )}
-          </div>
+          </section>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-slate-100 bg-slate-50/60">
+          <footer className="pt-8 pb-12 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200 text-xs text-slate-500">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-900">devaroopa</span>
+              <span>·</span>
+              <span>3D Spatial Diorama Portfolio</span>
+            </div>
+
             <button
               onClick={() => {
                 sound.playClick();
                 onClose();
               }}
-              className="text-xs text-slate-500 hover:text-slate-900 font-medium transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl border border-slate-200 transition-all cursor-pointer shadow-xs"
             >
-              Close Window
+              <span>← Return to 3D Globe Orbit</span>
+              <span>🌍</span>
             </button>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  sound.playChime();
-                  onSwitchLandmark('girl_me');
-                }}
-                className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 text-xs font-medium rounded-lg border border-slate-200 transition-colors"
-              >
-                Go to devaroopa's Profile
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </div>
+          </footer>
+        </main>
+      </motion.div>
     </AnimatePresence>
   );
 };

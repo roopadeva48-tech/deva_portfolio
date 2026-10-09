@@ -13,6 +13,7 @@ interface EarthGlobeSceneProps {
   onIntroZoomComplete?: () => void;
   onResetView?: () => void;
   zoomFovOffset?: number;
+  isPaused?: boolean;
 }
 
 export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
@@ -24,6 +25,7 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
   introPhase,
   onIntroZoomComplete,
   zoomFovOffset = 0,
+  isPaused = false,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredLandmark, setHoveredLandmark] = useState<Landmark | null>(null);
@@ -147,11 +149,11 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       alpha: true,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.18;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -162,8 +164,8 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     const sunLight = new THREE.DirectionalLight(0xfffaed, 2.3);
     sunLight.position.set(6, 9, 7);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 1024;
-    sunLight.shadow.mapSize.height = 1024;
+    sunLight.shadow.mapSize.width = 512;
+    sunLight.shadow.mapSize.height = 512;
     sunLight.shadow.bias = -0.0005;
     scene.add(sunLight);
 
@@ -187,7 +189,7 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
 
     // --- 4. THE REALISTIC EARTH GLOBE (AS IN THE USER IMAGE) ---
     const globeRadius = 2.4;
-    const globeGeo = new THREE.SphereGeometry(globeRadius, 64, 64);
+    const globeGeo = new THREE.SphereGeometry(globeRadius, 48, 48);
 
     // Canvas procedural earth texture with accurate continents, ocean gradients & shallow shelves
     const canvas = document.createElement('canvas');
@@ -972,6 +974,8 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
+    let lastRaycastTime = 0;
+
     const onPointerDown = (e: MouseEvent) => {
       isDraggingRef.current = true;
       previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
@@ -999,26 +1003,30 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
         previousMousePositionRef.current = { x: e.clientX, y: e.clientY };
       }
 
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(
-        interactiveObjectsRef.current.map((i) => i.object),
-        true
-      );
-
-      if (intersects.length > 0) {
-        const hit = intersects[0];
-        const match = interactiveObjectsRef.current.find(
-          (item) => item.object === hit.object || item.object.children.includes(hit.object)
+      const now = performance.now();
+      if (now - lastRaycastTime > 60 && !isDraggingRef.current && camera) {
+        lastRaycastTime = now;
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(
+          interactiveObjectsRef.current.map((i) => i.object),
+          true
         );
-        if (match) {
-          const lData = landmarks.find((l) => l.id === match.landmarkId);
-          setHoveredLandmark(lData || null);
-          container.style.cursor = 'pointer';
-          return;
+
+        if (intersects.length > 0) {
+          const hit = intersects[0];
+          const match = interactiveObjectsRef.current.find(
+            (item) => item.object === hit.object || item.object.children.includes(hit.object)
+          );
+          if (match) {
+            const lData = landmarks.find((l) => l.id === match.landmarkId);
+            setHoveredLandmark(lData || null);
+            container.style.cursor = 'pointer';
+            return;
+          }
         }
+        setHoveredLandmark(null);
+        container.style.cursor = isDraggingRef.current ? 'grabbing' : 'grab';
       }
-      setHoveredLandmark(null);
-      container.style.cursor = isDraggingRef.current ? 'grabbing' : 'grab';
     };
 
     const onPointerUp = (e: MouseEvent) => {
@@ -1100,10 +1108,11 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     };
 
     container.addEventListener('mousedown', onPointerDown);
-    window.addEventListener('mousemove', onPointerMove);
+    container.addEventListener('mousemove', onPointerMove);
     window.addEventListener('mouseup', onPointerUp);
+    container.addEventListener('mouseleave', () => setHoveredLandmark(null));
     container.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: true });
     window.addEventListener('touchend', onTouchEnd);
     container.addEventListener('wheel', onWheel, { passive: false });
 
@@ -1119,17 +1128,20 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
 
     // --- 14. ANIMATION RENDER LOOP ---
     let animId: number;
-    const clock = new THREE.Clock();
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      const elapsedTime = clock.getElapsedTime();
+
+      if (isPaused) {
+        return;
+      }
+
+      const elapsedTime = performance.now() * 0.001;
 
       // Video entrance animation: smoothly zoom up from small distance to full center screen
       if (introPhase === 'zooming_in' && !introFinishedRef.current && globeRoot) {
         introAnimProgressRef.current += 0.012;
         const p = Math.min(1, introAnimProgressRef.current);
-        // Spring ease
         const easeScale = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
         globeRoot.scale.setScalar(0.08 + 0.92 * easeScale);
         globeRoot.rotation.y = -Math.PI * (1 - easeScale);
@@ -1243,10 +1255,10 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', onResize);
       container.removeEventListener('mousedown', onPointerDown);
-      window.removeEventListener('mousemove', onPointerMove);
+      container.removeEventListener('mousemove', onPointerMove);
       window.removeEventListener('mouseup', onPointerUp);
       container.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
+      container.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
       container.removeEventListener('wheel', onWheel);
       if (renderer.domElement && container.contains(renderer.domElement)) {
@@ -1254,7 +1266,7 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       }
       renderer.dispose();
     };
-  }, [landmarks, onSelectLandmark, isAntiGravity, isAutoRotate, introPhase, onIntroZoomComplete, DEFAULT_CAM_POS, DEFAULT_TARGET, DEFAULT_FOV]);
+  }, [landmarks, onSelectLandmark, isAntiGravity, isAutoRotate, introPhase, onIntroZoomComplete, DEFAULT_CAM_POS, DEFAULT_TARGET, DEFAULT_FOV, isPaused]);
 
   return (
     <div className="relative w-full h-full select-none overflow-hidden" ref={containerRef}>

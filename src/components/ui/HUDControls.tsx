@@ -154,20 +154,6 @@ export const HUDControls: React.FC<HUDControlsProps> = ({
           >
             Profile
           </button>
-
-          {/* 3x5 Matrix Title Button */}
-          {onShowTitleMatrix && (
-            <button
-              onClick={() => {
-                sound.playClick();
-                onShowTitleMatrix();
-              }}
-              title="Show 3×5 Matrix Title Screen"
-              className="px-2.5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-xl border border-amber-500 shadow-sm transition-all text-xs font-bold"
-            >
-              3×5 Matrix
-            </button>
-          )}
         </div>
       </div>
 
