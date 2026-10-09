@@ -29,6 +29,194 @@ interface DoorObjectRef {
   side: 'left' | 'right';
 }
 
+// Procedural texture generator for sketch wood plank flooring
+function createSketchWoodFloorTexture(): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 1024;
+  const ctx = canvas.getContext('2d')!;
+
+  // Warm white / light paper base
+  ctx.fillStyle = '#f3f2ee';
+  ctx.fillRect(0, 0, 1024, 1024);
+
+  // Subtle wood tint variation across planks
+  const numPlanks = 8;
+  const plankWidth = 1024 / numPlanks;
+
+  for (let i = 0; i < numPlanks; i++) {
+    const x = i * plankWidth;
+    // Slight warm tint variation per plank
+    const tintAlpha = (i % 2 === 0) ? 0.04 : 0.08;
+    ctx.fillStyle = `rgba(180, 160, 140, ${tintAlpha})`;
+    ctx.fillRect(x, 0, plankWidth, 1024);
+
+    // Black ink plank divider line
+    ctx.strokeStyle = '#18181b';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, 1024);
+    ctx.stroke();
+
+    // Plank end joints (staggered horizontal cuts)
+    const cutY = ((i * 380) % 800) + 120;
+    ctx.beginPath();
+    ctx.moveTo(x, cutY);
+    ctx.lineTo(x + plankWidth, cutY);
+    ctx.stroke();
+
+    // Hand-drawn sketch wood grain curves inside each plank
+    ctx.strokeStyle = 'rgba(24, 24, 27, 0.45)';
+    ctx.lineWidth = 1.6;
+    for (let g = 0; g < 6; g++) {
+      const gx = x + 10 + g * (plankWidth / 6.5);
+      ctx.beginPath();
+      ctx.moveTo(gx, 0);
+      ctx.bezierCurveTo(
+        gx + (Math.sin(g + i) * 12),
+        340,
+        gx - (Math.cos(g + i) * 12),
+        680,
+        gx + (Math.sin(g * 2) * 6),
+        1024
+      );
+      ctx.stroke();
+    }
+
+    // Sketch nail dots near cuts
+    ctx.fillStyle = '#18181b';
+    ctx.beginPath();
+    ctx.arc(x + 12, cutY - 14, 2.5, 0, Math.PI * 2);
+    ctx.arc(x + plankWidth - 12, cutY - 14, 2.5, 0, Math.PI * 2);
+    ctx.arc(x + 12, cutY + 14, 2.5, 0, Math.PI * 2);
+    ctx.arc(x + plankWidth - 12, cutY + 14, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(1, 4);
+  return texture;
+}
+
+// Procedural sketch door plaque texture
+function createSketchPlaqueTexture(text: string): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 160;
+  const ctx = canvas.getContext('2d')!;
+
+  // White placard background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, 512, 160);
+
+  // Black sketch border
+  ctx.strokeStyle = '#18181b';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(10, 10, 492, 140);
+
+  // Corner sketch screws
+  ctx.fillStyle = '#18181b';
+  [
+    [22, 22],
+    [490, 22],
+    [22, 138],
+    [490, 138],
+  ].forEach(([cx, cy]) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Text
+  ctx.fillStyle = '#18181b';
+  ctx.font = 'bold 44px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text.toUpperCase(), 256, 82);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  return texture;
+}
+
+// Procedural colorful badges texture on door panel (Instagram / YouTube / TikTok / WebGL style)
+function createDoorBadgesTexture(category: string, doorNum: number): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 512;
+  canvas.height = 1024;
+  const ctx = canvas.getContext('2d')!;
+
+  // Warm honey wood base
+  ctx.fillStyle = '#d9822b';
+  ctx.fillRect(0, 0, 512, 1024);
+
+  // Wood grain strokes
+  ctx.strokeStyle = 'rgba(100, 45, 10, 0.25)';
+  ctx.lineWidth = 3;
+  for (let y = 0; y < 1024; y += 40) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.bezierCurveTo(150, y + 20, 350, y - 20, 512, y);
+    ctx.stroke();
+  }
+
+  // Black panel inner borders
+  ctx.strokeStyle = '#3a1e05';
+  ctx.lineWidth = 8;
+  ctx.strokeRect(30, 40, 452, 430);
+  ctx.strokeRect(30, 510, 452, 460);
+
+  // Top badge: Instagram/Gradient pink badge
+  const g1 = ctx.createLinearGradient(180, 100, 330, 250);
+  g1.addColorStop(0, '#f58529');
+  g1.addColorStop(0.5, '#dd2a7b');
+  g1.addColorStop(1, '#8134af');
+  ctx.fillStyle = g1;
+  ctx.beginPath();
+  ctx.roundRect(196, 120, 120, 120, [26]);
+  ctx.fill();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 7;
+  ctx.strokeRect(226, 150, 60, 60);
+  ctx.beginPath();
+  ctx.arc(256, 180, 15, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Middle badge: TikTok / Spatial badge
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.roundRect(196, 270, 120, 120, [26]);
+  ctx.fill();
+  ctx.fillStyle = '#00f2fe';
+  ctx.font = 'bold 65px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('⚡', 256, 330);
+
+  // Bottom badge: YouTube red / Certification play badge
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.roundRect(166, 620, 180, 120, [28]);
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.moveTo(240, 655);
+  ctx.lineTo(285, 680);
+  ctx.lineTo(240, 705);
+  ctx.closePath();
+  ctx.fill();
+
+  // Category Tag badge
+  ctx.fillStyle = '#18181b';
+  ctx.font = 'bold 30px sans-serif';
+  ctx.fillText(category.slice(0, 18), 256, 820);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  return texture;
+}
+
 export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   isOpen,
   onClose,
@@ -207,11 +395,11 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     const container = containerRef.current;
     if (!container) return;
 
-    // 1. Scene & Camera
+    // 1. Scene & Camera (Warm White and Black Sketch Aesthetic)
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    scene.background = new THREE.Color(0x0a0f1d); // Atmospheric midnight gallery ambience
-    scene.fog = new THREE.FogExp2(0x0a0f1d, 0.035);
+    scene.background = new THREE.Color(0xf5f5f4); // Bright warm white / sketch paper
+    scene.fog = new THREE.FogExp2(0xf5f5f4, 0.022);
 
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
@@ -231,58 +419,64 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.25;
+    renderer.toneMappingExposure = 1.35;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // 3. Ambient & Corridor Lighting
-    const ambient = new THREE.AmbientLight(0xfef08a, 0.6);
+    // 3. Bright Warm White Ambient & Key Lights
+    const ambient = new THREE.AmbientLight(0xfffefb, 1.6);
     scene.add(ambient);
 
-    // 4. Hallway Architecture Materials
+    const dirLight = new THREE.DirectionalLight(0xfffaed, 0.8);
+    dirLight.position.set(0, 6, 4);
+    scene.add(dirLight);
+
+    // 4. Materials (Black & Warm White Sketch Theme)
     const wallMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
-      roughness: 0.85,
-      metalness: 0.1,
+      color: 0xfafaf9, // Warm off-white wall
+      roughness: 0.95,
+      metalness: 0.0,
     });
-    const floorMat = new THREE.MeshStandardMaterial({
-      color: 0x0f172a,
-      roughness: 0.25,
-      metalness: 0.35,
-    });
+
     const ceilingMat = new THREE.MeshStandardMaterial({
-      color: 0x090d16,
-      roughness: 0.9,
+      color: 0xf5f5f4,
+      roughness: 0.95,
     });
-    const woodDoorMat = new THREE.MeshStandardMaterial({
-      color: 0x854d0e, // Warm mahogany wood door
-      roughness: 0.45,
-      metalness: 0.15,
+
+    // Floor texture: procedural hand-sketched wood plank perspective
+    const floorTexture = createSketchWoodFloorTexture();
+    const floorMat = new THREE.MeshStandardMaterial({
+      map: floorTexture,
+      roughness: 0.5,
+      metalness: 0.05,
     });
-    const brassMat = new THREE.MeshStandardMaterial({
-      color: 0xfacc15,
-      metalness: 0.9,
-      roughness: 0.2,
-      emissive: 0xca8a04,
-      emissiveIntensity: 0.2,
+
+    // Black ink line materials
+    const blackInkMat = new THREE.MeshBasicMaterial({
+      color: 0x18181b,
     });
-    const glowingPlaqueMat = new THREE.MeshStandardMaterial({
-      color: 0xfef08a,
-      emissive: 0xfacc15,
-      emissiveIntensity: 0.9,
+
+    const blackTrimMat = new THREE.MeshStandardMaterial({
+      color: 0x18181b,
+      roughness: 0.8,
+    });
+
+    const brassHandleMat = new THREE.MeshStandardMaterial({
+      color: 0xd97706,
+      metalness: 0.8,
       roughness: 0.3,
     });
 
     // Hallway geometry calculation
-    const doorSpacing = 4.8;
+    const doorSpacing = 5.2;
     const numDoors = Math.max(certificates.length, 4);
-    const hallwayLength = (numDoors / 2 + 1) * doorSpacing + 8;
-    const hallwayWidth = 4.2;
-    const hallwayHeight = 4.0;
+    const hallwayLength = (numDoors / 2 + 1) * doorSpacing + 10;
+    const hallwayWidth = 4.6;
+    const hallwayHeight = 4.2;
 
-    // Floor
+    // Floor Plane
     const floorGeo = new THREE.PlaneGeometry(hallwayWidth, hallwayLength);
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
@@ -290,13 +484,13 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     floor.receiveShadow = true;
     scene.add(floor);
 
-    // Ceiling
+    // Ceiling Plane
     const ceiling = new THREE.Mesh(floorGeo, ceilingMat);
     ceiling.rotation.x = Math.PI / 2;
     ceiling.position.set(0, hallwayHeight, -hallwayLength / 2 + 6);
     scene.add(ceiling);
 
-    // Left & Right Walls
+    // Left & Right Off-White Walls
     const wallGeo = new THREE.PlaneGeometry(hallwayLength, hallwayHeight);
 
     const leftWall = new THREE.Mesh(wallGeo, wallMat);
@@ -311,27 +505,87 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     rightWall.receiveShadow = true;
     scene.add(rightWall);
 
-    // Back end wall
+    // End Wall (Bright warm glow at end of hallway)
     const endWall = new THREE.Mesh(new THREE.PlaneGeometry(hallwayWidth, hallwayHeight), wallMat);
     endWall.position.set(0, hallwayHeight / 2, -hallwayLength + 6);
     scene.add(endWall);
 
-    // Archway moldings along corridor ceiling
-    for (let az = 2; az > -hallwayLength + 8; az -= doorSpacing) {
-      const archGeo = new THREE.TorusGeometry(hallwayWidth / 2, 0.08, 8, 24, Math.PI);
-      const archMesh = new THREE.Mesh(archGeo, wallMat);
-      archMesh.position.set(0, hallwayHeight - 0.4, az);
-      scene.add(archMesh);
+    // End Wall Sketched Window/Arch
+    const archEnd = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.0, 3.2),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    archEnd.position.set(0, 2.0, -hallwayLength + 6.02);
+    scene.add(archEnd);
 
-      // Warm Sconce Light at each arch
-      const sconceLight = new THREE.PointLight(0xfef08a, 1.2, 7);
-      sconceLight.position.set(0, hallwayHeight - 0.5, az);
-      scene.add(sconceLight);
-    }
+    // Sketched Black Baseboards along hallway edges
+    [-hallwayWidth / 2 + 0.04, hallwayWidth / 2 - 0.04].forEach((bx) => {
+      const baseboard = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.15, hallwayLength),
+        blackTrimMat
+      );
+      baseboard.position.set(bx, 0.075, -hallwayLength / 2 + 6);
+      scene.add(baseboard);
 
-    // 5. Dynamic Doors Generation for Certificates
+      // Crown molding at top
+      const crown = new THREE.Mesh(
+        new THREE.BoxGeometry(0.08, 0.12, hallwayLength),
+        blackTrimMat
+      );
+      crown.position.set(bx, hallwayHeight - 0.06, -hallwayLength / 2 + 6);
+      scene.add(crown);
+    });
+
+    // Hallway Decor: Sketched Console Table with Plant (on the left side like in reference image)
+    const tableGroup = new THREE.Group();
+    tableGroup.position.set(-hallwayWidth / 2 + 0.4, 0, -1.0);
+    scene.add(tableGroup);
+
+    // Table Top
+    const tableTop = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.06, 1.4), blackTrimMat);
+    tableTop.position.set(0, 1.1, 0);
+    tableGroup.add(tableTop);
+
+    // Table Legs
+    [
+      [-0.22, -0.6],
+      [0.22, -0.6],
+      [-0.22, 0.6],
+      [0.22, 0.6],
+    ].forEach(([lx, lz]) => {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.1, 0.04), blackTrimMat);
+      leg.position.set(lx, 0.55, lz);
+      tableGroup.add(leg);
+    });
+
+    // Potted plant on table (Sketch wireframe vase & plant)
+    const vaseMesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.12, 0.08, 0.25, 8),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 })
+    );
+    vaseMesh.position.set(0, 1.25, 0);
+    tableGroup.add(vaseMesh);
+
+    const plantMesh = new THREE.Mesh(
+      new THREE.DodecahedronGeometry(0.18),
+      new THREE.MeshStandardMaterial({ color: 0x22c55e, roughness: 0.8 })
+    );
+    plantMesh.position.set(0, 1.45, 0);
+    tableGroup.add(plantMesh);
+
+    // 5. Dynamic Doors Generation for Certificates (with Colored Panels & Sketch Badges)
     const doorsList: DoorObjectRef[] = [];
     const clickableList: { mesh: THREE.Object3D; certId: string; index: number }[] = [];
+
+    // Distinct warm rich door colors
+    const doorColorPalette = [
+      0xd97706, // Warm Honey Amber (like screenshot)
+      0xc2410c, // Rich Terracotta
+      0x0284c7, // Vibrant Ocean Blue
+      0x059669, // Emerald Jade
+      0x7c3aed, // Royal Violet
+      0xdb2777, // Vibrant Rose
+    ];
 
     certificates.forEach((cert, idx) => {
       const isLeft = idx % 2 === 0;
@@ -345,19 +599,19 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       doorRoot.rotation.y = doorRotY;
       scene.add(doorRoot);
 
-      // Door Frame Arch
-      const frameGeo = new THREE.BoxGeometry(1.6, 2.6, 0.2);
-      const doorFrame = new THREE.Mesh(frameGeo, wallMat);
-      doorFrame.position.set(0, 1.3, 0);
+      // Black Sketched Door Frame Arch
+      const frameGeo = new THREE.BoxGeometry(1.6, 2.65, 0.16);
+      const doorFrame = new THREE.Mesh(frameGeo, blackTrimMat);
+      doorFrame.position.set(0, 1.325, 0);
       doorFrame.castShadow = true;
       doorRoot.add(doorFrame);
 
-      // Door Cutout Inner Opening
+      // Inner Opening Cutout
       const doorwayOpening = new THREE.Mesh(
-        new THREE.BoxGeometry(1.3, 2.4, 0.25),
-        new THREE.MeshBasicMaterial({ color: 0x020617 })
+        new THREE.BoxGeometry(1.3, 2.45, 0.22),
+        new THREE.MeshBasicMaterial({ color: 0x18181b })
       );
-      doorwayOpening.position.set(0, 1.2, 0);
+      doorwayOpening.position.set(0, 1.225, 0);
       doorRoot.add(doorwayOpening);
 
       // Pivoting Door Panel (Hinged at left edge of door frame)
@@ -365,59 +619,73 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       doorPanelGroup.position.set(-0.6, 0, 0); // Hinge pivot point
       doorRoot.add(doorPanelGroup);
 
+      // Door Badge Canvas Texture (social & skill icons like in user reference image)
+      const doorBadgeTex = createDoorBadgesTexture(cert.category, cert.doorNumber || (101 + idx));
+      const coloredDoorMat = new THREE.MeshStandardMaterial({
+        map: doorBadgeTex,
+        color: doorColorPalette[idx % doorColorPalette.length],
+        roughness: 0.4,
+        metalness: 0.1,
+      });
+
       const panelMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(1.2, 2.36, 0.08),
-        woodDoorMat
+        new THREE.BoxGeometry(1.2, 2.4, 0.08),
+        coloredDoorMat
       );
-      panelMesh.position.set(0.6, 1.18, 0);
+      panelMesh.position.set(0.6, 1.2, 0);
       panelMesh.castShadow = true;
       doorPanelGroup.add(panelMesh);
 
-      // Brass moldings on door panels
+      // Black Outlines on Door Panels
       [-0.3, 0.3].forEach((mx) => {
-        [-0.4, 0.4].forEach((my) => {
-          const molding = new THREE.Mesh(
-            new THREE.BoxGeometry(0.42, 0.7, 0.02),
-            woodDoorMat
+        [-0.45, 0.45].forEach((my) => {
+          const moldingLine = new THREE.Mesh(
+            new THREE.BoxGeometry(0.44, 0.72, 0.01),
+            blackInkMat
           );
-          molding.position.set(0.6 + mx, 1.18 + my, 0.05);
-          doorPanelGroup.add(molding);
+          moldingLine.position.set(0.6 + mx, 1.2 + my, 0.045);
+          doorPanelGroup.add(moldingLine);
         });
       });
 
       // Brass Door Handle Lever
       const handleMesh = new THREE.Mesh(
         new THREE.CylinderGeometry(0.02, 0.02, 0.16, 8),
-        brassMat
+        brassHandleMat
       );
       handleMesh.rotation.z = Math.PI / 2;
       handleMesh.position.set(1.05, 1.1, 0.08);
       doorPanelGroup.add(handleMesh);
 
-      // Brass Door Number Plaque above door
+      // Sketched Plaque above door ("THE STUDIO" / "ROOM 101")
+      const plaqueTitle = idx === 0 ? 'THE STUDIO' : `ROOM ${cert.doorNumber || (101 + idx)}`;
+      const plaqueTexture = createSketchPlaqueTexture(plaqueTitle);
+      const plaqueMat = new THREE.MeshBasicMaterial({
+        map: plaqueTexture,
+      });
+
       const plaqueMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(0.55, 0.18, 0.04),
-        glowingPlaqueMat
+        new THREE.PlaneGeometry(0.9, 0.28),
+        plaqueMat
       );
-      plaqueMesh.position.set(0, 2.65, 0.1);
+      plaqueMesh.position.set(0, 2.85, 0.1);
       doorRoot.add(plaqueMesh);
 
-      // Warm Room Light Inside the Exhibition Room
-      const roomLight = new THREE.PointLight(0x38bdf8, 2.2, 10);
-      const roomDepth = isLeft ? -3.5 : 3.5;
+      // Light inside the Exhibition Room
+      const roomLight = new THREE.PointLight(0xfff7ed, 2.0, 10);
       roomLight.position.set(doorX + (isLeft ? -2.2 : 2.2), 2.2, doorZ);
       scene.add(roomLight);
 
-      // Framed Certificate on the Exhibition Room Wall
+      // Framed Certificate on the Exhibition Room Wall (Black & Warm White Museum Aesthetic)
       const frameWallGroup = new THREE.Group();
       frameWallGroup.position.set(doorX + (isLeft ? -3.8 : 3.8), 1.7, doorZ);
       frameWallGroup.rotation.y = isLeft ? Math.PI / 2 : -Math.PI / 2;
       scene.add(frameWallGroup);
 
-      // Elegant Picture Frame
+      // Elegant Black Picture Frame
       const picFrame = new THREE.Mesh(
         new THREE.BoxGeometry(2.4, 1.7, 0.1),
-        brassMat
+        blackTrimMat
       );
       frameWallGroup.add(picFrame);
 
@@ -427,7 +695,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         new THREE.MeshStandardMaterial({
           color: 0xffffff,
           roughness: 0.3,
-          metalness: 0.1,
+          metalness: 0.0,
         })
       );
       certPaper.position.z = 0.06;
@@ -641,18 +909,18 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5 }}
-        className="fixed inset-0 z-50 bg-slate-950 text-white flex flex-col select-none overflow-hidden"
+        className="fixed inset-0 z-50 bg-stone-100 text-slate-900 flex flex-col select-none overflow-hidden"
       >
         {/* Top Header Bar */}
         <header className="absolute top-0 inset-x-0 z-30 p-4 sm:p-6 flex items-center justify-between pointer-events-none">
-          {/* Left: Back Navigation */}
+          {/* Left: Back Navigation (Warm White with Black Outline) */}
           <div className="pointer-events-auto flex items-center gap-2">
             <button
               onClick={() => {
                 sound.playClick();
                 onClose();
               }}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-900/90 hover:bg-slate-800 text-white text-xs font-bold rounded-xl border border-slate-700/80 shadow-lg backdrop-blur-md transition-all hover:-translate-x-0.5 cursor-pointer"
+              className="flex items-center gap-2 px-4 py-2 bg-white/95 hover:bg-stone-50 text-slate-950 text-xs font-bold rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all hover:-translate-x-0.5 cursor-pointer"
             >
               <span>←</span>
               <span>Back to 3D Globe</span>
@@ -662,7 +930,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
             {galleryMode === 'inside_room' && (
               <button
                 onClick={exitRoom}
-                className="flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-xl border border-amber-500 shadow-lg transition-all cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
               >
                 <span>🚪</span>
                 <span>Back to Hallway</span>
@@ -670,13 +938,13 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
             )}
           </div>
 
-          {/* Right: Hallway / Dynamic Certificate Tools */}
+          {/* Right: Add Certificate Tool */}
           <div className="pointer-events-auto flex items-center gap-2">
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center gap-1.5 px-3.5 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold rounded-xl shadow-lg transition-all cursor-pointer"
+              className="flex items-center gap-1.5 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
             >
-              <span>+</span>
+              <span className="font-black text-sm">+</span>
               <span>Add Certificate</span>
             </button>
           </div>
@@ -688,14 +956,14 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         {/* Hallway Exploration Guide Tooltip */}
         {galleryMode === 'hallway' && (
           <div className="absolute bottom-6 inset-x-0 flex flex-col items-center pointer-events-none z-20">
-            <div className="bg-slate-900/85 backdrop-blur-md px-4 py-2 rounded-full border border-slate-700/60 shadow-xl text-xs text-slate-200 flex items-center gap-2 font-medium">
-              <span>💡 Scroll or drag to walk through the 3D hallway · Click on any door to enter room</span>
+            <div className="bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-xs text-slate-900 flex items-center gap-2 font-bold">
+              <span>💡 Drag / scroll to walk down the hallway · Click any door to enter</span>
             </div>
             {hoveredCert && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-2 bg-amber-400 text-slate-950 px-4 py-1.5 rounded-xl font-bold text-xs shadow-md border border-amber-500"
+                className="mt-2 bg-amber-400 text-slate-950 px-4 py-1.5 rounded-xl font-black text-xs shadow-md border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
               >
                 Door #{hoveredCert.doorNumber || 101}: {hoveredCert.title}
               </motion.div>
@@ -703,26 +971,26 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
           </div>
         )}
 
-        {/* Inside Certificate Room: Full Details & Certificate Display */}
+        {/* Inside Certificate Room: Full Details & Certificate Display (Black & Warm White Theme) */}
         {galleryMode === 'inside_room' && selectedCert && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute bottom-6 inset-x-4 sm:inset-x-12 max-w-4xl mx-auto z-30 bg-slate-900/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-slate-700/80 shadow-2xl space-y-6"
+            className="absolute bottom-6 inset-x-4 sm:inset-x-12 max-w-4xl mx-auto z-30 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border-2 border-slate-900 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-6 text-slate-900"
           >
             {/* Header / Room Metadata */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-slate-900 pb-4">
               <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs font-mono text-teal-400 uppercase tracking-wider">
+                <div className="flex items-center gap-2 text-xs font-mono text-amber-700 uppercase tracking-wider font-bold">
                   <span>ROOM #{selectedCert.doorNumber || 101}</span>
                   <span>·</span>
                   <span>{selectedCert.category}</span>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-white">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-950">
                   {selectedCert.title}
                 </h2>
-                <div className="flex items-center gap-3 text-xs text-slate-400 font-medium">
-                  <span>Issued by: <strong className="text-slate-200">{selectedCert.issuer}</strong></span>
+                <div className="flex items-center gap-3 text-xs text-slate-600 font-medium">
+                  <span>Issued by: <strong className="text-slate-950 font-bold">{selectedCert.issuer}</strong></span>
                   <span>·</span>
                   <span>{selectedCert.issueDate}</span>
                 </div>
@@ -732,16 +1000,16 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsZoomedInCert(true)}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl border border-slate-700 transition-all cursor-pointer"
+                  className="px-4 py-2 bg-white hover:bg-stone-50 text-slate-950 text-xs font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
                 >
-                  🔍 Zoom In
+                  🔍 View Certificate
                 </button>
                 {selectedCert.verificationUrl && (
                   <a
                     href={selectedCert.verificationUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold rounded-xl transition-all shadow-xs"
+                    className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
                   >
                     Verify Credential ↗
                   </a>
@@ -751,16 +1019,16 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
             {/* Description & Competencies */}
             <div className="space-y-4">
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
                 {selectedCert.description}
               </p>
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-mono text-slate-400">Validated Skills:</span>
+                <span className="text-xs font-mono font-bold text-slate-600">Validated Skills:</span>
                 {selectedCert.skills.map((skill, sIdx) => (
                   <span
                     key={sIdx}
-                    className="px-3 py-1 bg-slate-800 text-slate-200 text-xs font-medium rounded-lg border border-slate-700"
+                    className="px-3 py-1 bg-stone-100 text-slate-900 text-xs font-bold rounded-lg border border-slate-900"
                   >
                     {skill}
                   </span>
@@ -769,23 +1037,23 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
             </div>
 
             {/* Navigation Between Rooms */}
-            <div className="flex items-center justify-between pt-2 border-t border-slate-800 text-xs text-slate-400">
+            <div className="flex items-center justify-between pt-2 border-t-2 border-slate-900 text-xs text-slate-600">
               <button
                 onClick={() => navigateRoom('prev')}
                 disabled={activeRoomIndex === 0}
-                className="hover:text-white disabled:opacity-30 flex items-center gap-1 font-bold cursor-pointer"
+                className="hover:text-black font-bold disabled:opacity-30 flex items-center gap-1 cursor-pointer"
               >
                 ← Previous Room
               </button>
 
-              <span className="font-mono text-[11px] text-slate-500">
+              <span className="font-mono text-[11px] text-slate-500 font-bold">
                 Credential ID: {selectedCert.credentialId}
               </span>
 
               <button
                 onClick={() => navigateRoom('next')}
                 disabled={activeRoomIndex === certificates.length - 1}
-                className="hover:text-white disabled:opacity-30 flex items-center gap-1 font-bold cursor-pointer"
+                className="hover:text-black font-bold disabled:opacity-30 flex items-center gap-1 cursor-pointer"
               >
                 Next Room →
               </button>
@@ -793,71 +1061,71 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
           </motion.div>
         )}
 
-        {/* High-Resolution Fullscreen Certificate Document Zoom Modal */}
+        {/* Fullscreen Certificate Zoom Modal (Warm White Paper with Black Outline) */}
         {isZoomedInCert && selectedCert && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
+          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="relative w-full max-w-2xl bg-white text-slate-900 rounded-2xl shadow-2xl p-8 sm:p-12 border-4 border-amber-400 space-y-6"
+              className="relative w-full max-w-2xl bg-white text-slate-950 rounded-2xl shadow-2xl p-8 sm:p-12 border-4 border-slate-900 space-y-6"
             >
               <button
                 onClick={() => setIsZoomedInCert(false)}
-                className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 font-bold"
+                className="absolute top-4 right-4 p-2 text-slate-500 hover:text-slate-950 font-black text-lg cursor-pointer"
               >
                 ✕
               </button>
 
-              <div className="text-center space-y-2 border-b border-slate-200 pb-6">
-                <div className="text-xs font-mono font-bold tracking-widest text-teal-800 uppercase">
+              <div className="text-center space-y-2 border-b-2 border-slate-900 pb-6">
+                <div className="text-xs font-mono font-black tracking-widest text-amber-700 uppercase">
                   OFFICIAL CERTIFICATE OF MASTERY
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-900">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-950">
                   {selectedCert.title}
                 </h3>
-                <p className="text-xs text-slate-500 font-mono">
-                  Presented to <strong className="text-slate-900 font-bold">devaroopa</strong> for verified technical execution
+                <p className="text-xs text-slate-600 font-mono">
+                  Presented to <strong className="text-slate-950 font-bold">devaroopa</strong> for verified technical execution
                 </p>
               </div>
 
-              <div className="space-y-3 text-xs text-slate-600 leading-relaxed text-center max-w-lg mx-auto">
+              <div className="space-y-3 text-xs text-slate-700 leading-relaxed text-center max-w-lg mx-auto font-medium">
                 <p>{selectedCert.description}</p>
                 <div className="flex flex-wrap justify-center gap-1.5 pt-2">
                   {selectedCert.skills.map((s, i) => (
-                    <span key={i} className="px-2.5 py-0.5 bg-slate-100 rounded text-[11px] font-semibold text-slate-800">
+                    <span key={i} className="px-2.5 py-0.5 bg-stone-100 rounded text-[11px] font-bold text-slate-900 border border-slate-400">
                       {s}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-6 border-t border-slate-200 text-xs">
+              <div className="flex items-center justify-between pt-6 border-t-2 border-slate-900 text-xs">
                 <div>
-                  <div className="font-bold text-slate-900">{selectedCert.issuer}</div>
-                  <div className="text-slate-500 text-[11px] font-mono">{selectedCert.issueDate}</div>
+                  <div className="font-black text-slate-950">{selectedCert.issuer}</div>
+                  <div className="text-slate-600 text-[11px] font-mono">{selectedCert.issueDate}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-emerald-700 font-bold font-mono">VERIFIED</div>
-                  <div className="text-slate-500 text-[11px] font-mono">{selectedCert.credentialId}</div>
+                  <div className="text-emerald-700 font-black font-mono">VERIFIED</div>
+                  <div className="text-slate-600 text-[11px] font-mono">{selectedCert.credentialId}</div>
                 </div>
               </div>
             </motion.div>
           </div>
         )}
 
-        {/* Add Certificate Modal */}
+        {/* Add Certificate Modal (Black & Warm White Theme) */}
         {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-md bg-slate-900 text-white rounded-3xl p-6 sm:p-8 border border-slate-700 shadow-2xl space-y-4"
+              className="w-full max-w-md bg-white text-slate-950 rounded-3xl p-6 sm:p-8 border-2 border-slate-900 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-4"
             >
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-lg font-bold text-white">Add Dynamic Certificate</h3>
+              <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+                <h3 className="text-lg font-black text-slate-950">Add Certificate Door</h3>
                 <button
                   onClick={() => setIsAddModalOpen(false)}
-                  className="text-slate-400 hover:text-white"
+                  className="text-slate-400 hover:text-black font-bold"
                 >
                   ✕
                 </button>
@@ -865,36 +1133,36 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
               <form onSubmit={handleAddNewCert} className="space-y-3 text-xs">
                 <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Certificate Title *</label>
+                  <label className="font-bold text-slate-800">Certificate Title *</label>
                   <input
                     type="text"
                     required
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="e.g. Certified WebGL Shader Engineer"
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-teal-400"
+                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none focus:bg-white"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Issuing Organization *</label>
+                  <label className="font-bold text-slate-800">Issuing Organization *</label>
                   <input
                     type="text"
                     required
                     value={newIssuer}
                     onChange={(e) => setNewIssuer(e.target.value)}
                     placeholder="e.g. Khronos Group / Google"
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-teal-400"
+                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none focus:bg-white"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="space-y-1">
-                    <label className="font-semibold text-slate-300">Category</label>
+                    <label className="font-bold text-slate-800">Category</label>
                     <select
                       value={newCategory}
                       onChange={(e) => setNewCategory(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none"
+                      className="w-full px-3 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none"
                     >
                       <option value="3D Graphics & Spatial">3D Graphics & Spatial</option>
                       <option value="Frontend Engineering">Frontend Engineering</option>
@@ -903,37 +1171,36 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="font-semibold text-slate-300">Issue Date</label>
+                    <label className="font-bold text-slate-800">Issue Date</label>
                     <input
                       type="text"
                       value={newDate}
                       onChange={(e) => setNewDate(e.target.value)}
                       placeholder="e.g. November 2024"
-                      className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none"
-                    >
-                    </input>
+                      className="w-full px-3 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none"
+                    />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Key Skills (comma separated)</label>
+                  <label className="font-bold text-slate-800">Key Skills (comma separated)</label>
                   <input
                     type="text"
                     value={newSkills}
                     onChange={(e) => setNewSkills(e.target.value)}
                     placeholder="GLSL, WebGL, Shader Optimization"
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="font-semibold text-slate-300">Description</label>
+                  <label className="font-bold text-slate-800">Description</label>
                   <textarea
                     rows={2}
                     value={newDesc}
                     onChange={(e) => setNewDesc(e.target.value)}
                     placeholder="Brief description of verified abilities..."
-                    className="w-full px-3.5 py-2 bg-slate-800 border border-slate-700 rounded-xl text-white focus:outline-none resize-none"
+                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none resize-none"
                   />
                 </div>
 
@@ -941,14 +1208,14 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                   <button
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="px-4 py-2 text-slate-400 hover:text-white"
+                    className="px-4 py-2 text-slate-600 hover:text-black font-bold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-5 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold rounded-xl transition-all"
+                    className="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
                   >
                     {isSubmitting ? 'Creating Door...' : 'Create 3D Door & Room →'}
                   </button>
@@ -961,3 +1228,4 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     </AnimatePresence>
   );
 };
+
