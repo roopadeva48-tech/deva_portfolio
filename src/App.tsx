@@ -234,9 +234,6 @@ export default function App() {
           setSelectedLandmark(null);
         }}
         certificates={certificates}
-        onCertificateAdded={(newCert) => {
-          setCertificates((prev) => [newCert, ...prev]);
-        }}
       />
 
       {/* 7. Detail Modal for other landmarks (Skyscrapers, Rocket, Crane) */}

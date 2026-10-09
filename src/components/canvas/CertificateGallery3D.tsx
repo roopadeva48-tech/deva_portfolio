@@ -3,13 +3,11 @@ import * as THREE from 'three';
 import { motion, AnimatePresence } from 'motion/react';
 import { CertificateItem } from '../../types';
 import { sound } from '../../utils/audio';
-import { createCertificate } from '../../services/api';
 
 interface CertificateGallery3DProps {
   isOpen: boolean;
   onClose: () => void;
   certificates: CertificateItem[];
-  onCertificateAdded?: (newCert: CertificateItem) => void;
 }
 
 interface DoorObjectRef {
@@ -221,7 +219,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   isOpen,
   onClose,
   certificates,
-  onCertificateAdded,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -230,16 +227,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   const [activeRoomIndex, setActiveRoomIndex] = useState<number | null>(null);
   const [galleryMode, setGalleryMode] = useState<'hallway' | 'inside_room'>('hallway');
   const [hoveredCert, setHoveredCert] = useState<CertificateItem | null>(null);
-
-  // Add Certificate Modal State
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newIssuer, setNewIssuer] = useState('');
-  const [newCategory, setNewCategory] = useState('3D Graphics & Spatial');
-  const [newDate, setNewDate] = useState('');
-  const [newSkills, setNewSkills] = useState('');
-  const [newDesc, setNewDesc] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Three.js References
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -346,36 +333,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     [activeRoomIndex, certificates.length, enterRoom]
   );
 
-  // Handle Adding New Certificate
-  const handleAddNewCert = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle || !newIssuer) return;
-    try {
-      setIsSubmitting(true);
-      const created = await createCertificate({
-        title: newTitle,
-        issuer: newIssuer,
-        category: newCategory,
-        issueDate: newDate || 'October 2024',
-        skills: newSkills.split(',').map((s) => s.trim()).filter(Boolean),
-        description: newDesc || 'Verified technical certification and verified project competence.',
-      });
 
-      sound.playChime();
-      if (onCertificateAdded) {
-        onCertificateAdded(created);
-      }
-      setIsAddModalOpen(false);
-      setNewTitle('');
-      setNewIssuer('');
-      setNewSkills('');
-      setNewDesc('');
-    } catch (err) {
-      console.error('Error adding certificate:', err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   // --- THREE.JS INITIALIZATION & SCENE SETUP ---
   useEffect(() => {
@@ -925,17 +883,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
               </button>
             )}
           </div>
-
-          {/* Right: Add Certificate Tool */}
-          <div className="pointer-events-auto flex items-center gap-2">
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-            >
-              <span className="font-black text-sm">+</span>
-              <span>Add Certificate</span>
-            </button>
-          </div>
         </header>
 
         {/* Three.js 3D Viewport */}
@@ -945,7 +892,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         {galleryMode === 'hallway' && (
           <div className="absolute bottom-6 inset-x-0 flex flex-col items-center pointer-events-none z-20">
             <div className="bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-xs text-slate-900 flex items-center gap-2 font-bold">
-              <span>💡 Drag / scroll to walk down the hallway · Click any door to enter</span>
+              <span>💡 Drag / scroll to walk down the hallway · Click any door to view certificate</span>
             </div>
             {hoveredCert && (
               <motion.div
@@ -1029,118 +976,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                   <div className="text-slate-600 text-[11px] font-mono">{selectedCert.credentialId}</div>
                 </div>
               </div>
-            </motion.div>
-          </div>
-        )}
-
-        {/* Add Certificate Modal (Black & Warm White Theme) */}
-        {isAddModalOpen && (
-          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="w-full max-w-md bg-white text-slate-950 rounded-3xl p-6 sm:p-8 border-2 border-slate-900 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-4"
-            >
-              <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
-                <h3 className="text-lg font-black text-slate-950">Add Certificate Door</h3>
-                <button
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="text-slate-400 hover:text-black font-bold"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <form onSubmit={handleAddNewCert} className="space-y-3 text-xs">
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-800">Certificate Title *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    placeholder="e.g. Certified WebGL Shader Engineer"
-                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none focus:bg-white"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-800">Issuing Organization *</label>
-                  <input
-                    type="text"
-                    required
-                    value={newIssuer}
-                    onChange={(e) => setNewIssuer(e.target.value)}
-                    placeholder="e.g. Khronos Group / Google"
-                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none focus:bg-white"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-800">Category</label>
-                    <select
-                      value={newCategory}
-                      onChange={(e) => setNewCategory(e.target.value)}
-                      className="w-full px-3 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none"
-                    >
-                      <option value="3D Graphics & Spatial">3D Graphics & Spatial</option>
-                      <option value="Frontend Engineering">Frontend Engineering</option>
-                      <option value="Cloud & Infrastructure">Cloud & Infrastructure</option>
-                      <option value="UI/UX & Design">UI/UX & Design</option>
-                    </select>
-                  </div>
-                  <div className="space-y-1">
-                    <label className="font-bold text-slate-800">Issue Date</label>
-                    <input
-                      type="text"
-                      value={newDate}
-                      onChange={(e) => setNewDate(e.target.value)}
-                      placeholder="e.g. November 2024"
-                      className="w-full px-3 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-800">Key Skills (comma separated)</label>
-                  <input
-                    type="text"
-                    value={newSkills}
-                    onChange={(e) => setNewSkills(e.target.value)}
-                    placeholder="GLSL, WebGL, Shader Optimization"
-                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="font-bold text-slate-800">Description</label>
-                  <textarea
-                    rows={2}
-                    value={newDesc}
-                    onChange={(e) => setNewDesc(e.target.value)}
-                    placeholder="Brief description of verified abilities..."
-                    className="w-full px-3.5 py-2 bg-stone-50 border-2 border-slate-900 rounded-xl text-slate-950 font-medium focus:outline-none resize-none"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setIsAddModalOpen(false)}
-                    className="px-4 py-2 text-slate-600 hover:text-black font-bold"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-                  >
-                    {isSubmitting ? 'Creating Door...' : 'Create 3D Door & Room →'}
-                  </button>
-                </div>
-              </form>
             </motion.div>
           </div>
         )}
