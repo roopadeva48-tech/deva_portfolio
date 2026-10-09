@@ -228,9 +228,8 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   // Gallery Navigation State
   const [selectedCert, setSelectedCert] = useState<CertificateItem | null>(null);
   const [activeRoomIndex, setActiveRoomIndex] = useState<number | null>(null);
-  const [galleryMode, setGalleryMode] = useState<'hallway' | 'entering' | 'inside_room' | 'exiting'>('hallway');
+  const [galleryMode, setGalleryMode] = useState<'hallway' | 'inside_room'>('hallway');
   const [hoveredCert, setHoveredCert] = useState<CertificateItem | null>(null);
-  const [isZoomedInCert, setIsZoomedInCert] = useState(false);
 
   // Add Certificate Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -295,7 +294,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     []
   );
 
-  // Enter a Door & Room
+  // Enter a Door & Room (Open door, focus camera, show certificate popup)
   const enterRoom = useCallback(
     (index: number) => {
       if (index < 0 || index >= certificates.length) return;
@@ -305,42 +304,31 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       const cert = certificates[index];
       setSelectedCert(cert);
       setActiveRoomIndex(index);
-      setGalleryMode('entering');
+      setGalleryMode('inside_room');
       sound.playZoom();
 
       // Swing door open
       doorObj.isOpenState = true;
 
-      // Camera moves inside the room
-      animateCameraTo(doorObj.roomCamPos, doorObj.roomCamTarget, 1.4, () => {
-        setGalleryMode('inside_room');
-      });
+      // Animate camera smoothly towards the door
+      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 0.8);
     },
     [certificates, animateCameraTo]
   );
 
-  // Exit Room back to Hallway
+  // Exit Room back to Hallway (Close popup & door)
   const exitRoom = useCallback(() => {
-    if (activeRoomIndex === null) return;
-    const doorObj = doorsListRef.current[activeRoomIndex];
-    setGalleryMode('exiting');
-    sound.playClick();
-
-    if (doorObj) {
-      // Swing door back to closed position as camera pulls back
-      doorObj.isOpenState = false;
-      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 1.2, () => {
-        setGalleryMode('hallway');
-        setSelectedCert(null);
-        setActiveRoomIndex(null);
-        setIsZoomedInCert(false);
-      });
-    } else {
-      setGalleryMode('hallway');
-      setSelectedCert(null);
-      setActiveRoomIndex(null);
+    if (activeRoomIndex !== null) {
+      const doorObj = doorsListRef.current[activeRoomIndex];
+      if (doorObj) {
+        doorObj.isOpenState = false;
+      }
     }
-  }, [activeRoomIndex, animateCameraTo]);
+    sound.playClick();
+    setSelectedCert(null);
+    setActiveRoomIndex(null);
+    setGalleryMode('hallway');
+  }, [activeRoomIndex]);
 
   // Navigate to Next / Previous Room
   const navigateRoom = useCallback(
@@ -971,141 +959,73 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
           </div>
         )}
 
-        {/* Inside Certificate Room: Full Details & Certificate Display (Black & Warm White Theme) */}
-        {galleryMode === 'inside_room' && selectedCert && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute bottom-6 inset-x-4 sm:inset-x-12 max-w-4xl mx-auto z-30 bg-white/95 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border-2 border-slate-900 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] space-y-6 text-slate-900"
+        {/* Certificate Popup Modal (Opens directly when clicking any room/door) */}
+        {selectedCert && (
+          <div
+            className="fixed inset-0 z-40 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 sm:p-8"
+            onClick={exitRoom}
           >
-            {/* Header / Room Metadata */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-slate-900 pb-4">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs font-mono text-amber-700 uppercase tracking-wider font-bold">
-                  <span>ROOM #{selectedCert.doorNumber || 101}</span>
-                  <span>·</span>
-                  <span>{selectedCert.category}</span>
-                </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950">
-                  {selectedCert.title}
-                </h2>
-                <div className="flex items-center gap-3 text-xs text-slate-600 font-medium">
-                  <span>Issued by: <strong className="text-slate-950 font-bold">{selectedCert.issuer}</strong></span>
-                  <span>·</span>
-                  <span>{selectedCert.issueDate}</span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsZoomedInCert(true)}
-                  className="px-4 py-2 bg-white hover:bg-stone-50 text-slate-950 text-xs font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-                >
-                  🔍 View Certificate
-                </button>
-                {selectedCert.verificationUrl && (
-                  <a
-                    href={selectedCert.verificationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-                  >
-                    Verify Credential ↗
-                  </a>
-                )}
-              </div>
-            </div>
-
-            {/* Description & Competencies */}
-            <div className="space-y-4">
-              <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
-                {selectedCert.description}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-mono font-bold text-slate-600">Validated Skills:</span>
-                {selectedCert.skills.map((skill, sIdx) => (
-                  <span
-                    key={sIdx}
-                    className="px-3 py-1 bg-stone-100 text-slate-900 text-xs font-bold rounded-lg border border-slate-900"
-                  >
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            {/* Navigation Between Rooms */}
-            <div className="flex items-center justify-between pt-2 border-t-2 border-slate-900 text-xs text-slate-600">
-              <button
-                onClick={() => navigateRoom('prev')}
-                disabled={activeRoomIndex === 0}
-                className="hover:text-black font-bold disabled:opacity-30 flex items-center gap-1 cursor-pointer"
-              >
-                ← Previous Room
-              </button>
-
-              <span className="font-mono text-[11px] text-slate-500 font-bold">
-                Credential ID: {selectedCert.credentialId}
-              </span>
-
-              <button
-                onClick={() => navigateRoom('next')}
-                disabled={activeRoomIndex === certificates.length - 1}
-                className="hover:text-black font-bold disabled:opacity-30 flex items-center gap-1 cursor-pointer"
-              >
-                Next Room →
-              </button>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Fullscreen Certificate Zoom Modal (Warm White Paper with Black Outline) */}
-        {isZoomedInCert && selectedCert && (
-          <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-md flex items-center justify-center p-4 sm:p-8">
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="relative w-full max-w-2xl bg-white text-slate-950 rounded-2xl shadow-2xl p-8 sm:p-12 border-4 border-slate-900 space-y-6"
+              initial={{ scale: 0.9, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 15 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full max-w-xl bg-white text-slate-950 rounded-2xl shadow-2xl p-8 sm:p-10 border-2 border-slate-900 space-y-6"
             >
+              {/* Close Button */}
               <button
-                onClick={() => setIsZoomedInCert(false)}
-                className="absolute top-4 right-4 p-2 text-slate-500 hover:text-slate-950 font-black text-lg cursor-pointer"
+                onClick={exitRoom}
+                className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-950 transition-colors text-lg font-bold cursor-pointer"
               >
                 ✕
               </button>
 
-              <div className="text-center space-y-2 border-b-2 border-slate-900 pb-6">
-                <div className="text-xs font-mono font-black tracking-widest text-amber-700 uppercase">
+              {/* Header */}
+              <div className="text-center space-y-2">
+                <div className="text-[11px] font-mono font-bold tracking-widest text-amber-700 uppercase">
                   OFFICIAL CERTIFICATE OF MASTERY
                 </div>
-                <h3 className="text-2xl sm:text-3xl font-black text-slate-950">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-950 leading-tight">
                   {selectedCert.title}
-                </h3>
+                </h2>
                 <p className="text-xs text-slate-600 font-mono">
                   Presented to <strong className="text-slate-950 font-bold">devaroopa</strong> for verified technical execution
                 </p>
               </div>
 
-              <div className="space-y-3 text-xs text-slate-700 leading-relaxed text-center max-w-lg mx-auto font-medium">
-                <p>{selectedCert.description}</p>
-                <div className="flex flex-wrap justify-center gap-1.5 pt-2">
-                  {selectedCert.skills.map((s, i) => (
-                    <span key={i} className="px-2.5 py-0.5 bg-stone-100 rounded text-[11px] font-bold text-slate-900 border border-slate-400">
-                      {s}
+              {/* Top Divider */}
+              <div className="border-t border-slate-900/90" />
+
+              {/* Description & Skill Badges */}
+              <div className="space-y-4 text-center">
+                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-md mx-auto">
+                  {selectedCert.description}
+                </p>
+
+                <div className="flex flex-wrap justify-center gap-1.5 pt-1">
+                  {selectedCert.skills.map((skill, sIdx) => (
+                    <span
+                      key={sIdx}
+                      className="px-3 py-1 bg-white text-slate-900 text-[11px] font-bold rounded-md border border-slate-800 shadow-xs"
+                    >
+                      {skill}
                     </span>
                   ))}
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-6 border-t-2 border-slate-900 text-xs">
+              {/* Bottom Divider */}
+              <div className="border-t border-slate-900/90" />
+
+              {/* Footer: Issuer & Verification */}
+              <div className="flex items-center justify-between text-xs pt-1">
                 <div>
                   <div className="font-black text-slate-950">{selectedCert.issuer}</div>
                   <div className="text-slate-600 text-[11px] font-mono">{selectedCert.issueDate}</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-emerald-700 font-black font-mono">VERIFIED</div>
+                  <div className="text-emerald-700 font-bold text-xs tracking-wider">VERIFIED</div>
                   <div className="text-slate-600 text-[11px] font-mono">{selectedCert.credentialId}</div>
                 </div>
               </div>
