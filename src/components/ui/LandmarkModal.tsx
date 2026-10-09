@@ -302,7 +302,7 @@ export const LandmarkModal: React.FC<LandmarkModalProps> = ({
             {landmark.id === 'hot_air_balloon' && (
               <div className="space-y-4 pt-2">
                 <p className="text-xs sm:text-sm text-slate-600">
-                  The aero balloons carry messages around the globe. Send a transmission to Roopa Deva to collaborate on upcoming spatial or web engineering projects.
+                  The aero balloons carry messages around the globe. Send a transmission to devaroopa to collaborate on upcoming spatial or web engineering projects.
                 </p>
                 <button
                   onClick={() => {
@@ -337,7 +337,7 @@ export const LandmarkModal: React.FC<LandmarkModalProps> = ({
                 }}
                 className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-800 text-xs font-medium rounded-lg border border-slate-200 transition-colors"
               >
-                Go to Roopa's Profile
+                Go to devaroopa's Profile
               </button>
             </div>
           </div>

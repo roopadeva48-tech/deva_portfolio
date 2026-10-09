@@ -3,7 +3,7 @@ import { ProfileData, ProjectItem, Landmark } from '../types';
 export const fallbackLandmarks: Landmark[] = [
   {
     id: 'girl_me',
-    name: 'Roopa Deva (Creator Profile)',
+    name: 'devaroopa (Creator Profile)',
     category: 'About Me',
     tagline: 'Sitting atop the world on a suitcase, dreaming up spatial experiences.',
     description: 'Welcome to my world! Click me to zoom in and unveil my complete creative background, technical capabilities, experience timeline, and passions.',
@@ -18,7 +18,7 @@ export const fallbackLandmarks: Landmark[] = [
       items: [
         'Creative Technologist & Spatial Frontend Specialist',
         'Expert in Three.js, React 19, Framer Motion & Node.js',
-        'Passionate about tactile animatics and anti-gravity physics'
+        'Passionate about tactile animatics and spatial physics'
       ]
     }
   },
@@ -138,15 +138,15 @@ export async function fetchProfile(): Promise<ProfileData> {
   } catch (err) {
     console.warn('Using local fallback profile data:', err);
     return {
-      name: 'Roopa Deva',
+      name: 'devaroopa',
       pronouns: 'she/her',
       title: 'Creative Technologist & 3D Interactive Engineer',
-      headline: 'Sculpting immersive 3D digital worlds, tactile interactions & anti-gravity web experiences.',
-      bio: 'Hi, I am Roopa! I sit at the intersection of creative design and high-performance engineering. I build real-time WebGL experiences, 3D miniature worlds, and fluid motion systems that spark curiosity and delight.',
+      headline: 'Sculpting immersive 3D digital worlds, tactile interactions & spatial web experiences.',
+      bio: 'Hi, I am devaroopa! I sit at the intersection of creative design and high-performance engineering. I build real-time WebGL experiences, 3D miniature worlds, and fluid motion systems that spark curiosity and delight.',
       extendedBio: [
         'My journey began with a sketchbook and a fascination with miniature dioramas and spatial art. Translating that tactile charm into the browser became my obsession.',
         'Over the past 5+ years, I have architected interactive web apps, 3D visualization platforms, and animatic interfaces using Three.js, Next.js, and Framer Motion.',
-        'Currently exploring anti-gravity spatial interactions, procedural world-building shaders, and micro-delights for the modern web.'
+        'Currently exploring spatial interactions, procedural world-building shaders, and micro-delights for the modern web.'
       ],
       location: 'Bangalore / Open to Global Remote',
       status: 'Open for Select Creative Engagements & Senior Roles',

@@ -38,7 +38,7 @@ export const IntroHeroOverlay: React.FC<IntroHeroOverlayProps> = ({
               <span className="w-3 h-3 rounded-full bg-slate-900" />
               <div>
                 <span className="text-xs font-mono font-bold tracking-widest uppercase text-slate-900">
-                  ROOPA DEVA
+                  DEVAROOPA
                 </span>
                 <span className="hidden sm:inline-block ml-3 text-xs text-slate-800 font-medium">
                   Creative Technologist · 3D Spatial Systems

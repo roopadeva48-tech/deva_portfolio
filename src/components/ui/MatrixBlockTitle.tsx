@@ -314,7 +314,7 @@ export const MatrixBlockTitle: React.FC<MatrixBlockTitleProps> = ({
           }}
           className="px-3 py-1.5 bg-white/95 hover:bg-white text-slate-900 text-[11px] font-bold rounded-lg shadow-xs border border-slate-900/20 hover:-translate-y-0.5 transition-all cursor-pointer"
         >
-          Meet Roopa →
+          Meet Devaroopa →
         </button>
       </motion.div>
     </div>

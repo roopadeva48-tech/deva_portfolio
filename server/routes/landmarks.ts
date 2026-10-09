@@ -23,7 +23,7 @@ export interface LandmarkInfo {
 const landmarksData: LandmarkInfo[] = [
   {
     id: 'girl_me',
-    name: 'Roopa Deva (Creator Profile)',
+    name: 'devaroopa (Creator Profile)',
     category: 'About Me',
     tagline: 'Sitting atop the world on a suitcase, dreaming up spatial experiences.',
     description: 'Welcome to my world! Click me to zoom in and unveil my complete creative background, technical capabilities, experience timeline, and passions.',
@@ -38,7 +38,7 @@ const landmarksData: LandmarkInfo[] = [
       items: [
         'Creative Technologist & Spatial Frontend Specialist',
         'Expert in Three.js, React 19, Framer Motion & Node.js',
-        'Passionate about tactile animatics and anti-gravity physics'
+        'Passionate about tactile animatics and spatial physics'
       ]
     }
   },

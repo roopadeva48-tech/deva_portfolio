@@ -70,8 +70,8 @@ export const HUDControls: React.FC<HUDControlsProps> = ({
         >
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
           <div className="text-left">
-            <div className="text-xs font-bold tracking-wider text-slate-900 group-hover:text-teal-800 transition-colors">
-              ROOPA DEVA
+            <div className="text-xs font-bold tracking-wider text-slate-900 group-hover:text-teal-800 transition-colors uppercase">
+              devaroopa
             </div>
             <div className="text-[10px] text-slate-600 font-mono">
               Lead 3D Architect · Girl on Globe
@@ -81,26 +81,6 @@ export const HUDControls: React.FC<HUDControlsProps> = ({
 
         {/* Global Action Utility Toggles */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Anti-Gravity Toggle Button */}
-          <button
-            onClick={() => {
-              sound.playAntiGravity();
-              onToggleAntiGravity();
-            }}
-            title="Toggle Anti-Gravity Zero-G Float Physics"
-            className={`px-3 py-2 text-xs font-bold rounded-xl border shadow-sm transition-all flex items-center gap-1.5 ${
-              isAntiGravity
-                ? 'bg-amber-400 text-slate-950 border-amber-500 ring-2 ring-amber-300 animate-pulse'
-                : 'bg-white/90 hover:bg-white text-slate-800 border-white/80'
-            }`}
-          >
-            <span>🪐</span>
-            <span className="hidden sm:inline">Anti-Gravity</span>
-            <span className="text-[10px] font-mono px-1 py-0.2 rounded bg-black/10">
-              {isAntiGravity ? 'ON' : 'OFF'}
-            </span>
-          </button>
-
           {/* Auto-Rotate Toggle */}
           <button
             onClick={() => {
@@ -216,7 +196,7 @@ export const HUDControls: React.FC<HUDControlsProps> = ({
               >
                 <span>{getIconForLandmark(landmark.id)}</span>
                 <span className="hidden sm:inline">
-                  {landmark.id === 'girl_me' ? 'Roopa (Me)' : landmark.name.split(' ')[0]}
+                  {landmark.id === 'girl_me' ? 'devaroopa (Me)' : landmark.name.split(' ')[0]}
                 </span>
               </button>
             );

@@ -80,7 +80,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
           <div className="flex items-center justify-between pb-4 border-b border-slate-100">
             <div>
               <div className="text-xs font-mono text-slate-500 uppercase tracking-wider">
-                TRANSMISSION TO ROOPA DEVA
+                TRANSMISSION TO DEVAROOPA
               </div>
               <h3 className="text-xl font-bold text-slate-900 mt-0.5">
                 Send a Message
@@ -110,7 +110,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onClose }) =
                 Transmission Received!
               </h4>
               <p className="text-xs text-slate-600 max-w-xs mx-auto">
-                Thank you for reaching out. Roopa will get back to your message at{' '}
+                Thank you for reaching out. devaroopa will get back to your message at{' '}
                 <span className="font-semibold text-slate-800">{email}</span> shortly.
               </p>
             </motion.div>
