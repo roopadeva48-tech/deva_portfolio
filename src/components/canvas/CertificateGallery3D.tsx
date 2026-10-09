@@ -265,7 +265,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
   // Helper to animate camera
   const animateCameraTo = useCallback(
-    (pos: THREE.Vector3, target: THREE.Vector3, duration: number = 1.0, onComplete?: () => void) => {
+    (pos: THREE.Vector3, target: THREE.Vector3, duration: number = 2.0, onComplete?: () => void) => {
       if (!cameraRef.current) return;
       camAnimRef.current = {
         active: true,
@@ -281,7 +281,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     []
   );
 
-  // Enter a Door & Room (Swing door open, zoom camera to doorway, then pop up certificate at the exact arrival moment)
+  // Enter a Door & Room (Slowly and gracefully glide camera to doorway, swing door open, then pop up certificate)
   const enterRoom = useCallback(
     (index: number) => {
       if (index < 0 || index >= certificates.length) return;
@@ -294,12 +294,12 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       setSelectedCert(null); // Keep certificate hidden while traveling
       sound.playZoom();
 
-      // Swing door open
+      // Swing door open gracefully
       doorObj.isOpenState = true;
 
-      // Animate camera smoothly towards the open door doorway
-      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 1.0, () => {
-        // Reached the room: now trigger certificate popup with chime & animation
+      // Animate camera slowly and smoothly towards the room doorway (2.2s gentle glide)
+      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 2.2, () => {
+        // Reached the room gracefully: trigger certificate popup with chime
         setSelectedCert(cert);
         setGalleryMode('inside_room');
         sound.playChime();
@@ -800,11 +800,14 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
-      // Camera lerp animation during room transitions
+      // Smooth camera lerp animation during room transitions
       const anim = camAnimRef.current;
       if (anim.active) {
-        anim.progress += 0.024;
+        // Increment progress proportionally to specified duration (e.g. 2.2 seconds)
+        const frameStep = 1 / (Math.max(anim.duration, 0.5) * 60);
+        anim.progress += frameStep;
         const t = Math.min(1, anim.progress);
+        // Smooth ease-in-out curve for gentle acceleration and deceleration
         const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
         camera.position.lerpVectors(anim.startPos, anim.endPos, ease);
@@ -826,10 +829,10 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         camera.lookAt(currentCamTarget.current);
       }
 
-      // Smooth door swing open/close animation
+      // Smooth gentle door swing open/close animation
       doorsListRef.current.forEach((door) => {
         const targetAngle = door.isOpenState ? (door.side === 'left' ? -Math.PI * 0.48 : Math.PI * 0.48) : 0;
-        door.doorPanel.rotation.y = THREE.MathUtils.lerp(door.doorPanel.rotation.y, targetAngle, 0.09);
+        door.doorPanel.rotation.y = THREE.MathUtils.lerp(door.doorPanel.rotation.y, targetAngle, 0.045);
       });
 
       renderer.render(scene, camera);
@@ -923,10 +926,10 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
               onClick={exitRoom}
             >
               <motion.div
-                initial={{ scale: 0.7, opacity: 0, y: 35 }}
+                initial={{ scale: 0.8, opacity: 0, y: 25 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.8, opacity: 0, y: 25 }}
-                transition={{ type: 'spring', damping: 22, stiffness: 320 }}
+                exit={{ scale: 0.85, opacity: 0, y: 15 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
                 className="relative w-full max-w-xl bg-white text-slate-950 rounded-2xl shadow-2xl p-8 sm:p-10 border-2 border-slate-900 space-y-6"
               >
