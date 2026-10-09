@@ -225,7 +225,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   // Gallery Navigation State
   const [selectedCert, setSelectedCert] = useState<CertificateItem | null>(null);
   const [activeRoomIndex, setActiveRoomIndex] = useState<number | null>(null);
-  const [galleryMode, setGalleryMode] = useState<'hallway' | 'inside_room'>('hallway');
+  const [galleryMode, setGalleryMode] = useState<'hallway' | 'entering' | 'inside_room'>('hallway');
   const [hoveredCert, setHoveredCert] = useState<CertificateItem | null>(null);
 
   // Three.js References
@@ -252,7 +252,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     startTarget: new THREE.Vector3(0, 1.7, -10),
     endTarget: new THREE.Vector3(0, 1.7, -10),
     progress: 1,
-    duration: 1.2,
+    duration: 1.0,
   });
 
   const currentCamTarget = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.7, -10));
@@ -265,7 +265,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
   // Helper to animate camera
   const animateCameraTo = useCallback(
-    (pos: THREE.Vector3, target: THREE.Vector3, duration: number = 1.3, onComplete?: () => void) => {
+    (pos: THREE.Vector3, target: THREE.Vector3, duration: number = 1.0, onComplete?: () => void) => {
       if (!cameraRef.current) return;
       camAnimRef.current = {
         active: true,
@@ -281,7 +281,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     []
   );
 
-  // Enter a Door & Room (Open door, focus camera, show certificate popup)
+  // Enter a Door & Room (Swing door open, zoom camera to doorway, then pop up certificate at the exact arrival moment)
   const enterRoom = useCallback(
     (index: number) => {
       if (index < 0 || index >= certificates.length) return;
@@ -289,16 +289,21 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       if (!doorObj) return;
 
       const cert = certificates[index];
-      setSelectedCert(cert);
       setActiveRoomIndex(index);
-      setGalleryMode('inside_room');
+      setGalleryMode('entering');
+      setSelectedCert(null); // Keep certificate hidden while traveling
       sound.playZoom();
 
       // Swing door open
       doorObj.isOpenState = true;
 
-      // Animate camera smoothly towards the door
-      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 0.8);
+      // Animate camera smoothly towards the open door doorway
+      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 1.0, () => {
+        // Reached the room: now trigger certificate popup with chime & animation
+        setSelectedCert(cert);
+        setGalleryMode('inside_room');
+        sound.playChime();
+      });
     },
     [certificates, animateCameraTo]
   );
@@ -906,79 +911,85 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
           </div>
         )}
 
-        {/* Certificate Popup Modal (Opens directly when clicking any room/door) */}
-        {selectedCert && (
-          <div
-            className="fixed inset-0 z-40 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 sm:p-8"
-            onClick={exitRoom}
-          >
+        {/* Certificate Popup Modal (Opens with spring animation only after reaching the room doorway) */}
+        <AnimatePresence>
+          {selectedCert && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 15 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 15 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-xl bg-white text-slate-950 rounded-2xl shadow-2xl p-8 sm:p-10 border-2 border-slate-900 space-y-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-0 z-40 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 sm:p-8"
+              onClick={exitRoom}
             >
-              {/* Close Button */}
-              <button
-                onClick={exitRoom}
-                className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-950 transition-colors text-lg font-bold cursor-pointer"
+              <motion.div
+                initial={{ scale: 0.7, opacity: 0, y: 35 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.8, opacity: 0, y: 25 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 320 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative w-full max-w-xl bg-white text-slate-950 rounded-2xl shadow-2xl p-8 sm:p-10 border-2 border-slate-900 space-y-6"
               >
-                ✕
-              </button>
+                {/* Close Button */}
+                <button
+                  onClick={exitRoom}
+                  className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-950 transition-colors text-lg font-bold cursor-pointer"
+                >
+                  ✕
+                </button>
 
-              {/* Header */}
-              <div className="text-center space-y-2">
-                <div className="text-[11px] font-mono font-bold tracking-widest text-amber-700 uppercase">
-                  OFFICIAL CERTIFICATE OF MASTERY
+                {/* Header */}
+                <div className="text-center space-y-2">
+                  <div className="text-[11px] font-mono font-bold tracking-widest text-amber-700 uppercase">
+                    OFFICIAL CERTIFICATE OF MASTERY
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-950 leading-tight">
+                    {selectedCert.title}
+                  </h2>
+                  <p className="text-xs text-slate-600 font-mono">
+                    Presented to <strong className="text-slate-950 font-bold">devaroopa</strong> for verified technical execution
+                  </p>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-950 leading-tight">
-                  {selectedCert.title}
-                </h2>
-                <p className="text-xs text-slate-600 font-mono">
-                  Presented to <strong className="text-slate-950 font-bold">devaroopa</strong> for verified technical execution
-                </p>
-              </div>
 
-              {/* Top Divider */}
-              <div className="border-t border-slate-900/90" />
+                {/* Top Divider */}
+                <div className="border-t border-slate-900/90" />
 
-              {/* Description & Skill Badges */}
-              <div className="space-y-4 text-center">
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-md mx-auto">
-                  {selectedCert.description}
-                </p>
+                {/* Description & Skill Badges */}
+                <div className="space-y-4 text-center">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-md mx-auto">
+                    {selectedCert.description}
+                  </p>
 
-                <div className="flex flex-wrap justify-center gap-1.5 pt-1">
-                  {selectedCert.skills.map((skill, sIdx) => (
-                    <span
-                      key={sIdx}
-                      className="px-3 py-1 bg-white text-slate-900 text-[11px] font-bold rounded-md border border-slate-800 shadow-xs"
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  <div className="flex flex-wrap justify-center gap-1.5 pt-1">
+                    {selectedCert.skills.map((skill, sIdx) => (
+                      <span
+                        key={sIdx}
+                        className="px-3 py-1 bg-white text-slate-900 text-[11px] font-bold rounded-md border border-slate-800 shadow-xs"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Bottom Divider */}
-              <div className="border-t border-slate-900/90" />
+                {/* Bottom Divider */}
+                <div className="border-t border-slate-900/90" />
 
-              {/* Footer: Issuer & Verification */}
-              <div className="flex items-center justify-between text-xs pt-1">
-                <div>
-                  <div className="font-black text-slate-950">{selectedCert.issuer}</div>
-                  <div className="text-slate-600 text-[11px] font-mono">{selectedCert.issueDate}</div>
+                {/* Footer: Issuer & Verification */}
+                <div className="flex items-center justify-between text-xs pt-1">
+                  <div>
+                    <div className="font-black text-slate-950">{selectedCert.issuer}</div>
+                    <div className="text-slate-600 text-[11px] font-mono">{selectedCert.issueDate}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-emerald-700 font-bold text-xs tracking-wider">VERIFIED</div>
+                    <div className="text-slate-600 text-[11px] font-mono">{selectedCert.credentialId}</div>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-emerald-700 font-bold text-xs tracking-wider">VERIFIED</div>
-                  <div className="text-slate-600 text-[11px] font-mono">{selectedCert.credentialId}</div>
-                </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </div>
-        )}
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );
