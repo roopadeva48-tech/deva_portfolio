@@ -547,20 +547,62 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     ceiling.position.set(0, hallwayHeight, -hallwayLength / 2 + 6);
     scene.add(ceiling);
 
-    // Left & Right Off-White Walls
-    const wallGeo = new THREE.PlaneGeometry(hallwayLength, hallwayHeight);
+    // Left & Right Walls with Clean Openings for Doors (prevents walls from blocking door interiors)
+    const numPairs = Math.ceil(certificates.length / 2);
+    const firstDoorZ = 1.0;
+    const lastPairIdx = Math.max(0, numPairs - 1);
+    const lastDoorZ = firstDoorZ - lastPairIdx * doorSpacing;
+    const hallwayStartZ = 6.0;
+    const hallwayEndZ = -hallwayLength + 6.0;
 
-    const leftWall = new THREE.Mesh(wallGeo, wallMat);
-    leftWall.rotation.y = Math.PI / 2;
-    leftWall.position.set(-hallwayWidth / 2, hallwayHeight / 2, -hallwayLength / 2 + 6);
-    leftWall.receiveShadow = true;
-    scene.add(leftWall);
+    [-hallwayWidth / 2, hallwayWidth / 2].forEach((sideX) => {
+      const isLeftWall = sideX < 0;
+      const rotY = isLeftWall ? Math.PI / 2 : -Math.PI / 2;
 
-    const rightWall = new THREE.Mesh(wallGeo, wallMat);
-    rightWall.rotation.y = -Math.PI / 2;
-    rightWall.position.set(hallwayWidth / 2, hallwayHeight / 2, -hallwayLength / 2 + 6);
-    rightWall.receiveShadow = true;
-    scene.add(rightWall);
+      // 1. Front wall section (from z = firstDoorZ + 0.8 to hallwayStartZ)
+      const frontLen = hallwayStartZ - (firstDoorZ + 0.8);
+      if (frontLen > 0.1) {
+        const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(frontLen, hallwayHeight), wallMat);
+        frontWall.rotation.y = rotY;
+        frontWall.position.set(sideX, hallwayHeight / 2, (hallwayStartZ + firstDoorZ + 0.8) / 2);
+        frontWall.receiveShadow = true;
+        scene.add(frontWall);
+      }
+
+      // 2. Doorway lintels (above each door) and wall piers (between doors)
+      for (let p = 0; p < numPairs; p++) {
+        const pairDoorZ = firstDoorZ - p * doorSpacing;
+
+        // Top lintel wall above door opening (from y = 2.65 to hallwayHeight)
+        const lintelHeight = hallwayHeight - 2.65;
+        const lintelMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.6, lintelHeight), wallMat);
+        lintelMesh.rotation.y = rotY;
+        lintelMesh.position.set(sideX, 2.65 + lintelHeight / 2, pairDoorZ);
+        lintelMesh.receiveShadow = true;
+        scene.add(lintelMesh);
+
+        // Wall segment between this door and next door
+        if (p < numPairs - 1) {
+          const midLen = doorSpacing - 1.6;
+          const midZ = pairDoorZ - doorSpacing / 2;
+          const midWall = new THREE.Mesh(new THREE.PlaneGeometry(midLen, hallwayHeight), wallMat);
+          midWall.rotation.y = rotY;
+          midWall.position.set(sideX, hallwayHeight / 2, midZ);
+          midWall.receiveShadow = true;
+          scene.add(midWall);
+        }
+      }
+
+      // 3. Back wall section (from lastDoorZ - 0.8 to hallwayEndZ)
+      const backLen = (lastDoorZ - 0.8) - hallwayEndZ;
+      if (backLen > 0.1) {
+        const backWall = new THREE.Mesh(new THREE.PlaneGeometry(backLen, hallwayHeight), wallMat);
+        backWall.rotation.y = rotY;
+        backWall.position.set(sideX, hallwayHeight / 2, (lastDoorZ - 0.8 + hallwayEndZ) / 2);
+        backWall.receiveShadow = true;
+        scene.add(backWall);
+      }
+    });
 
     // End Wall (Bright warm glow at end of hallway)
     const endWall = new THREE.Mesh(new THREE.PlaneGeometry(hallwayWidth, hallwayHeight), wallMat);
@@ -1071,9 +1113,9 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         camera.lookAt(currentCamTarget.current);
       }
 
-      // Smooth gentle door swing open/close animation
+      // Smooth door swing open/close animation (swings inward into exhibition room for both sides)
       doorsListRef.current.forEach((door) => {
-        const targetAngle = door.isOpenState ? (door.side === 'left' ? -Math.PI * 0.52 : Math.PI * 0.52) : 0;
+        const targetAngle = door.isOpenState ? Math.PI * 0.48 : 0;
         door.doorPanel.rotation.y = THREE.MathUtils.lerp(door.doorPanel.rotation.y, targetAngle, 0.085);
       });
 

@@ -173,11 +173,11 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       alpha: true,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.18;
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFShadowMap;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -190,8 +190,8 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     const sunLight = new THREE.DirectionalLight(0xfffaed, 2.3);
     sunLight.position.set(6, 9, 7);
     sunLight.castShadow = true;
-    sunLight.shadow.mapSize.width = 512;
-    sunLight.shadow.mapSize.height = 512;
+    sunLight.shadow.mapSize.width = 1024;
+    sunLight.shadow.mapSize.height = 1024;
     sunLight.shadow.bias = -0.0005;
     scene.add(sunLight);
 
@@ -205,17 +205,19 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
 
     // --- 3. ROOT GLOBE GROUP ---
     const globeRoot = new THREE.Group();
-    // Video entrance: starts scaled down if in zooming_in intro phase!
-    if (introPhase === 'zooming_in') {
+    // Video entrance: starts scaled down only if currently actively in zooming_in intro phase!
+    if (introPhaseRef.current === 'zooming_in') {
       globeRoot.scale.setScalar(0.08);
       globeRoot.rotation.y = -Math.PI;
+    } else {
+      globeRoot.scale.setScalar(1.0);
     }
     scene.add(globeRoot);
     globeGroupRef.current = globeRoot;
 
-    // --- 4. THE REALISTIC EARTH GLOBE (AS IN THE USER IMAGE) ---
+    // --- 4. THE REALISTIC EARTH GLOBE (ORIGINAL HIGH FIDELITY GEOMETRY) ---
     const globeRadius = 2.4;
-    const globeGeo = new THREE.SphereGeometry(globeRadius, 48, 48);
+    const globeGeo = new THREE.SphereGeometry(globeRadius, 64, 64);
 
     // Canvas procedural earth texture with accurate continents, ocean gradients & shallow shelves
     const canvas = document.createElement('canvas');
@@ -1179,8 +1181,13 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
 
         if (p >= 1) {
           introFinishedRef.current = true;
+          globeRoot.scale.setScalar(1.0);
           onIntroZoomCompleteRef.current?.();
         }
+      } else if (introPhaseRef.current === 'ready' && globeRoot && globeRoot.scale.x < 0.999) {
+        // Guarantee full size when ready state is reached
+        globeRoot.scale.setScalar(1.0);
+        introFinishedRef.current = true;
       }
 
       // Camera lerp
