@@ -962,39 +962,130 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     signGroup.add(triangleSign);
     signsGroup.add(signGroup);
 
-    // --- 12. FLUFFY CUMULUS CLOUD RING (AS IN THE USER IMAGE) ---
+    // --- 12. REALISTIC FLUFFY CUMULUS CLOUDS (ORGANIC VOLUMETRIC TEXTURING) ---
     const cloudsGroup = new THREE.Group();
     globeRoot.add(cloudsGroup);
     cloudsGroupRef.current = cloudsGroup;
 
-    const cloudMat = new THREE.MeshStandardMaterial({
+    // Procedural soft cloud puff texture with feathered Gaussian falloff and wispy micro-density
+    const createRealisticCloudTexture = (): THREE.CanvasTexture => {
+      const cCanvas = document.createElement('canvas');
+      cCanvas.width = 128;
+      cCanvas.height = 128;
+      const cCtx = cCanvas.getContext('2d')!;
+      cCtx.clearRect(0, 0, 128, 128);
+
+      const splats = [
+        { x: 64, y: 64, r: 52, a: 0.7 },
+        { x: 50, y: 60, r: 42, a: 0.55 },
+        { x: 78, y: 62, r: 44, a: 0.55 },
+        { x: 64, y: 52, r: 38, a: 0.62 },
+        { x: 58, y: 74, r: 34, a: 0.48 },
+        { x: 72, y: 72, r: 36, a: 0.5 },
+      ];
+
+      for (const s of splats) {
+        const grad = cCtx.createRadialGradient(s.x, s.y, 0, s.x, s.y, s.r);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${s.a})`);
+        grad.addColorStop(0.35, `rgba(255, 255, 255, ${s.a * 0.75})`);
+        grad.addColorStop(0.7, `rgba(255, 255, 255, ${s.a * 0.25})`);
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        cCtx.fillStyle = grad;
+        cCtx.beginPath();
+        cCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        cCtx.fill();
+      }
+
+      const imgData = cCtx.getImageData(0, 0, 128, 128);
+      const pData = imgData.data;
+      for (let i = 0; i < pData.length; i += 4) {
+        if (pData[i + 3] > 0) {
+          const noise = (Math.random() - 0.5) * 16;
+          pData[i + 3] = Math.max(0, Math.min(255, pData[i + 3] + noise));
+        }
+      }
+      cCtx.putImageData(imgData, 0, 0);
+
+      const texture = new THREE.CanvasTexture(cCanvas);
+      return texture;
+    };
+
+    const cloudTex = createRealisticCloudTexture();
+
+    const cloudMatTop = new THREE.SpriteMaterial({
+      map: cloudTex,
       color: 0xffffff,
-      roughness: 0.95,
-      metalness: 0.05,
       transparent: true,
-      opacity: 0.92,
+      opacity: 0.85,
+      depthWrite: false,
+    });
+
+    const cloudMatBase = new THREE.SpriteMaterial({
+      map: cloudTex,
+      color: 0xf1f5f9,
+      transparent: true,
+      opacity: 0.72,
+      depthWrite: false,
+    });
+
+    const cloudMatWispy = new THREE.SpriteMaterial({
+      map: cloudTex,
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.45,
+      depthWrite: false,
     });
 
     for (let c = 0; c < 12; c++) {
       const singleCloud = new THREE.Group();
       const angle = (c / 12) * Math.PI * 2;
-      const cloudDist = globeRadius * (1.2 + (c % 3) * 0.08);
-      const cloudY = (Math.sin(c * 1.5) * 0.8) + (c % 2 === 0 ? 0.3 : -0.3);
+      const cloudDist = globeRadius * (1.18 + (c % 3) * 0.08);
+      const cloudY = (Math.sin(c * 1.7) * 0.85) + (c % 2 === 0 ? 0.35 : -0.35);
 
       singleCloud.position.set(Math.cos(angle) * cloudDist, cloudY, Math.sin(angle) * cloudDist);
 
-      for (let p = 0; p < 4; p++) {
-        const puff = new THREE.Mesh(
-          new THREE.SphereGeometry(0.18 + Math.random() * 0.14, 12, 12),
-          cloudMat
-        );
-        puff.position.set(
-          (p - 1.5) * 0.16,
-          (Math.random() - 0.5) * 0.1,
+      // Flatter, slightly wider base puffs
+      const baseCount = 3 + (c % 2);
+      for (let b = 0; b < baseCount; b++) {
+        const sprite = new THREE.Sprite(cloudMatBase);
+        const sx = 0.55 + Math.random() * 0.25;
+        const sy = 0.35 + Math.random() * 0.15;
+        sprite.scale.set(sx, sy, 1);
+        sprite.position.set(
+          (b - (baseCount - 1) / 2) * 0.22 + (Math.random() - 0.5) * 0.08,
+          -0.08 + (Math.random() - 0.5) * 0.05,
           (Math.random() - 0.5) * 0.12
         );
-        singleCloud.add(puff);
+        singleCloud.add(sprite);
       }
+
+      // Billowy, sunlit cumulus dome tops
+      const topCount = 3 + ((c + 1) % 2);
+      for (let t = 0; t < topCount; t++) {
+        const sprite = new THREE.Sprite(cloudMatTop);
+        const s = 0.45 + Math.random() * 0.28;
+        sprite.scale.set(s, s * 0.9, 1);
+        sprite.position.set(
+          (t - (topCount - 1) / 2) * 0.18 + (Math.random() - 0.5) * 0.06,
+          0.08 + Math.random() * 0.12,
+          (Math.random() - 0.5) * 0.1
+        );
+        singleCloud.add(sprite);
+      }
+
+      // Wispy trailing edge puffs
+      for (let w = 0; w < 2; w++) {
+        const sprite = new THREE.Sprite(cloudMatWispy);
+        const ws = 0.35 + Math.random() * 0.2;
+        sprite.scale.set(ws * 1.3, ws * 0.7, 1);
+        sprite.position.set(
+          (w === 0 ? -1 : 1) * (0.35 + Math.random() * 0.1),
+          (Math.random() - 0.5) * 0.08,
+          (Math.random() - 0.5) * 0.1
+        );
+        singleCloud.add(sprite);
+      }
+
       cloudsGroup.add(singleCloud);
     }
 
