@@ -53,15 +53,9 @@ export const IntroHeroOverlay: React.FC<IntroHeroOverlayProps> = ({
             </div>
           </motion.div>
 
+
           {/* Center 3x5 Matrix Block Letters: "ROOPA WORLD FOLIO" matching Image 2 */}
           <MatrixBlockTitle onBegin={onBegin} onExploreGirl={onExploreGirl} />
-
-          {/* Bottom helper text */}
-          <div className="text-center pb-2">
-            <span className="text-[11px] font-mono text-slate-800/80 bg-white/60 backdrop-blur px-3 py-1 rounded-full border border-white/60 shadow-sm">
-              Each block carries 1 character · 3×5 architectural matrix
-            </span>
-          </div>
         </motion.div>
       )}
     </AnimatePresence>
