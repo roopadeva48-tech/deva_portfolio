@@ -45,12 +45,6 @@ export const IntroHeroOverlay: React.FC<IntroHeroOverlayProps> = ({
                 </span>
               </div>
             </div>
-
-            <div className="text-right">
-              <span className="text-[11px] font-mono text-slate-900 uppercase tracking-wider bg-white/80 backdrop-blur px-2.5 py-1 rounded-md border border-slate-900/15 shadow-sm font-semibold">
-                3×5 MATRIX ARCHITECTURE
-              </span>
-            </div>
           </motion.div>
 
 
