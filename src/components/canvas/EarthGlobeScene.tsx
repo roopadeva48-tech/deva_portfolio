@@ -16,6 +16,11 @@ interface EarthGlobeSceneProps {
   isPaused?: boolean;
 }
 
+// Default camera overview matching reference image framing (declared outside component to keep stable references)
+const DEFAULT_CAM_POS = new THREE.Vector3(0, 0.35, 14.8);
+const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0);
+const DEFAULT_FOV = 36;
+
 export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
   landmarks,
   selectedLandmark,
@@ -29,7 +34,31 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredLandmark, setHoveredLandmark] = useState<Landmark | null>(null);
-  const [cursorPos, setCursorPos] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const hoveredLandmarkIdRef = useRef<string | null>(null);
+  const cursorPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+  const tooltipRef = useRef<HTMLDivElement>(null);
+
+  // Sync props to refs to avoid tearing down the 3D scene on prop changes
+  const isAntiGravityRef = useRef(isAntiGravity);
+  isAntiGravityRef.current = isAntiGravity;
+
+  const isAutoRotateRef = useRef(isAutoRotate);
+  isAutoRotateRef.current = isAutoRotate;
+
+  const isPausedRef = useRef(isPaused);
+  isPausedRef.current = isPaused;
+
+  const introPhaseRef = useRef(introPhase);
+  introPhaseRef.current = introPhase;
+
+  const landmarksRef = useRef(landmarks);
+  landmarksRef.current = landmarks;
+
+  const onSelectLandmarkRef = useRef(onSelectLandmark);
+  onSelectLandmarkRef.current = onSelectLandmark;
+
+  const onIntroZoomCompleteRef = useRef(onIntroZoomComplete);
+  onIntroZoomCompleteRef.current = onIntroZoomComplete;
 
   // Scene references
   const sceneRef = useRef<THREE.Scene | null>(null);
@@ -80,11 +109,6 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
   // Intro zoom animation ref (Matching the video: globe starts small and zooms up into screen)
   const introAnimProgressRef = useRef<number>(0);
   const introFinishedRef = useRef<boolean>(false);
-
-  // Default camera overview matching reference image framing (literally zoomed out so globe and full orbit fit)
-  const DEFAULT_CAM_POS = new THREE.Vector3(0, 0.35, 14.8);
-  const DEFAULT_TARGET = new THREE.Vector3(0, 0, 0);
-  const DEFAULT_FOV = 36;
 
   const animateCameraTo = useCallback(
     (pos: [number, number, number], target: [number, number, number], fov: number, duration: number = 1.4) => {
@@ -149,13 +173,15 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       alpha: true,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.18;
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
+
+    interactiveObjectsRef.current = [];
 
     // --- 2. LIGHTING (Bright, Crisp Sun & Ambient Glow) ---
     const ambientLight = new THREE.AmbientLight(0xffffff, 1.3);
@@ -971,6 +997,7 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     }
 
     // --- 13. MOUSE & TOUCH EVENT LISTENERS ---
+    const cachedInteractiveMeshes = interactiveObjectsRef.current.map((i) => i.object);
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
 
@@ -983,13 +1010,17 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     };
 
     const onPointerMove = (e: MouseEvent) => {
+      cursorPosRef.current = { x: e.clientX, y: e.clientY };
+      if (tooltipRef.current) {
+        tooltipRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY - 16}px, 0)`;
+      }
+
       const rect = container.getBoundingClientRect();
       const clientX = e.clientX - rect.left;
       const clientY = e.clientY - rect.top;
 
       mouse.x = (clientX / rect.width) * 2 - 1;
       mouse.y = -(clientY / rect.height) * 2 + 1;
-      setCursorPos({ x: e.clientX, y: e.clientY });
 
       if (isDraggingRef.current && globeRoot) {
         const deltaX = e.clientX - previousMousePositionRef.current.x;
@@ -1004,13 +1035,10 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       }
 
       const now = performance.now();
-      if (now - lastRaycastTime > 60 && !isDraggingRef.current && camera) {
+      if (now - lastRaycastTime > 50 && !isDraggingRef.current && camera) {
         lastRaycastTime = now;
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(
-          interactiveObjectsRef.current.map((i) => i.object),
-          true
-        );
+        const intersects = raycaster.intersectObjects(cachedInteractiveMeshes, true);
 
         if (intersects.length > 0) {
           const hit = intersects[0];
@@ -1018,13 +1046,19 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
             (item) => item.object === hit.object || item.object.children.includes(hit.object)
           );
           if (match) {
-            const lData = landmarks.find((l) => l.id === match.landmarkId);
-            setHoveredLandmark(lData || null);
+            if (hoveredLandmarkIdRef.current !== match.landmarkId) {
+              hoveredLandmarkIdRef.current = match.landmarkId;
+              const lData = landmarksRef.current.find((l) => l.id === match.landmarkId);
+              setHoveredLandmark(lData || null);
+            }
             container.style.cursor = 'pointer';
             return;
           }
         }
-        setHoveredLandmark(null);
+        if (hoveredLandmarkIdRef.current !== null) {
+          hoveredLandmarkIdRef.current = null;
+          setHoveredLandmark(null);
+        }
         container.style.cursor = isDraggingRef.current ? 'grabbing' : 'grab';
       }
     };
@@ -1036,16 +1070,13 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       isDraggingRef.current = false;
       container.style.cursor = 'grab';
 
-      if (deltaX < 5 && deltaY < 5) {
+      if (deltaX < 6 && deltaY < 6) {
         const rect = container.getBoundingClientRect();
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(
-          interactiveObjectsRef.current.map((i) => i.object),
-          true
-        );
+        const intersects = raycaster.intersectObjects(cachedInteractiveMeshes, true);
 
         if (intersects.length > 0) {
           const hit = intersects[0];
@@ -1053,10 +1084,10 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
             (item) => item.object === hit.object || item.object.children.includes(hit.object)
           );
           if (match) {
-            const lData = landmarks.find((l) => l.id === match.landmarkId);
+            const lData = landmarksRef.current.find((l) => l.id === match.landmarkId);
             if (lData) {
               sound.playChime();
-              onSelectLandmark(lData);
+              onSelectLandmarkRef.current(lData);
             }
           }
         }
@@ -1132,14 +1163,14 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
-      if (isPaused) {
+      if (isPausedRef.current) {
         return;
       }
 
       const elapsedTime = performance.now() * 0.001;
 
       // Video entrance animation: smoothly zoom up from small distance to full center screen
-      if (introPhase === 'zooming_in' && !introFinishedRef.current && globeRoot) {
+      if (introPhaseRef.current === 'zooming_in' && !introFinishedRef.current && globeRoot) {
         introAnimProgressRef.current += 0.012;
         const p = Math.min(1, introAnimProgressRef.current);
         const easeScale = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
@@ -1148,7 +1179,7 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
 
         if (p >= 1) {
           introFinishedRef.current = true;
-          if (onIntroZoomComplete) onIntroZoomComplete();
+          onIntroZoomCompleteRef.current?.();
         }
       }
 
@@ -1178,7 +1209,7 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       }
 
       // Auto rotation
-      if (isAutoRotate && !isDraggingRef.current && !selectedLandmark && globeRoot && introFinishedRef.current) {
+      if (isAutoRotateRef.current && !isDraggingRef.current && !selectedLandmark && globeRoot && introFinishedRef.current) {
         globeRoot.rotation.y += 0.003;
       }
 
@@ -1226,7 +1257,7 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       }
 
       // Anti-Gravity float physics!
-      if (isAntiGravity) {
+      if (isAntiGravityRef.current) {
         const agOffset = Math.sin(elapsedTime * 2.5) * 0.12;
         girlRoot.position.y = globeRadius + 0.15 + agOffset;
         skyscrapersRoot.position.set(
@@ -1266,14 +1297,19 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
       }
       renderer.dispose();
     };
-  }, [landmarks, onSelectLandmark, isAntiGravity, isAutoRotate, introPhase, onIntroZoomComplete, DEFAULT_CAM_POS, DEFAULT_TARGET, DEFAULT_FOV, isPaused]);
+  }, []); // Mounts once and runs continuously without lag
 
   return (
     <div className="relative w-full h-full select-none overflow-hidden" ref={containerRef}>
       {hoveredLandmark && (
         <div
-          className="fixed pointer-events-none z-30 transform -translate-x-1/2 -translate-y-full mb-3 px-3.5 py-2 bg-slate-900/90 text-white backdrop-blur-md rounded-xl border border-slate-700/60 shadow-xl animate-bounce"
-          style={{ left: `${cursorPos.x}px`, top: `${cursorPos.y - 12}px` }}
+          ref={tooltipRef}
+          className="fixed pointer-events-none z-30 mb-3 px-3.5 py-2 bg-slate-900/90 text-white backdrop-blur-md rounded-xl border border-slate-700/60 shadow-xl will-change-transform"
+          style={{
+            left: 0,
+            top: 0,
+            transform: `translate3d(${cursorPosRef.current.x}px, ${cursorPosRef.current.y - 16}px, 0)`,
+          }}
         >
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />

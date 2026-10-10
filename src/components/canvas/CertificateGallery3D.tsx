@@ -228,6 +228,14 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   const [galleryMode, setGalleryMode] = useState<'hallway' | 'entering' | 'inside_room'>('hallway');
   const [hoveredCert, setHoveredCert] = useState<CertificateItem | null>(null);
 
+  const galleryModeRef = useRef(galleryMode);
+  galleryModeRef.current = galleryMode;
+
+  const certificatesRef = useRef(certificates);
+  certificatesRef.current = certificates;
+
+  const hoveredCertIdRef = useRef<string | null>(null);
+
   // Three.js References
   const sceneRef = useRef<THREE.Scene | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -338,6 +346,9 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     [activeRoomIndex, certificates.length, enterRoom]
   );
 
+  const enterRoomRef = useRef(enterRoom);
+  enterRoomRef.current = enterRoom;
+
 
 
   // --- THREE.JS INITIALIZATION & SCENE SETUP ---
@@ -368,7 +379,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       alpha: false,
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.35;
     renderer.shadowMap.enabled = true;
@@ -700,10 +711,12 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
     doorsListRef.current = doorsList;
     clickableMeshesRef.current = clickableList;
+    const cachedClickableMeshes = clickableList.map((c) => c.mesh);
 
     // 6. Raycasting & Mouse Navigation Events
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
+    let lastRaycastTime = 0;
 
     const onPointerDown = (e: MouseEvent) => {
       isDraggingRef.current = true;
@@ -716,7 +729,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
       // Drag to scroll along corridor when in hallway mode
-      if (isDraggingRef.current && galleryMode === 'hallway') {
+      if (isDraggingRef.current && galleryModeRef.current === 'hallway') {
         const deltaY = e.clientY - lastMouseYRef.current;
         targetScrollZRef.current += deltaY * 0.015;
         // Clamp to hallway length
@@ -725,24 +738,32 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       }
 
       // Raycasting for door hovering
-      if (galleryMode === 'hallway') {
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(
-          clickableMeshesRef.current.map((c) => c.mesh)
-        );
+      if (galleryModeRef.current === 'hallway') {
+        const now = performance.now();
+        if (now - lastRaycastTime > 50 && camera) {
+          lastRaycastTime = now;
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(cachedClickableMeshes, true);
 
-        if (intersects.length > 0) {
-          const hit = intersects[0];
-          const match = clickableMeshesRef.current.find((c) => c.mesh === hit.object);
-          if (match) {
-            const cert = certificates[match.index];
-            setHoveredCert(cert || null);
-            container.style.cursor = 'pointer';
-            return;
+          if (intersects.length > 0) {
+            const hit = intersects[0];
+            const match = clickableMeshesRef.current.find((c) => c.mesh === hit.object);
+            if (match) {
+              if (hoveredCertIdRef.current !== match.certId) {
+                hoveredCertIdRef.current = match.certId;
+                const cert = certificatesRef.current[match.index];
+                setHoveredCert(cert || null);
+              }
+              container.style.cursor = 'pointer';
+              return;
+            }
           }
+          if (hoveredCertIdRef.current !== null) {
+            hoveredCertIdRef.current = null;
+            setHoveredCert(null);
+          }
+          container.style.cursor = isDraggingRef.current ? 'grabbing' : 'grab';
         }
-        setHoveredCert(null);
-        container.style.cursor = isDraggingRef.current ? 'grabbing' : 'grab';
       }
     };
 
@@ -751,21 +772,19 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       container.style.cursor = 'grab';
 
       // Click to enter door
-      if (galleryMode === 'hallway') {
+      if (galleryModeRef.current === 'hallway') {
         const rect = container.getBoundingClientRect();
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
         raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(
-          clickableMeshesRef.current.map((c) => c.mesh)
-        );
+        const intersects = raycaster.intersectObjects(cachedClickableMeshes, true);
 
         if (intersects.length > 0) {
           const hit = intersects[0];
           const match = clickableMeshesRef.current.find((c) => c.mesh === hit.object);
           if (match) {
-            enterRoom(match.index);
+            enterRoomRef.current(match.index);
           }
         }
       }
@@ -773,7 +792,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (galleryMode === 'hallway') {
+      if (galleryModeRef.current === 'hallway') {
         targetScrollZRef.current -= e.deltaY * 0.008;
         targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(5, targetScrollZRef.current));
       }
@@ -821,7 +840,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
           camera.lookAt(currentCamTarget.current);
           if (anim.onComplete) anim.onComplete();
         }
-      } else if (galleryMode === 'hallway') {
+      } else if (galleryModeRef.current === 'hallway') {
         // Smooth scroll damping in hallway
         scrollZRef.current = THREE.MathUtils.lerp(scrollZRef.current, targetScrollZRef.current, 0.08);
         camera.position.set(0, 1.7, scrollZRef.current);
@@ -852,7 +871,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       }
       renderer.dispose();
     };
-  }, [isOpen, certificates, galleryMode, enterRoom]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
