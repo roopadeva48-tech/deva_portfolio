@@ -215,6 +215,93 @@ function createDoorBadgesTexture(category: string, doorNum: number): THREE.Canva
   return texture;
 }
 
+// Procedural high-resolution parchment certificate for the 3D room wall
+function createCertificateWallTexture(cert: CertificateItem): THREE.CanvasTexture {
+  const canvas = document.createElement('canvas');
+  canvas.width = 1024;
+  canvas.height = 768;
+  const ctx = canvas.getContext('2d')!;
+
+  // Parchment paper background
+  ctx.fillStyle = '#fffdfa';
+  ctx.fillRect(0, 0, 1024, 768);
+
+  // Elegant gold & dark slate borders
+  ctx.strokeStyle = '#d97706';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(28, 28, 968, 712);
+
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(44, 44, 936, 680);
+
+  // Corner decorative flourishes
+  ctx.fillStyle = '#d97706';
+  [[52, 52], [972, 52], [52, 716], [972, 716]].forEach(([cx, cy]) => {
+    ctx.beginPath();
+    ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Top header
+  ctx.fillStyle = '#b45309';
+  ctx.font = 'bold 22px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('CERTIFICATE OF MASTERY', 512, 115);
+
+  // Title
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 38px sans-serif';
+  const title = cert.title.length > 34 ? cert.title.slice(0, 34) + '...' : cert.title;
+  ctx.fillText(title, 512, 205);
+
+  // Recipient
+  ctx.fillStyle = '#64748b';
+  ctx.font = 'italic 24px serif';
+  ctx.fillText('Presented with distinction to', 512, 275);
+
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 44px sans-serif';
+  ctx.fillText('DEVAROOPA', 512, 345);
+
+  // Underline
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(300, 370);
+  ctx.lineTo(724, 370);
+  ctx.stroke();
+
+  // Category & Issuer
+  ctx.fillStyle = '#334155';
+  ctx.font = '22px sans-serif';
+  ctx.fillText(`Verified expertise in ${cert.category}`, 512, 435);
+
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 24px sans-serif';
+  ctx.fillText(`Issued by: ${cert.issuer}`, 512, 500);
+
+  // Gold Seal on bottom right
+  ctx.fillStyle = '#f59e0b';
+  ctx.beginPath();
+  ctx.arc(820, 600, 48, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#b45309';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+  ctx.fillStyle = '#78350f';
+  ctx.font = 'bold 16px sans-serif';
+  ctx.fillText('VERIFIED', 820, 605);
+
+  // Date on bottom left
+  ctx.fillStyle = '#64748b';
+  ctx.font = '20px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(`Date: ${cert.issueDate}`, 120, 620);
+
+  return new THREE.CanvasTexture(canvas);
+}
+
 export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   isOpen,
   onClose,
@@ -289,7 +376,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     []
   );
 
-  // Enter a Door & Room (Slowly and gracefully glide camera to doorway, swing door open, then pop up certificate)
+  // Enter a Door & Room (Glide camera into doorway, swing door open wide, then show certificate)
   const enterRoom = useCallback(
     (index: number) => {
       if (index < 0 || index >= certificates.length) return;
@@ -299,15 +386,16 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       const cert = certificates[index];
       setActiveRoomIndex(index);
       setGalleryMode('entering');
-      setSelectedCert(null); // Keep certificate hidden while traveling
+      setSelectedCert(null);
+      sound.playClick();
       sound.playZoom();
 
-      // Swing door open gracefully
+      // Swing door open wide immediately
       doorObj.isOpenState = true;
 
-      // Animate camera slowly and smoothly towards the room doorway (2.2s gentle glide)
-      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 2.2, () => {
-        // Reached the room gracefully: trigger certificate popup with chime
+      // Animate camera smoothly towards the room doorway (1.1s glide)
+      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 1.1, () => {
+        // Reached the room doorway: trigger certificate popup with chime
         setSelectedCert(cert);
         setGalleryMode('inside_room');
         sound.playChime();
@@ -316,7 +404,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     [certificates, animateCameraTo]
   );
 
-  // Exit Room back to Hallway (Close popup & door)
+  // Exit Room back to Hallway (Close popup & door, reset camera)
   const exitRoom = useCallback(() => {
     if (activeRoomIndex !== null) {
       const doorObj = doorsListRef.current[activeRoomIndex];
@@ -328,7 +416,14 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     setSelectedCert(null);
     setActiveRoomIndex(null);
     setGalleryMode('hallway');
-  }, [activeRoomIndex]);
+    if (cameraRef.current) {
+      animateCameraTo(
+        new THREE.Vector3(0, 1.7, scrollZRef.current),
+        new THREE.Vector3(0, 1.7, scrollZRef.current - 10),
+        0.8
+      );
+    }
+  }, [activeRoomIndex, animateCameraTo]);
 
   // Navigate to Next / Previous Room
   const navigateRoom = useCallback(
@@ -568,14 +663,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       doorFrame.castShadow = true;
       doorRoot.add(doorFrame);
 
-      // Inner Opening Cutout
-      const doorwayOpening = new THREE.Mesh(
-        new THREE.BoxGeometry(1.3, 2.45, 0.22),
-        new THREE.MeshBasicMaterial({ color: 0x18181b })
-      );
-      doorwayOpening.position.set(0, 1.225, 0);
-      doorRoot.add(doorwayOpening);
-
       // Pivoting Door Panel (Hinged at left edge of door frame)
       const doorPanelGroup = new THREE.Group();
       doorPanelGroup.position.set(-0.6, 0, 0); // Hinge pivot point
@@ -633,49 +720,100 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       plaqueMesh.position.set(0, 2.85, 0.1);
       doorRoot.add(plaqueMesh);
 
-      // Light inside the Exhibition Room
-      const roomLight = new THREE.PointLight(0xfff7ed, 2.0, 10);
-      roomLight.position.set(doorX + (isLeft ? -2.2 : 2.2), 2.2, doorZ);
-      scene.add(roomLight);
+      // --- EXHIBITION ROOM INTERIOR BEHIND THE DOOR ---
+      const roomDepth = 3.2;
+      const roomWidth = 3.2;
+      const roomHeight = 3.6;
 
-      // Framed Certificate on the Exhibition Room Wall (Black & Warm White Museum Aesthetic)
-      const frameWallGroup = new THREE.Group();
-      frameWallGroup.position.set(doorX + (isLeft ? -3.8 : 3.8), 1.7, doorZ);
-      frameWallGroup.rotation.y = isLeft ? Math.PI / 2 : -Math.PI / 2;
-      scene.add(frameWallGroup);
+      const roomGroup = new THREE.Group();
+      doorRoot.add(roomGroup);
 
-      // Elegant Black Picture Frame
-      const picFrame = new THREE.Mesh(
-        new THREE.BoxGeometry(2.4, 1.7, 0.1),
+      // Room Floor
+      const roomFloor = new THREE.Mesh(
+        new THREE.PlaneGeometry(roomWidth, roomDepth),
+        new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.6 })
+      );
+      roomFloor.rotation.x = -Math.PI / 2;
+      roomFloor.position.set(0, 0, -roomDepth / 2);
+      roomGroup.add(roomFloor);
+
+      // Room Ceiling
+      const roomCeiling = new THREE.Mesh(
+        new THREE.PlaneGeometry(roomWidth, roomDepth),
+        ceilingMat
+      );
+      roomCeiling.rotation.x = Math.PI / 2;
+      roomCeiling.position.set(0, roomHeight, -roomDepth / 2);
+      roomGroup.add(roomCeiling);
+
+      // Room Back Wall (facing doorway)
+      const roomBackWall = new THREE.Mesh(
+        new THREE.PlaneGeometry(roomWidth, roomHeight),
+        new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.9 })
+      );
+      roomBackWall.position.set(0, roomHeight / 2, -roomDepth);
+      roomGroup.add(roomBackWall);
+
+      // Room Left Wall
+      const roomLeftWall = new THREE.Mesh(
+        new THREE.PlaneGeometry(roomDepth, roomHeight),
+        new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.9 })
+      );
+      roomLeftWall.rotation.y = Math.PI / 2;
+      roomLeftWall.position.set(-roomWidth / 2, roomHeight / 2, -roomDepth / 2);
+      roomGroup.add(roomLeftWall);
+
+      // Room Right Wall
+      const roomRightWall = new THREE.Mesh(
+        new THREE.PlaneGeometry(roomDepth, roomHeight),
+        new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.9 })
+      );
+      roomRightWall.rotation.y = -Math.PI / 2;
+      roomRightWall.position.set(roomWidth / 2, roomHeight / 2, -roomDepth / 2);
+      roomGroup.add(roomRightWall);
+
+      // Warm Room Spotlight inside room
+      const roomSpot = new THREE.PointLight(0xfef08a, 2.8, 8, 1.2);
+      roomSpot.position.set(0, 2.9, -1.6);
+      roomGroup.add(roomSpot);
+
+      // Framed Certificate on Room Back Wall!
+      const frameGroup = new THREE.Group();
+      frameGroup.position.set(0, 1.7, -roomDepth + 0.08);
+      roomGroup.add(frameGroup);
+
+      const frameMesh = new THREE.Mesh(
+        new THREE.BoxGeometry(2.3, 1.6, 0.08),
         blackTrimMat
       );
-      frameWallGroup.add(picFrame);
+      frameGroup.add(frameMesh);
 
-      // Certificate Paper Canvas
-      const certPaper = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.2, 1.5),
+      const certWallTex = createCertificateWallTexture(cert);
+      const certWallMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.15, 1.45),
         new THREE.MeshStandardMaterial({
-          color: 0xffffff,
+          map: certWallTex,
           roughness: 0.3,
-          metalness: 0.0,
+          metalness: 0.05,
         })
       );
-      certPaper.position.z = 0.06;
-      frameWallGroup.add(certPaper);
+      certWallMesh.position.z = 0.05;
+      frameGroup.add(certWallMesh);
 
-      // Register door click targets
-      clickableList.push({ mesh: panelMesh, certId: cert.id, index: idx });
-      clickableList.push({ mesh: doorFrame, certId: cert.id, index: idx });
-      clickableList.push({ mesh: plaqueMesh, certId: cert.id, index: idx });
+      // Tag all meshes with certIndex for instant raycasting
+      doorRoot.userData = { certIndex: idx, certId: cert.id };
+      doorRoot.traverse((child) => {
+        child.userData = { certIndex: idx, certId: cert.id };
+      });
 
       // Calculate camera coordinates for room entry
       const hallCamPos = new THREE.Vector3(
-        isLeft ? -0.8 : 0.8,
+        isLeft ? -0.9 : 0.9,
         1.7,
-        doorZ + 0.2
+        doorZ
       );
       const hallCamTarget = new THREE.Vector3(
-        isLeft ? -2.0 : 2.0,
+        doorX + (isLeft ? -3.0 : 3.0),
         1.7,
         doorZ
       );
@@ -698,7 +836,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         doorHandle: handleMesh,
         doorFrame: doorFrame,
         plaqueMesh: plaqueMesh,
-        roomLight: roomLight,
+        roomLight: roomSpot,
         doorPos: new THREE.Vector3(doorX, 0, doorZ),
         roomCamPos: roomCamPos,
         roomCamTarget: roomCamTarget,
@@ -707,20 +845,25 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         isOpenState: false,
         side: isLeft ? 'left' : 'right',
       });
+
+      clickableList.push({ mesh: doorRoot, certId: cert.id, index: idx });
     });
 
     doorsListRef.current = doorsList;
     clickableMeshesRef.current = clickableList;
     const cachedClickableMeshes = clickableList.map((c) => c.mesh);
 
-    // 6. Raycasting & Mouse Navigation Events
+    // 6. Raycasting & Mouse / Touch Navigation Events
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let lastRaycastTime = 0;
+    const pointerDownPos = { x: 0, y: 0 };
 
     const onPointerDown = (e: MouseEvent) => {
       isDraggingRef.current = true;
       lastMouseYRef.current = e.clientY;
+      pointerDownPos.x = e.clientX;
+      pointerDownPos.y = e.clientY;
     };
 
     const onPointerMove = (e: MouseEvent) => {
@@ -732,7 +875,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       if (isDraggingRef.current && galleryModeRef.current === 'hallway') {
         const deltaY = e.clientY - lastMouseYRef.current;
         targetScrollZRef.current += deltaY * 0.015;
-        // Clamp to hallway length
         targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(5, targetScrollZRef.current));
         lastMouseYRef.current = e.clientY;
       }
@@ -740,24 +882,36 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       // Raycasting for door hovering
       if (galleryModeRef.current === 'hallway') {
         const now = performance.now();
-        if (now - lastRaycastTime > 50 && camera) {
+        if (now - lastRaycastTime > 40 && camera) {
           lastRaycastTime = now;
           raycaster.setFromCamera(mouse, camera);
           const intersects = raycaster.intersectObjects(cachedClickableMeshes, true);
 
+          let matchedIdx: number | null = null;
           if (intersects.length > 0) {
-            const hit = intersects[0];
-            const match = clickableMeshesRef.current.find((c) => c.mesh === hit.object);
-            if (match) {
-              if (hoveredCertIdRef.current !== match.certId) {
-                hoveredCertIdRef.current = match.certId;
-                const cert = certificatesRef.current[match.index];
-                setHoveredCert(cert || null);
+            for (const hit of intersects) {
+              let curr: THREE.Object3D | null = hit.object;
+              while (curr) {
+                if (curr.userData && typeof curr.userData.certIndex === 'number') {
+                  matchedIdx = curr.userData.certIndex;
+                  break;
+                }
+                curr = curr.parent;
               }
-              container.style.cursor = 'pointer';
-              return;
+              if (matchedIdx !== null) break;
             }
           }
+
+          if (matchedIdx !== null) {
+            const cert = certificatesRef.current[matchedIdx];
+            if (hoveredCertIdRef.current !== cert?.id) {
+              hoveredCertIdRef.current = cert?.id || null;
+              setHoveredCert(cert || null);
+            }
+            container.style.cursor = 'pointer';
+            return;
+          }
+
           if (hoveredCertIdRef.current !== null) {
             hoveredCertIdRef.current = null;
             setHoveredCert(null);
@@ -771,8 +925,10 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       isDraggingRef.current = false;
       container.style.cursor = 'grab';
 
+      const moveDist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+
       // Click to enter door
-      if (galleryModeRef.current === 'hallway') {
+      if (moveDist < 10 && galleryModeRef.current === 'hallway') {
         const rect = container.getBoundingClientRect();
         mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
         mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -781,10 +937,21 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         const intersects = raycaster.intersectObjects(cachedClickableMeshes, true);
 
         if (intersects.length > 0) {
-          const hit = intersects[0];
-          const match = clickableMeshesRef.current.find((c) => c.mesh === hit.object);
-          if (match) {
-            enterRoomRef.current(match.index);
+          let matchedIdx: number | null = null;
+          for (const hit of intersects) {
+            let curr: THREE.Object3D | null = hit.object;
+            while (curr) {
+              if (curr.userData && typeof curr.userData.certIndex === 'number') {
+                matchedIdx = curr.userData.certIndex;
+                break;
+              }
+              curr = curr.parent;
+            }
+            if (matchedIdx !== null) break;
+          }
+
+          if (matchedIdx !== null) {
+            enterRoomRef.current(matchedIdx);
           }
         }
       }
@@ -798,10 +965,68 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       }
     };
 
+    // Mobile touch controls
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        lastMouseYRef.current = e.touches[0].clientY;
+        isDraggingRef.current = true;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 1 && isDraggingRef.current && galleryModeRef.current === 'hallway') {
+        const deltaY = e.touches[0].clientY - lastMouseYRef.current;
+        targetScrollZRef.current += deltaY * 0.015;
+        targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(5, targetScrollZRef.current));
+        lastMouseYRef.current = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchEnd = (e: TouchEvent) => {
+      isDraggingRef.current = false;
+      if (e.changedTouches.length === 1 && galleryModeRef.current === 'hallway') {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.hypot(dx, dy) < 12) {
+          const rect = container.getBoundingClientRect();
+          mouse.x = ((e.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
+          mouse.y = -((e.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
+
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObjects(cachedClickableMeshes, true);
+          if (intersects.length > 0) {
+            let matchedIdx: number | null = null;
+            for (const hit of intersects) {
+              let curr: THREE.Object3D | null = hit.object;
+              while (curr) {
+                if (curr.userData && typeof curr.userData.certIndex === 'number') {
+                  matchedIdx = curr.userData.certIndex;
+                  break;
+                }
+                curr = curr.parent;
+              }
+              if (matchedIdx !== null) break;
+            }
+            if (matchedIdx !== null) {
+              enterRoomRef.current(matchedIdx);
+            }
+          }
+        }
+      }
+    };
+
     container.addEventListener('mousedown', onPointerDown);
     container.addEventListener('mousemove', onPointerMove);
     window.addEventListener('mouseup', onPointerUp);
     container.addEventListener('wheel', onWheel, { passive: false });
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
+    container.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
 
     const onResize = () => {
       if (!container || !renderer || !camera) return;
@@ -822,11 +1047,9 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       // Smooth camera lerp animation during room transitions
       const anim = camAnimRef.current;
       if (anim.active) {
-        // Increment progress proportionally to specified duration (e.g. 2.2 seconds)
-        const frameStep = 1 / (Math.max(anim.duration, 0.5) * 60);
+        const frameStep = 1 / (Math.max(anim.duration, 0.4) * 60);
         anim.progress += frameStep;
         const t = Math.min(1, anim.progress);
-        // Smooth ease-in-out curve for gentle acceleration and deceleration
         const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
         camera.position.lerpVectors(anim.startPos, anim.endPos, ease);
@@ -850,8 +1073,8 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
       // Smooth gentle door swing open/close animation
       doorsListRef.current.forEach((door) => {
-        const targetAngle = door.isOpenState ? (door.side === 'left' ? -Math.PI * 0.48 : Math.PI * 0.48) : 0;
-        door.doorPanel.rotation.y = THREE.MathUtils.lerp(door.doorPanel.rotation.y, targetAngle, 0.045);
+        const targetAngle = door.isOpenState ? (door.side === 'left' ? -Math.PI * 0.52 : Math.PI * 0.52) : 0;
+        door.doorPanel.rotation.y = THREE.MathUtils.lerp(door.doorPanel.rotation.y, targetAngle, 0.085);
       });
 
       renderer.render(scene, camera);
@@ -866,6 +1089,9 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       container.removeEventListener('mousemove', onPointerMove);
       window.removeEventListener('mouseup', onPointerUp);
       container.removeEventListener('wheel', onWheel);
+      container.removeEventListener('touchstart', onTouchStart);
+      container.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
       if (renderer.domElement && container.contains(renderer.domElement)) {
         container.removeChild(renderer.domElement);
       }
@@ -918,17 +1144,22 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         {/* Hallway Exploration Guide Tooltip */}
         {galleryMode === 'hallway' && (
           <div className="absolute bottom-6 inset-x-0 flex flex-col items-center pointer-events-none z-20">
-            <div className="bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-xs text-slate-900 flex items-center gap-2 font-bold">
-              <span>💡 Drag / scroll to walk down the hallway · Click any door to view certificate</span>
+            <div className="bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] text-xs text-slate-900 flex items-center gap-2 font-bold pointer-events-auto">
+              <span>💡 Drag / scroll hallway · Click any door to open & view certificate</span>
             </div>
             {hoveredCert && (
-              <motion.div
+              <motion.button
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-2 bg-amber-400 text-slate-950 px-4 py-1.5 rounded-xl font-black text-xs shadow-md border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                onClick={() => {
+                  const idx = certificates.findIndex((c) => c.id === hoveredCert.id);
+                  if (idx !== -1) enterRoom(idx);
+                }}
+                className="mt-2.5 bg-amber-400 hover:bg-amber-300 active:scale-95 text-slate-950 px-5 py-2 rounded-xl font-black text-xs shadow-md border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] pointer-events-auto cursor-pointer transition-transform flex items-center gap-2"
               >
-                Door #{hoveredCert.doorNumber || 101}: {hoveredCert.title}
-              </motion.div>
+                <span>🚪</span>
+                <span>Open Door #{hoveredCert.doorNumber || 101}: {hoveredCert.title} →</span>
+              </motion.button>
             )}
           </div>
         )}
