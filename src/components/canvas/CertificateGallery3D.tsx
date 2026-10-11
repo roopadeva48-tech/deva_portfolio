@@ -8,6 +8,8 @@ interface CertificateGallery3DProps {
   isOpen: boolean;
   onClose: () => void;
   certificates: CertificateItem[];
+  activeCertId?: string | null;
+  onRoomChange?: (certId: string | null) => void;
 }
 
 interface DoorObjectRef {
@@ -306,6 +308,8 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   isOpen,
   onClose,
   certificates,
+  activeCertId,
+  onRoomChange,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -392,6 +396,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
       // Swing door open wide immediately
       doorObj.isOpenState = true;
+      onRoomChange?.(cert.id);
 
       // Animate camera smoothly towards the room doorway (1.1s glide)
       animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 1.1, () => {
@@ -416,6 +421,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     setSelectedCert(null);
     setActiveRoomIndex(null);
     setGalleryMode('hallway');
+    onRoomChange?.(null);
     if (cameraRef.current) {
       animateCameraTo(
         new THREE.Vector3(0, 1.7, scrollZRef.current),
@@ -440,6 +446,34 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     },
     [activeRoomIndex, certificates.length, enterRoom]
   );
+
+  // Sync activeCertId from external URL prop
+  useEffect(() => {
+    if (!isOpen) return;
+    if (activeCertId) {
+      const idx = certificates.findIndex(
+        (c) => c.id === activeCertId || String(c.doorNumber) === activeCertId
+      );
+      if (idx !== -1 && idx !== activeRoomIndex) {
+        let attempts = 0;
+        let timer: any = null;
+        const checkAndEnter = () => {
+          if (doorsListRef.current[idx]) {
+            enterRoom(idx);
+          } else if (attempts < 20) {
+            attempts++;
+            timer = setTimeout(checkAndEnter, 100);
+          }
+        };
+        timer = setTimeout(checkAndEnter, 350);
+        return () => {
+          if (timer) clearTimeout(timer);
+        };
+      }
+    } else if (!activeCertId && activeRoomIndex !== null) {
+      exitRoom();
+    }
+  }, [activeCertId, isOpen, certificates, enterRoom, exitRoom, activeRoomIndex]);
 
   const enterRoomRef = useRef(enterRoom);
   enterRoomRef.current = enterRoom;
