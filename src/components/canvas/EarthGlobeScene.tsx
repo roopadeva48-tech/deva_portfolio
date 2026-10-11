@@ -962,327 +962,121 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     signGroup.add(triangleSign);
     signsGroup.add(signGroup);
 
-    // --- 12. STYLIZED 2D CARTOON CEL-SHADED CUMULUS CLOUDS (MATCHING REFERENCE DESIGN) ---
+    // --- 12. GENUINE 3D MINIATURE PUFFY CUMULUS CLOUDS (PETITE & NON-OBSCURING) ---
     const cloudsGroup = new THREE.Group();
     globeRoot.add(cloudsGroup);
     cloudsGroupRef.current = cloudsGroup;
 
-    // Procedural generator for 5 distinct stylized cartoon cloud textures matching the reference image
-    const createCartoonCloudTextures = (): THREE.CanvasTexture[] => {
-      const textures: THREE.CanvasTexture[] = [];
-      const colWhite = '#ffffff';
-      const colShadow = '#bdd8ea'; // Rich cel-shaded blue-gray underside with crisp contrast
-      const colDarkShadow = '#9ec4dd'; // Inner crease accent
-      const colDropShadow = 'rgba(10, 58, 92, 0.28)'; // Crisp ambient drop shadow
+    // Shared sphere geometry & materials for optimal performance (0 lag)
+    const cloudSphereGeo = new THREE.SphereGeometry(1, 14, 10);
+    const cloudWhiteMat = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      roughness: 0.35,
+      metalness: 0.02,
+      flatShading: false,
+    });
+    const cloudShadowMat = new THREE.MeshStandardMaterial({
+      color: 0xd2e5f5, // Soft periwinkle cel-tone underside
+      roughness: 0.45,
+      metalness: 0.02,
+      flatShading: false,
+    });
 
-      for (let variant = 0; variant < 5; variant++) {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 256;
-        const ctx = canvas.getContext('2d')!;
-        ctx.clearRect(0, 0, 512, 256);
+    // Helper to generate a cute, miniature 3D puffy cloud
+    const create3DCloudMesh = (variant: number): THREE.Group => {
+      const cloud = new THREE.Group();
 
-        if (variant === 0) {
-          // --- VARIANT 0: Classic 3-Dome Puffy Cloud with Soft Flanks (Row 2 Left) ---
-          // 1. Drop shadow
-          ctx.fillStyle = colDropShadow;
-          ctx.beginPath();
-          ctx.arc(170, 162, 48, 0, Math.PI * 2);
-          ctx.arc(256, 164, 54, 0, Math.PI * 2);
-          ctx.arc(340, 162, 48, 0, Math.PI * 2);
-          ctx.arc(115, 172, 34, 0, Math.PI * 2);
-          ctx.arc(395, 172, 34, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 2. Lower Cel-Shaded Blue Base
-          ctx.fillStyle = colShadow;
-          ctx.beginPath();
-          ctx.arc(170, 150, 48, 0, Math.PI * 2);
-          ctx.arc(256, 152, 54, 0, Math.PI * 2);
-          ctx.arc(340, 150, 48, 0, Math.PI * 2);
-          ctx.arc(115, 162, 34, 0, Math.PI * 2);
-          ctx.arc(395, 162, 34, 0, Math.PI * 2);
-          // Base wisp tails
-          ctx.moveTo(85, 170);
-          ctx.quadraticCurveTo(60, 170, 42, 166);
-          ctx.quadraticCurveTo(65, 160, 100, 156);
-          ctx.moveTo(420, 158);
-          ctx.quadraticCurveTo(455, 162, 475, 168);
-          ctx.quadraticCurveTo(450, 172, 410, 170);
-          ctx.fill();
-
-          // Inner crease accents
-          ctx.strokeStyle = colDarkShadow;
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(215, 152, 36, 0.5 * Math.PI, 0.9 * Math.PI);
-          ctx.arc(295, 152, 36, 0.1 * Math.PI, 0.5 * Math.PI);
-          ctx.stroke();
-
-          // 3. Top Billowing White Domes
-          ctx.fillStyle = colWhite;
-          ctx.beginPath();
-          ctx.arc(256, 104, 68, 0, Math.PI * 2); // Main center dome
-          ctx.arc(188, 122, 52, 0, Math.PI * 2); // Left dome
-          ctx.arc(326, 122, 52, 0, Math.PI * 2); // Right dome
-          ctx.arc(128, 144, 38, 0, Math.PI * 2); // Far left lobe
-          ctx.arc(384, 144, 38, 0, Math.PI * 2); // Far right lobe
-          ctx.fill();
-
-          // Layered internal white rim puffs on lower blue lobes
-          ctx.fillStyle = colWhite;
-          ctx.beginPath();
-          ctx.arc(170, 152, 28, Math.PI, 1.85 * Math.PI);
-          ctx.lineTo(170, 152);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(340, 152, 28, 1.15 * Math.PI, 2 * Math.PI);
-          ctx.lineTo(340, 152);
-          ctx.fill();
-
-        } else if (variant === 1) {
-          // --- VARIANT 1: Towering Majestic Cumulus with Tapering Left Wing (Row 1 Right) ---
-          // 1. Drop shadow
-          ctx.fillStyle = colDropShadow;
-          ctx.beginPath();
-          ctx.arc(350, 168, 55, 0, Math.PI * 2);
-          ctx.arc(270, 170, 50, 0, Math.PI * 2);
-          ctx.arc(420, 170, 44, 0, Math.PI * 2);
-          ctx.arc(190, 174, 38, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 2. Lower Cel-Shaded Blue Base & Wing
-          ctx.fillStyle = colShadow;
-          ctx.beginPath();
-          ctx.arc(350, 156, 56, 0, Math.PI * 2);
-          ctx.arc(270, 158, 52, 0, Math.PI * 2);
-          ctx.arc(420, 158, 46, 0, Math.PI * 2);
-          ctx.arc(190, 164, 40, 0, Math.PI * 2);
-          ctx.arc(135, 170, 28, 0, Math.PI * 2);
-          // Tapered wing to the left
-          ctx.moveTo(135, 175);
-          ctx.bezierCurveTo(90, 180, 50, 175, 25, 170);
-          ctx.bezierCurveTo(55, 162, 95, 162, 135, 165);
-          ctx.fill();
-
-          // Inner crease accents
-          ctx.strokeStyle = colDarkShadow;
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(310, 158, 38, 0.4 * Math.PI, 0.9 * Math.PI);
-          ctx.arc(385, 158, 38, 0.1 * Math.PI, 0.6 * Math.PI);
-          ctx.stroke();
-
-          // 3. Top Billowing White Domes (Towering Peaks)
-          ctx.fillStyle = colWhite;
-          ctx.beginPath();
-          ctx.arc(360, 82, 64, 0, Math.PI * 2); // Tallest pinnacle
-          ctx.arc(280, 96, 56, 0, Math.PI * 2); // Second peak
-          ctx.arc(215, 120, 48, 0, Math.PI * 2); // Third peak
-          ctx.arc(428, 115, 46, 0, Math.PI * 2); // Right shoulder
-          ctx.arc(468, 142, 32, 0, Math.PI * 2); // Far right edge
-          ctx.arc(155, 150, 32, 0, Math.PI * 2); // Left wing transition
-          // Top white taper highlight
-          ctx.moveTo(155, 155);
-          ctx.bezierCurveTo(95, 162, 55, 164, 25, 170);
-          ctx.bezierCurveTo(55, 160, 105, 156, 155, 152);
-          ctx.fill();
-
-          // Secondary shaded scoop inside peak
-          ctx.fillStyle = colShadow;
-          ctx.beginPath();
-          ctx.arc(315, 130, 24, 0.2 * Math.PI, 0.8 * Math.PI);
-          ctx.fill();
-
-        } else if (variant === 2) {
-          // --- VARIANT 2: Low Drifting Cloud with Long Streamlined Tail (Row 3 Bottom) ---
-          // 1. Drop shadow
-          ctx.fillStyle = colDropShadow;
-          ctx.beginPath();
-          ctx.arc(380, 170, 55, 0, Math.PI * 2);
-          ctx.arc(440, 174, 42, 0, Math.PI * 2);
-          ctx.arc(310, 174, 45, 0, Math.PI * 2);
-          ctx.arc(240, 176, 34, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 2. Lower Cel-Shaded Blue Base & Segmented Tail
-          ctx.fillStyle = colShadow;
-          ctx.beginPath();
-          ctx.arc(380, 158, 58, 0, Math.PI * 2);
-          ctx.arc(445, 162, 45, 0, Math.PI * 2);
-          ctx.arc(310, 162, 48, 0, Math.PI * 2);
-          ctx.arc(240, 168, 36, 0, Math.PI * 2);
-          ctx.arc(175, 172, 28, 0, Math.PI * 2);
-          ctx.arc(120, 176, 22, 0, Math.PI * 2);
-          ctx.arc(75, 180, 16, 0, Math.PI * 2);
-          // Long tail point
-          ctx.moveTo(75, 182);
-          ctx.quadraticCurveTo(45, 185, 20, 185);
-          ctx.quadraticCurveTo(45, 178, 75, 176);
-          ctx.fill();
-
-          // Inner creases
-          ctx.strokeStyle = colDarkShadow;
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(345, 160, 32, 0.4 * Math.PI, 0.9 * Math.PI);
-          ctx.stroke();
-
-          // 3. Top Billowing White Domes
-          ctx.fillStyle = colWhite;
-          ctx.beginPath();
-          ctx.arc(375, 105, 68, 0, Math.PI * 2); // Big dome
-          ctx.arc(440, 130, 48, 0, Math.PI * 2); // Right dome
-          ctx.arc(478, 155, 28, 0, Math.PI * 2); // Far right end
-          ctx.arc(305, 130, 50, 0, Math.PI * 2); // Mid-left dome
-          ctx.arc(240, 150, 36, 0, Math.PI * 2); // Tail bubble 1
-          ctx.arc(175, 160, 28, 0, Math.PI * 2); // Tail bubble 2
-          ctx.arc(120, 168, 20, 0, Math.PI * 2); // Tail bubble 3
-          ctx.arc(75, 174, 14, 0, Math.PI * 2);  // Tail bubble 4
-          // White tail spine
-          ctx.moveTo(75, 174);
-          ctx.quadraticCurveTo(45, 180, 20, 185);
-          ctx.quadraticCurveTo(45, 176, 75, 172);
-          ctx.fill();
-
-        } else if (variant === 3) {
-          // --- VARIANT 3: Wide Undulating Billowing Cloud (Row 2 Right) ---
-          // 1. Drop shadow
-          ctx.fillStyle = colDropShadow;
-          ctx.beginPath();
-          ctx.arc(180, 170, 48, 0, Math.PI * 2);
-          ctx.arc(260, 172, 52, 0, Math.PI * 2);
-          ctx.arc(340, 172, 50, 0, Math.PI * 2);
-          ctx.arc(415, 170, 42, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 2. Lower Cel-Shaded Blue Base
-          ctx.fillStyle = colShadow;
-          ctx.beginPath();
-          ctx.arc(180, 158, 50, 0, Math.PI * 2);
-          ctx.arc(260, 160, 54, 0, Math.PI * 2);
-          ctx.arc(340, 160, 52, 0, Math.PI * 2);
-          ctx.arc(415, 158, 44, 0, Math.PI * 2);
-          ctx.arc(115, 162, 34, 0, Math.PI * 2);
-          ctx.arc(465, 162, 30, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Creases
-          ctx.strokeStyle = colDarkShadow;
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(220, 160, 36, 0.3 * Math.PI, 0.8 * Math.PI);
-          ctx.arc(300, 160, 36, 0.2 * Math.PI, 0.7 * Math.PI);
-          ctx.stroke();
-
-          // 3. Top Billowing White Undulations
-          ctx.fillStyle = colWhite;
-          ctx.beginPath();
-          ctx.arc(125, 140, 38, 0, Math.PI * 2);
-          ctx.arc(185, 118, 48, 0, Math.PI * 2);
-          ctx.arc(250, 102, 54, 0, Math.PI * 2);
-          ctx.arc(320, 98, 56, 0, Math.PI * 2);
-          ctx.arc(388, 115, 50, 0, Math.PI * 2);
-          ctx.arc(445, 138, 38, 0, Math.PI * 2);
-          ctx.fill();
-
-          // Layered internal white rim puffs
-          ctx.fillStyle = colWhite;
-          ctx.beginPath();
-          ctx.arc(260, 155, 30, Math.PI, 2 * Math.PI);
-          ctx.fill();
-          ctx.beginPath();
-          ctx.arc(340, 155, 28, Math.PI, 2 * Math.PI);
-          ctx.fill();
-
-        } else {
-          // --- VARIANT 4: Multi-Tier Fluffy Cloud with Right Taper (Row 3 Left) ---
-          // 1. Drop shadow
-          ctx.fillStyle = colDropShadow;
-          ctx.beginPath();
-          ctx.arc(160, 170, 50, 0, Math.PI * 2);
-          ctx.arc(240, 170, 54, 0, Math.PI * 2);
-          ctx.arc(320, 170, 48, 0, Math.PI * 2);
-          ctx.fill();
-
-          // 2. Lower Cel-Shaded Blue Base
-          ctx.fillStyle = colShadow;
-          ctx.beginPath();
-          ctx.arc(160, 158, 52, 0, Math.PI * 2);
-          ctx.arc(240, 158, 56, 0, Math.PI * 2);
-          ctx.arc(320, 158, 50, 0, Math.PI * 2);
-          ctx.arc(100, 162, 36, 0, Math.PI * 2);
-          ctx.arc(380, 165, 34, 0, Math.PI * 2);
-          // Right taper wisp
-          ctx.moveTo(380, 165);
-          ctx.quadraticCurveTo(430, 170, 480, 172);
-          ctx.quadraticCurveTo(440, 160, 380, 156);
-          ctx.fill();
-
-          // 3. Top Billowing White Domes
-          ctx.fillStyle = colWhite;
-          ctx.beginPath();
-          ctx.arc(175, 110, 58, 0, Math.PI * 2);
-          ctx.arc(255, 96, 66, 0, Math.PI * 2); // Center dome
-          ctx.arc(335, 115, 52, 0, Math.PI * 2);
-          ctx.arc(105, 138, 38, 0, Math.PI * 2);
-          ctx.arc(395, 142, 34, 0, Math.PI * 2);
-          // White taper top
-          ctx.moveTo(395, 146);
-          ctx.quadraticCurveTo(440, 160, 480, 172);
-          ctx.quadraticCurveTo(430, 154, 395, 138);
-          ctx.fill();
-
-          // Inner crease accents
-          ctx.strokeStyle = colDarkShadow;
-          ctx.lineWidth = 4;
-          ctx.beginPath();
-          ctx.arc(205, 155, 36, 0.4 * Math.PI, 0.9 * Math.PI);
-          ctx.arc(285, 155, 36, 0.1 * Math.PI, 0.6 * Math.PI);
-          ctx.stroke();
-        }
-
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        textures.push(texture);
+      if (variant === 0) {
+        // Variant 0: Classic 3-Dome Puffy Cumulus with tapered wisp
+        // [x, y, z, rx, ry, rz, isUnder]
+        const puffs: [number, number, number, number, number, number, boolean][] = [
+          [0, 0.05, 0, 0.14, 0.12, 0.12, false],       // Center main dome
+          [-0.11, 0.01, 0, 0.10, 0.09, 0.09, false],   // Left puff
+          [0.12, 0.02, 0, 0.11, 0.095, 0.095, false],  // Right puff
+          [0.02, 0.0, 0.07, 0.09, 0.08, 0.08, false],  // Front bump
+          [-0.02, 0.0, -0.07, 0.09, 0.08, 0.08, false],// Back bump
+          [-0.20, -0.02, 0, 0.06, 0.045, 0.05, false], // Left tapered wisp tip
+          [0.20, -0.01, 0, 0.065, 0.05, 0.055, false], // Right flank wisp
+          [0, -0.04, 0, 0.17, 0.06, 0.12, true],       // Shaded underside base
+        ];
+        puffs.forEach(([px, py, pz, rx, ry, rz, isUnder]) => {
+          const m = new THREE.Mesh(cloudSphereGeo, isUnder ? cloudShadowMat : cloudWhiteMat);
+          m.position.set(px, py, pz);
+          m.scale.set(rx, ry, rz);
+          m.castShadow = true;
+          cloud.add(m);
+        });
+      } else if (variant === 1) {
+        // Variant 1: Elongated Drifting Cloud with Streamlined Tail
+        const puffs: [number, number, number, number, number, number, boolean][] = [
+          [0.06, 0.06, 0, 0.15, 0.13, 0.12, false],    // High dome
+          [0.17, 0.02, 0, 0.11, 0.09, 0.09, false],    // Right dome
+          [-0.06, 0.02, 0, 0.11, 0.09, 0.09, false],   // Mid puff
+          [-0.16, -0.01, 0, 0.08, 0.06, 0.07, false],  // Tail puff 1
+          [-0.24, -0.03, 0, 0.055, 0.04, 0.045, false],// Tail puff 2 (thin tip)
+          [0.03, 0.0, 0.06, 0.085, 0.07, 0.075, false],// Front depth
+          [0.05, -0.04, 0, 0.18, 0.06, 0.11, true],    // Shaded underside
+        ];
+        puffs.forEach(([px, py, pz, rx, ry, rz, isUnder]) => {
+          const m = new THREE.Mesh(cloudSphereGeo, isUnder ? cloudShadowMat : cloudWhiteMat);
+          m.position.set(px, py, pz);
+          m.scale.set(rx, ry, rz);
+          m.castShadow = true;
+          cloud.add(m);
+        });
+      } else {
+        // Variant 2: Compact Fluffy 2-Tier Cumulus
+        const puffs: [number, number, number, number, number, number, boolean][] = [
+          [-0.04, 0.05, 0, 0.13, 0.11, 0.11, false],   // Peak 1
+          [0.07, 0.04, 0, 0.12, 0.10, 0.10, false],    // Peak 2
+          [-0.14, 0.0, 0, 0.08, 0.07, 0.07, false],    // Left edge
+          [0.16, -0.01, 0, 0.075, 0.06, 0.065, false], // Right edge
+          [0.01, 0.0, 0.06, 0.08, 0.07, 0.07, false],  // Front bump
+          [0.01, -0.03, 0, 0.15, 0.055, 0.10, true],   // Shaded underside
+        ];
+        puffs.forEach(([px, py, pz, rx, ry, rz, isUnder]) => {
+          const m = new THREE.Mesh(cloudSphereGeo, isUnder ? cloudShadowMat : cloudWhiteMat);
+          m.position.set(px, py, pz);
+          m.scale.set(rx, ry, rz);
+          m.castShadow = true;
+          cloud.add(m);
+        });
       }
 
-      return textures;
+      return cloud;
     };
 
-    const cartoonTextures = createCartoonCloudTextures();
+    // Distribute 9 literally small, miniature 3D clouds around open atmospheric pockets
+    const num3DClouds = 9;
+    // Spaced latitudes avoiding the top pole (Girl on Suitcase) and keeping buildings visible
+    const cloudLatitudes = [0.85, 1.25, 1.65, 2.05, 1.05, 1.45, 1.85, 1.15, 1.55];
 
-    // Distribute 11 beautifully spaced stylized cartoon clouds gracefully around the globe
-    const numClouds = 11;
-    const latTiers = [0.85, 1.15, 1.55, 1.85, 2.15, 1.0, 1.4, 1.7, 2.0, 1.25, 1.6];
-    for (let c = 0; c < numClouds; c++) {
-      const tex = cartoonTextures[c % cartoonTextures.length];
-      const cloudMat = new THREE.SpriteMaterial({
-        map: tex,
-        transparent: true,
-        opacity: 0.98,
-        depthWrite: false,
-      });
+    for (let c = 0; c < num3DClouds; c++) {
+      const cloudMesh = create3DCloudMesh(c % 3);
 
-      const sprite = new THREE.Sprite(cloudMat);
-
-      // Spherical coordinates around globe
-      const theta = (c / numClouds) * Math.PI * 2;
-      const phi = latTiers[c % latTiers.length];
-      const cloudDist = globeRadius * (1.24 + (c % 3) * 0.05); // 3.03 to 3.28
+      const theta = (c / num3DClouds) * Math.PI * 2 + 0.25;
+      const phi = cloudLatitudes[c % cloudLatitudes.length];
+      const cloudDist = globeRadius * (1.19 + (c % 2) * 0.04); // 2.91 to 3.01
 
       const cx = cloudDist * Math.sin(phi) * Math.cos(theta);
       const cy = cloudDist * Math.cos(phi);
       const cz = cloudDist * Math.sin(phi) * Math.sin(theta);
 
-      sprite.position.set(cx, cy, cz);
+      cloudMesh.position.set(cx, cy, cz);
 
-      // Scale keeping 2:1 aspect ratio of the 512x256 canvas
-      const baseScale = 1.85 + (c % 3) * 0.22; // 1.85 to 2.29
-      sprite.scale.set(baseScale, baseScale * 0.5, 1);
+      // Orient cloud tangent to the globe surface (local Y points out into space)
+      const normal = new THREE.Vector3(cx, cy, cz).normalize();
+      cloudMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
 
-      cloudsGroup.add(sprite);
+      // Random gentle yaw around local surface normal
+      cloudMesh.rotateY((c * 1.3) % (Math.PI * 2));
+
+      // LITERALLY SMALL SCALE: overall diameter only ~0.38 to 0.48 units!
+      // This ensures landmarks, buildings, and continents remain 100% visible and unblocked
+      const tinyScale = 0.85 + (c % 3) * 0.15; // 0.85 to 1.15 (total cloud width < 0.5 units)
+      cloudMesh.scale.setScalar(tinyScale);
+
+      cloudsGroup.add(cloudMesh);
     }
 
     // --- 13. MOUSE & TOUCH EVENT LISTENERS ---
