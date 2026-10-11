@@ -962,121 +962,40 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     signGroup.add(triangleSign);
     signsGroup.add(signGroup);
 
-    // --- 12. GENUINE 3D MINIATURE PUFFY CUMULUS CLOUDS (PETITE & NON-OBSCURING) ---
+    // --- 12. FLUFFY CUMULUS CLOUD RING (INITIAL DESIGN) ---
     const cloudsGroup = new THREE.Group();
     globeRoot.add(cloudsGroup);
     cloudsGroupRef.current = cloudsGroup;
 
-    // Shared sphere geometry & materials for optimal performance (0 lag)
-    const cloudSphereGeo = new THREE.SphereGeometry(1, 14, 10);
-    const cloudWhiteMat = new THREE.MeshStandardMaterial({
+    const cloudMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
-      roughness: 0.35,
-      metalness: 0.02,
-      flatShading: false,
-    });
-    const cloudShadowMat = new THREE.MeshStandardMaterial({
-      color: 0xd2e5f5, // Soft periwinkle cel-tone underside
-      roughness: 0.45,
-      metalness: 0.02,
-      flatShading: false,
+      roughness: 0.95,
+      metalness: 0.05,
+      transparent: true,
+      opacity: 0.92,
     });
 
-    // Helper to generate a cute, miniature 3D puffy cloud
-    const create3DCloudMesh = (variant: number): THREE.Group => {
-      const cloud = new THREE.Group();
+    for (let c = 0; c < 12; c++) {
+      const singleCloud = new THREE.Group();
+      const angle = (c / 12) * Math.PI * 2;
+      const cloudDist = globeRadius * (1.2 + (c % 3) * 0.08);
+      const cloudY = (Math.sin(c * 1.5) * 0.8) + (c % 2 === 0 ? 0.3 : -0.3);
 
-      if (variant === 0) {
-        // Variant 0: Classic 3-Dome Puffy Cumulus with tapered wisp
-        // [x, y, z, rx, ry, rz, isUnder]
-        const puffs: [number, number, number, number, number, number, boolean][] = [
-          [0, 0.05, 0, 0.14, 0.12, 0.12, false],       // Center main dome
-          [-0.11, 0.01, 0, 0.10, 0.09, 0.09, false],   // Left puff
-          [0.12, 0.02, 0, 0.11, 0.095, 0.095, false],  // Right puff
-          [0.02, 0.0, 0.07, 0.09, 0.08, 0.08, false],  // Front bump
-          [-0.02, 0.0, -0.07, 0.09, 0.08, 0.08, false],// Back bump
-          [-0.20, -0.02, 0, 0.06, 0.045, 0.05, false], // Left tapered wisp tip
-          [0.20, -0.01, 0, 0.065, 0.05, 0.055, false], // Right flank wisp
-          [0, -0.04, 0, 0.17, 0.06, 0.12, true],       // Shaded underside base
-        ];
-        puffs.forEach(([px, py, pz, rx, ry, rz, isUnder]) => {
-          const m = new THREE.Mesh(cloudSphereGeo, isUnder ? cloudShadowMat : cloudWhiteMat);
-          m.position.set(px, py, pz);
-          m.scale.set(rx, ry, rz);
-          m.castShadow = true;
-          cloud.add(m);
-        });
-      } else if (variant === 1) {
-        // Variant 1: Elongated Drifting Cloud with Streamlined Tail
-        const puffs: [number, number, number, number, number, number, boolean][] = [
-          [0.06, 0.06, 0, 0.15, 0.13, 0.12, false],    // High dome
-          [0.17, 0.02, 0, 0.11, 0.09, 0.09, false],    // Right dome
-          [-0.06, 0.02, 0, 0.11, 0.09, 0.09, false],   // Mid puff
-          [-0.16, -0.01, 0, 0.08, 0.06, 0.07, false],  // Tail puff 1
-          [-0.24, -0.03, 0, 0.055, 0.04, 0.045, false],// Tail puff 2 (thin tip)
-          [0.03, 0.0, 0.06, 0.085, 0.07, 0.075, false],// Front depth
-          [0.05, -0.04, 0, 0.18, 0.06, 0.11, true],    // Shaded underside
-        ];
-        puffs.forEach(([px, py, pz, rx, ry, rz, isUnder]) => {
-          const m = new THREE.Mesh(cloudSphereGeo, isUnder ? cloudShadowMat : cloudWhiteMat);
-          m.position.set(px, py, pz);
-          m.scale.set(rx, ry, rz);
-          m.castShadow = true;
-          cloud.add(m);
-        });
-      } else {
-        // Variant 2: Compact Fluffy 2-Tier Cumulus
-        const puffs: [number, number, number, number, number, number, boolean][] = [
-          [-0.04, 0.05, 0, 0.13, 0.11, 0.11, false],   // Peak 1
-          [0.07, 0.04, 0, 0.12, 0.10, 0.10, false],    // Peak 2
-          [-0.14, 0.0, 0, 0.08, 0.07, 0.07, false],    // Left edge
-          [0.16, -0.01, 0, 0.075, 0.06, 0.065, false], // Right edge
-          [0.01, 0.0, 0.06, 0.08, 0.07, 0.07, false],  // Front bump
-          [0.01, -0.03, 0, 0.15, 0.055, 0.10, true],   // Shaded underside
-        ];
-        puffs.forEach(([px, py, pz, rx, ry, rz, isUnder]) => {
-          const m = new THREE.Mesh(cloudSphereGeo, isUnder ? cloudShadowMat : cloudWhiteMat);
-          m.position.set(px, py, pz);
-          m.scale.set(rx, ry, rz);
-          m.castShadow = true;
-          cloud.add(m);
-        });
+      singleCloud.position.set(Math.cos(angle) * cloudDist, cloudY, Math.sin(angle) * cloudDist);
+
+      for (let p = 0; p < 4; p++) {
+        const puff = new THREE.Mesh(
+          new THREE.SphereGeometry(0.18 + Math.random() * 0.14, 12, 12),
+          cloudMat
+        );
+        puff.position.set(
+          (p - 1.5) * 0.16,
+          (Math.random() - 0.5) * 0.1,
+          (Math.random() - 0.5) * 0.12
+        );
+        singleCloud.add(puff);
       }
-
-      return cloud;
-    };
-
-    // Distribute 9 literally small, miniature 3D clouds around open atmospheric pockets
-    const num3DClouds = 9;
-    // Spaced latitudes avoiding the top pole (Girl on Suitcase) and keeping buildings visible
-    const cloudLatitudes = [0.85, 1.25, 1.65, 2.05, 1.05, 1.45, 1.85, 1.15, 1.55];
-
-    for (let c = 0; c < num3DClouds; c++) {
-      const cloudMesh = create3DCloudMesh(c % 3);
-
-      const theta = (c / num3DClouds) * Math.PI * 2 + 0.25;
-      const phi = cloudLatitudes[c % cloudLatitudes.length];
-      const cloudDist = globeRadius * (1.19 + (c % 2) * 0.04); // 2.91 to 3.01
-
-      const cx = cloudDist * Math.sin(phi) * Math.cos(theta);
-      const cy = cloudDist * Math.cos(phi);
-      const cz = cloudDist * Math.sin(phi) * Math.sin(theta);
-
-      cloudMesh.position.set(cx, cy, cz);
-
-      // Orient cloud tangent to the globe surface (local Y points out into space)
-      const normal = new THREE.Vector3(cx, cy, cz).normalize();
-      cloudMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal);
-
-      // Random gentle yaw around local surface normal
-      cloudMesh.rotateY((c * 1.3) % (Math.PI * 2));
-
-      // LITERALLY SMALL SCALE: overall diameter only ~0.38 to 0.48 units!
-      // This ensures landmarks, buildings, and continents remain 100% visible and unblocked
-      const tinyScale = 0.85 + (c % 3) * 0.15; // 0.85 to 1.15 (total cloud width < 0.5 units)
-      cloudMesh.scale.setScalar(tinyScale);
-
-      cloudsGroup.add(cloudMesh);
+      cloudsGroup.add(singleCloud);
     }
 
     // --- 13. MOUSE & TOUCH EVENT LISTENERS ---
