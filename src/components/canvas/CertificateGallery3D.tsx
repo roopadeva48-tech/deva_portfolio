@@ -342,8 +342,8 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     onComplete?: () => void;
   }>({
     active: false,
-    startPos: new THREE.Vector3(0, 1.7, 4),
-    endPos: new THREE.Vector3(0, 1.7, 4),
+    startPos: new THREE.Vector3(0, 1.7, 7.2),
+    endPos: new THREE.Vector3(0, 1.7, 7.2),
     startTarget: new THREE.Vector3(0, 1.7, -10),
     endTarget: new THREE.Vector3(0, 1.7, -10),
     progress: 1,
@@ -352,9 +352,9 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
   const currentCamTarget = useRef<THREE.Vector3>(new THREE.Vector3(0, 1.7, -10));
 
-  // Hallway walk / scroll position
-  const scrollZRef = useRef<number>(4);
-  const targetScrollZRef = useRef<number>(4);
+  // Hallway walk / scroll position (starts zoomed out at 7.2 for an open, comfortable perspective)
+  const scrollZRef = useRef<number>(7.2);
+  const targetScrollZRef = useRef<number>(7.2);
   const isDraggingRef = useRef<boolean>(false);
   const lastMouseYRef = useRef<number>(0);
 
@@ -461,8 +461,8 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     const width = container.clientWidth || window.innerWidth;
     const height = container.clientHeight || window.innerHeight;
 
-    const camera = new THREE.PerspectiveCamera(48, width / height, 0.1, 100);
-    camera.position.set(0, 1.7, 4);
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+    camera.position.set(0, 1.7, 7.2);
     camera.lookAt(0, 1.7, -10);
     cameraRef.current = camera;
     currentCamTarget.current.set(0, 1.7, -10);
@@ -529,22 +529,27 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     // Hallway geometry calculation
     const doorSpacing = 5.2;
     const numDoors = Math.max(certificates.length, 4);
-    const hallwayLength = (numDoors / 2 + 1) * doorSpacing + 10;
+    const hallwayLength = (numDoors / 2 + 1) * doorSpacing + 16;
     const hallwayWidth = 4.6;
     const hallwayHeight = 4.2;
 
+    const hallwayStartZ = 10.0;
+    const hallwayEndZ = -hallwayLength + 6.0;
+    const totalHallwayLen = hallwayStartZ - hallwayEndZ;
+    const hallwayMidZ = (hallwayStartZ + hallwayEndZ) / 2;
+
     // Floor Plane
-    const floorGeo = new THREE.PlaneGeometry(hallwayWidth, hallwayLength);
+    const floorGeo = new THREE.PlaneGeometry(hallwayWidth, totalHallwayLen);
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
-    floor.position.set(0, 0, -hallwayLength / 2 + 6);
+    floor.position.set(0, 0, hallwayMidZ);
     floor.receiveShadow = true;
     scene.add(floor);
 
     // Ceiling Plane
     const ceiling = new THREE.Mesh(floorGeo, ceilingMat);
     ceiling.rotation.x = Math.PI / 2;
-    ceiling.position.set(0, hallwayHeight, -hallwayLength / 2 + 6);
+    ceiling.position.set(0, hallwayHeight, hallwayMidZ);
     scene.add(ceiling);
 
     // Left & Right Walls with Clean Openings for Doors (prevents walls from blocking door interiors)
@@ -552,8 +557,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     const firstDoorZ = 1.0;
     const lastPairIdx = Math.max(0, numPairs - 1);
     const lastDoorZ = firstDoorZ - lastPairIdx * doorSpacing;
-    const hallwayStartZ = 6.0;
-    const hallwayEndZ = -hallwayLength + 6.0;
 
     [-hallwayWidth / 2, hallwayWidth / 2].forEach((sideX) => {
       const isLeftWall = sideX < 0;
@@ -606,7 +609,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
     // End Wall (Bright warm glow at end of hallway)
     const endWall = new THREE.Mesh(new THREE.PlaneGeometry(hallwayWidth, hallwayHeight), wallMat);
-    endWall.position.set(0, hallwayHeight / 2, -hallwayLength + 6);
+    endWall.position.set(0, hallwayHeight / 2, hallwayEndZ);
     scene.add(endWall);
 
     // End Wall Sketched Window/Arch
@@ -614,24 +617,24 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       new THREE.PlaneGeometry(2.0, 3.2),
       new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
-    archEnd.position.set(0, 2.0, -hallwayLength + 6.02);
+    archEnd.position.set(0, 2.0, hallwayEndZ + 0.02);
     scene.add(archEnd);
 
     // Sketched Black Baseboards along hallway edges
     [-hallwayWidth / 2 + 0.04, hallwayWidth / 2 - 0.04].forEach((bx) => {
       const baseboard = new THREE.Mesh(
-        new THREE.BoxGeometry(0.08, 0.15, hallwayLength),
+        new THREE.BoxGeometry(0.08, 0.15, totalHallwayLen),
         blackTrimMat
       );
-      baseboard.position.set(bx, 0.075, -hallwayLength / 2 + 6);
+      baseboard.position.set(bx, 0.075, hallwayMidZ);
       scene.add(baseboard);
 
       // Crown molding at top
       const crown = new THREE.Mesh(
-        new THREE.BoxGeometry(0.08, 0.12, hallwayLength),
+        new THREE.BoxGeometry(0.08, 0.12, totalHallwayLen),
         blackTrimMat
       );
-      crown.position.set(bx, hallwayHeight - 0.06, -hallwayLength / 2 + 6);
+      crown.position.set(bx, hallwayHeight - 0.06, hallwayMidZ);
       scene.add(crown);
     });
 
@@ -917,7 +920,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       if (isDraggingRef.current && galleryModeRef.current === 'hallway') {
         const deltaY = e.clientY - lastMouseYRef.current;
         targetScrollZRef.current += deltaY * 0.015;
-        targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(5, targetScrollZRef.current));
+        targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(8.0, targetScrollZRef.current));
         lastMouseYRef.current = e.clientY;
       }
 
@@ -1003,7 +1006,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       e.preventDefault();
       if (galleryModeRef.current === 'hallway') {
         targetScrollZRef.current -= e.deltaY * 0.008;
-        targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(5, targetScrollZRef.current));
+        targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(8.0, targetScrollZRef.current));
       }
     };
 
@@ -1024,7 +1027,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       if (e.touches.length === 1 && isDraggingRef.current && galleryModeRef.current === 'hallway') {
         const deltaY = e.touches[0].clientY - lastMouseYRef.current;
         targetScrollZRef.current += deltaY * 0.015;
-        targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(5, targetScrollZRef.current));
+        targetScrollZRef.current = Math.max(-hallwayLength + 10, Math.min(8.0, targetScrollZRef.current));
         lastMouseYRef.current = e.touches[0].clientY;
       }
     };
