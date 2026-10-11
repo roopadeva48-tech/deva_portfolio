@@ -99,8 +99,8 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         className="fixed inset-0 z-40 bg-slate-50 text-slate-900 overflow-y-auto flex flex-col selection:bg-teal-500 selection:text-white"
       >
         {/* 1. Sticky Navigation Header */}
-        <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
-          <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-xs w-full">
+          <div className="w-full px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
             {/* Left: Back to 3D Globe Action */}
             <button
               onClick={() => {
