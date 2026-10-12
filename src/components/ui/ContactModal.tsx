@@ -196,43 +196,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({
               <span className="text-sm">🌍</span>
             </button>
 
-            {/* Quick Section Nav Links */}
-            <nav className="hidden md:flex items-center gap-6 text-xs font-bold text-slate-600">
-              <button
-                onClick={() => handleNav('/profile')}
-                className="hover:text-amber-600 transition-colors cursor-pointer"
-              >
-                About
-              </button>
-              <button
-                onClick={() => handleNav('/profile')}
-                className="hover:text-amber-600 transition-colors cursor-pointer"
-              >
-                Skills
-              </button>
-              <button
-                onClick={() => handleNav('/profile')}
-                className="hover:text-amber-600 transition-colors cursor-pointer"
-              >
-                Experience
-              </button>
-              <button
-                onClick={() => handleNav('/projects')}
-                className="hover:text-amber-600 transition-colors cursor-pointer"
-              >
-                Projects
-              </button>
-              <button
-                onClick={() => handleNav('/certificates')}
-                className="hover:text-amber-600 transition-colors cursor-pointer"
-              >
-                Certificates
-              </button>
-              <span className="text-amber-600 font-extrabold border-b-2 border-amber-500 pb-0.5">
-                Contact
-              </span>
-            </nav>
-
             {/* Right Controls: Replay and Skip Actions */}
             <div className="flex items-center gap-2">
               {stage !== 'revealed' && (

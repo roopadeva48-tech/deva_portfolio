@@ -123,28 +123,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               <span className="text-sm">🌍</span>
             </button>
 
-            {/* Quick Section Nav Links */}
-            <nav className="hidden md:flex items-center gap-6 text-xs font-bold text-slate-600">
-              <a href="#about" className="hover:text-amber-600 transition-colors">
-                About
-              </a>
-              <a href="#skills" className="hover:text-amber-600 transition-colors">
-                Skills
-              </a>
-              <a href="#experience" className="hover:text-amber-600 transition-colors">
-                Experience
-              </a>
-              <a href="#projects" className="hover:text-amber-600 transition-colors">
-                Projects
-              </a>
-              <a href="#certificates" className="hover:text-amber-600 transition-colors">
-                Certificates
-              </a>
-              <a href="#contact" className="hover:text-amber-600 transition-colors">
-                Contact
-              </a>
-            </nav>
-
             {/* Right End: Get in Touch Action */}
             <div className="flex items-center gap-2">
               <a
