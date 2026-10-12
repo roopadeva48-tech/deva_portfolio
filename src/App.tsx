@@ -36,7 +36,13 @@ function parsePath(pathname: string): {
   if (clean === '/projects' || clean === '/works' || clean === '/portfolio') {
     return { type: 'projects' };
   }
-  if (clean === '/contact' || clean === '/message' || clean === '/transmission') {
+  if (
+    clean === '/contact' ||
+    clean === '/message' ||
+    clean === '/transmission' ||
+    clean === '/orbit' ||
+    clean === '/orbital'
+  ) {
     return { type: 'contact' };
   }
   if (clean.startsWith('/landmarks/')) {
@@ -44,6 +50,7 @@ function parsePath(pathname: string): {
     if (lId === 'girl_me') return { type: 'profile' };
     if (lId === 'cozy_house') return { type: 'certificates', id: null };
     if (lId === 'hot_air_balloon') return { type: 'contact' };
+    if (lId === 'rocket') return { type: 'contact' };
     if (lId === 'skyscrapers') return { type: 'projects' };
     return { type: 'landmark', id: lId };
   }
@@ -307,9 +314,9 @@ export default function App() {
         setTimeout(() => {
           navigateTo('/certificates');
         }, 700);
-      } else if (landmark.id === 'hot_air_balloon') {
+      } else if (landmark.id === 'hot_air_balloon' || landmark.id === 'rocket') {
         setTimeout(() => {
-          navigateTo('/contact');
+          navigateTo('/orbit');
         }, 700);
       } else if (landmark.id === 'skyscrapers') {
         setTimeout(() => {
@@ -446,10 +453,11 @@ export default function App() {
         isAntiGravity={isAntiGravity}
       />
 
-      {/* 8. Contact Modal */}
+      {/* 8. Contact / Orbit Showcase Page */}
       <ContactModal
         isOpen={isContactOpen}
         onClose={navigateBack}
+        onNavigate={navigateTo}
       />
     </div>
   );
