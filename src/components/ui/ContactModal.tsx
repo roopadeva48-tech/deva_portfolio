@@ -179,17 +179,17 @@ export const ContactModal: React.FC<ContactModalProps> = ({
         className="fixed inset-0 z-50 bg-[#fdfbf7] text-[#1e293b] overflow-hidden flex flex-col select-none font-sans"
       >
         {/* ========================================================
-            1. TOP STICKY NAVIGATION BAR
+            1. TOP STICKY NAVIGATION BAR (Full-Bleed Far-Left)
            ======================================================== */}
-        <header className="relative z-50 bg-[#fdfbf7]/90 backdrop-blur-md border-b border-amber-200/50 shadow-xs w-full">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
-            {/* Left End: Back to 3D Globe */}
+        <header className="relative z-50 bg-[#fdfbf7]/95 backdrop-blur-md border-b border-amber-200/50 shadow-xs w-full px-4 sm:px-6 md:px-8">
+          <div className="w-full h-16 flex items-center justify-between">
+            {/* Literally on the Far-Left: Back to 3D Globe */}
             <button
               onClick={() => {
                 sound.playClick();
                 onClose();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-amber-50 text-slate-900 rounded-xl text-xs font-bold transition-all hover:-translate-x-0.5 cursor-pointer border border-amber-200 shadow-xs"
+              className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-amber-50 text-slate-900 rounded-xl text-xs font-bold transition-all hover:-translate-x-0.5 cursor-pointer border border-amber-300 shadow-xs"
             >
               <span>←</span>
               <span>Back to 3D Globe</span>
