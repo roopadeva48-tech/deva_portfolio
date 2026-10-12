@@ -36,6 +36,17 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copiedEmail, setCopiedEmail] = useState(false);
+  // Alternating 2-leg run cycle: Step 1 (right leg lead) <-> Step 2 (left leg lead)
+  const [runStep, setRunStep] = useState<1 | 2>(1);
+
+  useEffect(() => {
+    if (stage === 'running') {
+      const interval = setInterval(() => {
+        setRunStep((prev) => (prev === 1 ? 2 : 1));
+      }, 160);
+      return () => clearInterval(interval);
+    }
+  }, [stage]);
 
   const timersRef = useRef<NodeJS.Timeout[]>([]);
 
@@ -61,61 +72,50 @@ export const ContactModal: React.FC<ContactModalProps> = ({
   };
 
   const startAnimationSequence = () => {
-    // Respect prefers-reduced-motion
-    if (
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    ) {
-      setStage('revealed');
-      return;
-    }
-
+    clearTimers();
     setStage('running');
 
     // Stage 1 -> Stage 2 (Postman trips & releases letter)
     const t1 = setTimeout(() => {
       setStage('tripping');
       sound.playClick();
-    }, 1800);
+    }, 2000);
 
     // Stage 2 -> Stage 3 (Letter flies toward camera)
     const t2 = setTimeout(() => {
       setStage('flying');
       sound.playZoom();
-    }, 2800);
+    }, 3100);
 
     // Stage 3 -> Stage 4 (Letter covers full screen)
     const t3 = setTimeout(() => {
       setStage('fullscreen_envelope');
-    }, 3900);
+    }, 4100);
 
     // Stage 4 -> Stage 5 (Envelope flap opens with golden glow)
     const t4 = setTimeout(() => {
       setStage('opening');
       sound.playChime();
-    }, 4700);
+    }, 4800);
 
     // Stage 5 -> Stage 6 (Contact postcard reveals inside)
     const t5 = setTimeout(() => {
       setStage('revealed');
       setHasPlayedOnce(true);
-    }, 5800);
+    }, 5700);
 
     timersRef.current = [t1, t2, t3, t4, t5];
   };
 
   useEffect(() => {
     if (isOpen) {
-      if (!hasPlayedOnce) {
-        startAnimationSequence();
-      } else {
-        setStage('revealed');
-      }
+      startAnimationSequence();
     } else {
       clearTimers();
+      setStage('running');
     }
     return () => clearTimers();
-  }, [isOpen, hasPlayedOnce]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -250,70 +250,107 @@ export const ContactModal: React.FC<ContactModalProps> = ({
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/20 via-transparent to-amber-200/10 pointer-events-none" />
             </div>
 
-            {/* SCENE 1: Postman Runs into the Screen Carrying Letter */}
+            {/* SCENE 1: Postman Runs Along the Cobblestone Pathway with Alternating 2-Leg Run Cycle */}
             {stage === 'running' && (
               <motion.div
-                initial={{ x: '-280px', y: '40%' }}
-                animate={{ x: '35vw', y: '42%' }}
-                transition={{ duration: 1.8, ease: [0.25, 1, 0.5, 1] }}
-                className="absolute bottom-12 z-20 w-64 sm:w-80 md:w-96 select-none"
+                initial={{ left: '6%', bottom: '15%', scale: 0.65 }}
+                animate={{ left: '38%', bottom: '10%', scale: 1.05 }}
+                transition={{ duration: 2.0, ease: [0.25, 1, 0.45, 1] }}
+                className="absolute z-20 w-64 sm:w-80 md:w-92 select-none pointer-events-none"
               >
-                {/* Vertical running bounce */}
+                {/* Dynamic foot shadow on stones */}
                 <motion.div
-                  animate={{ y: [0, -18, 0, -16, 0] }}
-                  transition={{ duration: 0.6, repeat: Infinity, ease: 'easeInOut' }}
+                  animate={{
+                    scale: [0.85, 1.15, 0.85, 1.15, 0.85],
+                    opacity: [0.35, 0.65, 0.35, 0.65, 0.35],
+                  }}
+                  transition={{ duration: 0.32, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute bottom-4 left-10 w-40 h-5 bg-slate-950/40 rounded-full blur-[4px]"
+                />
+
+                {/* Stride bounce & tilt synced with 2-leg alternating steps */}
+                <motion.div
+                  animate={{
+                    y: [0, -18, 0, -18, 0],
+                    rotate: [-1.5, 2, -1.5, 2, -1.5],
+                  }}
+                  transition={{ duration: 0.32, repeat: Infinity, ease: 'easeInOut' }}
                   className="relative"
                 >
                   <img
-                    src="/assets/postman/postman_running.jpg"
-                    alt="Postman running with letter"
-                    className="w-full h-auto mix-blend-multiply drop-shadow-xl"
+                    src={
+                      runStep === 1
+                        ? '/assets/postman/postman_running.png'
+                        : '/assets/postman/postman_running_step2.png'
+                    }
+                    alt="Postman running with alternating 2 legs"
+                    className="w-full h-auto drop-shadow-sm select-none"
                   />
-                  {/* Dust particles on cobblestone */}
+
+                  {/* Foot impact dust alternating behind feet */}
                   <motion.div
-                    animate={{ opacity: [0.6, 0], scale: [0.8, 1.4], x: [-10, -40] }}
-                    transition={{ duration: 0.4, repeat: Infinity }}
-                    className="absolute bottom-2 left-6 w-8 h-4 rounded-full bg-amber-200/60 blur-[2px]"
+                    key={runStep}
+                    initial={{ opacity: 0.7, scale: 0.6, x: 0 }}
+                    animate={{ opacity: 0, scale: 1.3, x: -30, y: -6 }}
+                    transition={{ duration: 0.28 }}
+                    className="absolute bottom-5 left-8 w-6 h-4 rounded-full bg-amber-100/75 blur-[2px]"
                   />
                 </motion.div>
               </motion.div>
             )}
 
-            {/* SCENE 2: Postman Trips and Falls, Releasing the Letter */}
+            {/* SCENE 2: Postman Trips and Falls on the Cobblestone Stones */}
             {stage === 'tripping' && (
               <motion.div
-                initial={{ x: '35vw', y: '42%' }}
-                animate={{ x: '42vw', y: '45%' }}
-                transition={{ duration: 1.0, ease: 'easeOut' }}
-                className="absolute bottom-12 z-20 w-64 sm:w-80 md:w-96 select-none"
+                initial={{ left: '38%', bottom: '10%', scale: 1.05 }}
+                animate={{ left: '46%', bottom: '7%', scale: 1.08 }}
+                transition={{ duration: 0.9, ease: 'easeOut' }}
+                className="absolute z-20 w-64 sm:w-80 md:w-92 select-none pointer-events-none"
               >
-                {/* Comedic tumble wobble */}
+                {/* Fall contact shadow on ground */}
                 <motion.div
-                  initial={{ rotate: 0 }}
-                  animate={{ rotate: [0, -12, 8, 0], y: [0, -10, 8, 0] }}
-                  transition={{ duration: 0.8 }}
+                  initial={{ scale: 0.9, opacity: 0.5 }}
+                  animate={{ scale: 1.35, opacity: 0.7 }}
+                  transition={{ duration: 0.5 }}
+                  className="absolute bottom-2 left-8 w-44 h-6 bg-slate-950/40 rounded-full blur-[4px]"
+                />
+
+                {/* Comedic trip and tumble motion */}
+                <motion.div
+                  initial={{ rotate: 0, y: 0 }}
+                  animate={{
+                    rotate: [0, -14, 18, 10],
+                    y: [0, -18, 14, 8],
+                  }}
+                  transition={{ duration: 0.85, ease: 'easeOut' }}
                   className="relative"
                 >
                   <img
-                    src="/assets/postman/postman_falling.jpg"
-                    alt="Postman tripping and falling"
-                    className="w-full h-auto mix-blend-multiply drop-shadow-xl"
+                    src="/assets/postman/postman_falling.png"
+                    alt="Postman tripping and falling on pathway"
+                    className="w-full h-auto drop-shadow-sm"
                   />
-                  {/* Motion impact lines */}
-                  <div className="absolute top-1/2 -right-8 flex flex-col gap-1 text-slate-700/60 font-black text-xl font-mono">
+
+                  {/* Impact dust and cartoon action lines */}
+                  <motion.div
+                    initial={{ scale: 0.4, opacity: 0 }}
+                    animate={{ scale: [0.4, 1.25, 0.95], opacity: [0, 0.85, 0] }}
+                    transition={{ duration: 0.6 }}
+                    className="absolute bottom-4 right-10 flex items-center gap-1 text-slate-800/80 font-mono text-xl"
+                  >
                     <span>💨</span>
                     <span>✦</span>
-                  </div>
+                  </motion.div>
                 </motion.div>
               </motion.div>
             )}
 
             {/* SCENE 3: The Released Letter Flies Directly Toward Camera */}
-            {stage === 'tripping' || stage === 'flying' ? (
+            {(stage === 'tripping' || stage === 'flying') && (
               <motion.div
                 initial={{
-                  x: '46vw',
-                  y: '48vh',
+                  left: '46%',
+                  bottom: '26%',
                   scale: 0.35,
                   rotate: -15,
                   opacity: 1,
@@ -321,17 +358,17 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                 animate={
                   stage === 'flying'
                     ? {
-                        x: '50vw',
-                        y: '50vh',
-                        translateX: '-50%',
-                        translateY: '-50%',
+                        left: '50%',
+                        top: '50%',
+                        x: '-50%',
+                        y: '-50%',
                         scale: 14,
                         rotate: 0,
                         opacity: 1,
                       }
                     : {
-                        x: '47vw',
-                        y: '42vh',
+                        left: '48%',
+                        bottom: '34%',
                         scale: 0.65,
                         rotate: 8,
                       }
@@ -378,7 +415,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                   </div>
                 </div>
               </motion.div>
-            ) : null}
+            )}
 
             {/* SCENE 4 & 5: Envelope Covers Full Screen & Opens with Golden Glow */}
             {(stage === 'fullscreen_envelope' || stage === 'opening') && (
@@ -440,11 +477,14 @@ export const ContactModal: React.FC<ContactModalProps> = ({
         )}
 
         {/* ========================================================
-            3. SCENE 6, 7 & 8: FINAL INTERACTIVE CONTACT POSTCARD
-               - Airmail envelope border
-               - "Let's Connect!" headline & social channels
-               - Working contact form (Name, Email, Subject, Message)
-               - Cute Postman sitting relaxed in bottom-right corner
+            3. SCENE 6, 7 & 8: REAL AUTHENTIC POSTCARD DESIGN
+               - Vintage Post Card header & Union Postale Universelle
+               - Iconic Divided Back layout (Message on left, Address on right)
+               - Perforated scalloped postage stamp with orbital artwork
+               - Circular rubber postmark with wavy ink cancellation lines
+               - "PAR AVION ✈ AIR MAIL" vintage ink stamp
+               - Ruled postcard handwriting & address lines
+               - Sitting Postman with floating love heart
            ======================================================== */}
         {stage === 'revealed' && (
           <motion.div
@@ -454,63 +494,102 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             className="relative flex-1 w-full overflow-y-auto bg-cover bg-center"
             style={{ backgroundImage: 'url(/assets/postman/postman_garden_bg.jpg)' }}
           >
-            {/* Soft Ambient Scenery Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-white/90 via-[#fdfbf7]/92 to-white/95 pointer-events-none" />
+            {/* Ambient Sunlight & Warm Vignette Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-stone-900/15 via-[#fdfbf7]/85 to-stone-900/20 pointer-events-none" />
 
-            <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 py-8 sm:py-12 flex flex-col items-center">
-              {/* Outer Airmail Postcard Container */}
+            <div className="relative z-10 w-full max-w-6xl mx-auto px-3 sm:px-6 md:px-8 py-6 sm:py-10 flex flex-col items-center">
+              {/* REAL AUTHENTIC POSTCARD CONTAINER */}
               <div
                 id="contact-postcard-form"
-                className="relative w-full max-w-5xl bg-[#fffefc] rounded-3xl sm:rounded-4xl p-5 sm:p-8 md:p-12 shadow-[0_25px_60px_-15px_rgba(217,119,6,0.15),0_10px_25px_-5px_rgba(0,0,0,0.06)] border border-amber-200/90 overflow-hidden"
+                className="relative w-full max-w-5xl bg-[#fcfaf2] rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-9 shadow-[0_25px_60px_-10px_rgba(45,30,15,0.28),0_8px_20px_-5px_rgba(0,0,0,0.12)] border-2 border-stone-300/80 overflow-hidden"
               >
-                {/* Authentic Airmail Striped Diagonal Border (Frame 6, 7, 8) */}
-                <div className="absolute inset-0 border-8 sm:border-12 border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_14px,#ffffff_14px,#ffffff_28px,#2563eb_28px,#2563eb_42px,#ffffff_42px,#ffffff_56px)_12] pointer-events-none rounded-3xl sm:rounded-4xl" />
+                {/* 1. Classic Airmail Diagonal Chevrons (Red & Blue Perimeter) */}
+                <div className="absolute inset-0 border-8 sm:border-10 border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_12px,#ffffff_12px,#ffffff_24px,#1d4ed8_24px,#1d4ed8_36px,#ffffff_36px,#ffffff_48px)_10] pointer-events-none rounded-2xl sm:rounded-3xl" />
 
-                {/* Subtle Postage Stamp in Top-Right Corner */}
-                <div className="absolute top-6 right-6 sm:top-8 sm:right-8 hidden sm:flex flex-col items-center justify-center w-16 h-20 bg-amber-50 rounded-md border-2 border-dashed border-amber-400/80 p-1 select-none shadow-xs">
-                  <span className="text-xl">🪐</span>
-                  <span className="text-[9px] font-mono font-bold text-amber-800 tracking-wider mt-1">
-                    DEVA 3D
-                  </span>
-                  <span className="text-[8px] font-mono text-slate-400">AIRMAIL</span>
+                {/* Inner Fine Margin Frame Line */}
+                <div className="absolute inset-3 sm:inset-4 border border-stone-300/70 pointer-events-none rounded-xl" />
+
+                {/* 2. AUTHENTIC POSTCARD HEADER */}
+                <div className="relative z-10 pt-2 pb-4 text-center border-b-2 border-stone-300/80 mx-2 sm:mx-4">
+                  <div className="flex items-center justify-between mb-1">
+                    {/* Par Avion / Air Mail Rubber Ink Stamp */}
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50/80 border-2 border-blue-700/80 rounded-md rotate-[-2deg] select-none shadow-xs">
+                      <span className="text-blue-800 text-xs">✈</span>
+                      <span className="text-[10px] sm:text-xs font-mono font-black tracking-widest text-blue-900 uppercase">
+                        PAR AVION · AIR MAIL
+                      </span>
+                    </div>
+
+                    {/* Centered Engraved Post Card Title */}
+                    <div className="flex-1 text-center px-2">
+                      <div className="text-[9px] font-mono tracking-[0.25em] text-stone-500 uppercase">
+                        ★ ★ ★
+                      </div>
+                      <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-black tracking-[0.3em] text-stone-800 uppercase leading-tight">
+                        POST CARD
+                      </h1>
+                      <div className="text-[8px] sm:text-[9px] font-mono tracking-widest text-stone-500 uppercase">
+                        CARTE POSTALE · UNION POSTALE UNIVERSELLE · ORBITAL TRANSMISSION
+                      </div>
+                    </div>
+
+                    {/* Right Postal Notice */}
+                    <div className="hidden sm:inline-block px-2.5 py-1 border border-stone-400/60 rounded text-[9px] font-mono text-stone-500 tracking-wider rotate-[1deg]">
+                      REF: DEV-2026-ORBIT
+                    </div>
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 relative z-10 pt-2 sm:pt-4">
-                  {/* LEFT COLUMN: Headings, Story & Direct Social Channels */}
-                  <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
-                    <div className="space-y-4">
-                      {/* Playful Floating Paper Airplane Doodle */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl rotate-12">✈️</span>
-                        <div className="h-0.5 w-16 border-b border-dashed border-slate-300" />
+                {/* 3. POSTCARD DIVIDED BODY (Left: Message & Channels | Right: Address & Ruled Form) */}
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 pt-4 sm:pt-6 px-1 sm:px-3">
+                  {/* LEFT HALF: THE HANDWRITTEN CORRESPONDENCE / MESSAGE */}
+                  <div className="lg:col-span-5 space-y-4 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-dashed border-stone-300 pb-6 lg:pb-0 lg:pr-6">
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500 font-bold">
+                          Communication / Message
+                        </span>
+                        <span className="text-stone-400 text-xs">✍</span>
                       </div>
 
-                      <h1 className="font-handwriting text-5xl sm:text-6xl text-slate-900 font-black tracking-tight leading-none">
-                        Let's Connect!
-                      </h1>
+                      {/* Handwritten Warm Greeting & Note */}
+                      <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-200/50 space-y-2.5">
+                        <div className="font-handwriting text-2xl text-stone-800 font-bold">
+                          Dear Explorer & Friend,
+                        </div>
+                        <p className="font-handwriting text-lg text-stone-700 leading-snug">
+                          Welcome to my 3D orbital space! I build interactive spatial web apps, creative technology systems, and fluid digital experiences.
+                        </p>
+                        <p className="font-handwriting text-lg text-stone-700 leading-snug">
+                          Feel free to dispatch a note across the airwaves, discuss a project collaboration, or simply say hello!
+                        </p>
+                        <div className="pt-1 text-right font-script text-2xl text-amber-800 font-bold">
+                          Warmly, Deva ✦
+                        </div>
+                      </div>
 
-                      <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
-                        I'd love to hear from you! Feel free to reach out through any of my channels.
-                      </p>
+                      {/* Direct Transmission Channels Styled as Vintage Postal Memos */}
+                      <div className="space-y-2 pt-1">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500 font-bold">
+                          Official Dispatch Channels:
+                        </span>
 
-                      {/* Direct Channels List (Matching Frame 7) */}
-                      <div className="space-y-3 pt-2">
                         {/* Email */}
                         <div
                           onClick={handleCopyEmail}
-                          className="p-3.5 bg-slate-50 hover:bg-amber-50/80 rounded-2xl border border-slate-200/80 transition-all cursor-pointer flex items-center justify-between group"
+                          className="p-2.5 bg-white/90 hover:bg-amber-50/90 rounded-xl border border-stone-200 transition-all cursor-pointer flex items-center justify-between group shadow-2xs"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl text-amber-600">✉️</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-lg">✉️</span>
                             <div>
-                              <div className="text-xs font-bold text-slate-900">Email</div>
-                              <div className="text-[11px] font-mono text-slate-500">
+                              <div className="text-[11px] font-bold text-stone-800">Email</div>
+                              <div className="text-[10px] font-mono text-stone-500">
                                 {copiedEmail ? 'Copied to Clipboard!' : 'roopadeva48@gmail.com'}
                               </div>
                             </div>
                           </div>
-                          <span className="text-xs font-bold text-amber-600 group-hover:translate-x-1 transition-transform">
-                            {copiedEmail ? '✓' : 'Copy →'}
+                          <span className="text-[11px] font-bold text-amber-700 group-hover:translate-x-0.5 transition-transform font-mono">
+                            {copiedEmail ? '✓ COPIED' : 'COPY →'}
                           </span>
                         </div>
 
@@ -519,19 +598,17 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                           href="https://linkedin.com"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-3.5 bg-slate-50 hover:bg-blue-50/80 rounded-2xl border border-slate-200/80 transition-all flex items-center justify-between group"
+                          className="p-2.5 bg-white/90 hover:bg-blue-50/90 rounded-xl border border-stone-200 transition-all flex items-center justify-between group shadow-2xs"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl text-blue-600">💼</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-lg text-blue-600">💼</span>
                             <div>
-                              <div className="text-xs font-bold text-slate-900">LinkedIn</div>
-                              <div className="text-[11px] font-mono text-slate-500">
-                                view my profile
-                              </div>
+                              <div className="text-[11px] font-bold text-stone-800">LinkedIn</div>
+                              <div className="text-[10px] font-mono text-stone-500">Professional Profile</div>
                             </div>
                           </div>
-                          <span className="text-xs font-bold text-blue-600 group-hover:translate-x-1 transition-transform">
-                            Visit ↗
+                          <span className="text-[11px] font-bold text-blue-600 group-hover:translate-x-0.5 transition-transform font-mono">
+                            VISIT ↗
                           </span>
                         </a>
 
@@ -540,143 +617,206 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                           href="https://github.com"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="p-3.5 bg-slate-50 hover:bg-slate-100 rounded-2xl border border-slate-200/80 transition-all flex items-center justify-between group"
+                          className="p-2.5 bg-white/90 hover:bg-stone-100 rounded-xl border border-stone-200 transition-all flex items-center justify-between group shadow-2xs"
                         >
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl text-slate-900">🐙</span>
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-lg text-stone-900">🐙</span>
                             <div>
-                              <div className="text-xs font-bold text-slate-900">GitHub</div>
-                              <div className="text-[11px] font-mono text-slate-500">
-                                check my projects
-                              </div>
+                              <div className="text-[11px] font-bold text-stone-800">GitHub</div>
+                              <div className="text-[10px] font-mono text-stone-500">Open Source Code</div>
                             </div>
                           </div>
-                          <span className="text-xs font-bold text-slate-800 group-hover:translate-x-1 transition-transform">
-                            Code ↗
+                          <span className="text-[11px] font-bold text-stone-800 group-hover:translate-x-0.5 transition-transform font-mono">
+                            CODE ↗
                           </span>
                         </a>
                       </div>
 
-                      {/* Other Platforms Pill Row */}
-                      <div className="pt-2 space-y-1.5">
-                        <span className="text-xs font-mono font-semibold text-slate-400">
-                          Other Platforms (let's connect):
-                        </span>
-                        <div className="flex flex-wrap gap-2 text-xs font-bold text-slate-700">
-                          <a
-                            href="https://twitter.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200"
-                          >
-                            Twitter / X
-                          </a>
-                          <a
-                            href="mailto:roopadeva48@gmail.com"
-                            className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors border border-slate-200"
-                          >
-                            Direct Email
-                          </a>
-                        </div>
+                      {/* Extra Platforms */}
+                      <div className="flex flex-wrap gap-1.5 pt-1 text-[10px] font-mono font-bold text-stone-600">
+                        <a
+                          href="https://twitter.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1 bg-white hover:bg-stone-100 rounded-lg border border-stone-200"
+                        >
+                          Twitter / X ↗
+                        </a>
+                        <a
+                          href="mailto:roopadeva48@gmail.com"
+                          className="px-2.5 py-1 bg-white hover:bg-stone-100 rounded-lg border border-stone-200"
+                        >
+                          Direct Mail ↗
+                        </a>
                       </div>
                     </div>
                   </div>
 
-                  {/* RIGHT COLUMN: Interactive Contact Form & Sitting Postman */}
-                  <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
+                  {/* RIGHT HALF: POSTAGE STAMP, CANCELLATION MARK & RULED ADDRESS FORM */}
+                  <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
+                    {/* Top Right Corner: Perforated Postage Stamp & Postal Rubber Postmark */}
+                    <div className="flex items-start justify-between pb-1">
+                      <div className="space-y-0.5">
+                        <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500 font-bold">
+                          Address & Dispatch
+                        </span>
+                        <div className="text-[9px] font-mono text-stone-400">
+                          AFFIX TRANSMISSION DETAILS BELOW
+                        </div>
+                      </div>
+
+                      {/* The Authentic Postage Stamp & Wavy Cancellation Ink Stamp */}
+                      <div className="relative select-none pr-1">
+                        {/* Wavy Cancellation Ink Lines (Overlapping the stamp) */}
+                        <div className="absolute -left-16 top-3 w-24 flex flex-col gap-1 pointer-events-none opacity-80 z-20 rotate-[-5deg]">
+                          <div className="w-full h-0.5 bg-stone-700/70 rounded-full" />
+                          <div className="w-full h-0.5 bg-stone-700/70 rounded-full" />
+                          <div className="w-full h-0.5 bg-stone-700/70 rounded-full" />
+                        </div>
+
+                        {/* Circular Rubber Cancellation Postmark */}
+                        <div className="absolute -left-8 -top-3 w-16 h-16 rounded-full border-2 border-dashed border-stone-700/80 flex flex-col items-center justify-center p-1 pointer-events-none z-20 rotate-[-12deg] bg-amber-50/10 backdrop-blur-[0.5px]">
+                          <span className="text-[6px] font-mono font-bold text-stone-800 tracking-tighter">
+                            ★ ORBITAL POST ★
+                          </span>
+                          <span className="text-[7px] font-mono font-black text-rose-800">
+                            OCT 12 2026
+                          </span>
+                          <span className="text-[6px] font-mono text-stone-700">
+                            DEVA DISPATCH
+                          </span>
+                        </div>
+
+                        {/* Perforated Postage Stamp with Scalloped Edge */}
+                        <div className="relative w-18 h-22 sm:w-20 sm:h-24 bg-gradient-to-br from-amber-100 via-rose-50 to-amber-200 rounded-xs border-2 border-dashed border-amber-500/90 shadow-md p-1.5 flex flex-col items-center justify-between text-center z-10 rotate-[2deg]">
+                          <div className="w-full border-b border-amber-400/60 pb-0.5 text-[8px] font-mono font-bold text-amber-900 tracking-wider uppercase">
+                            DEVA 3D
+                          </div>
+                          <div className="text-2xl sm:text-3xl my-0.5 drop-shadow-xs">🪐</div>
+                          <div className="w-full border-t border-amber-400/60 pt-0.5 flex items-center justify-between text-[7px] font-mono font-bold text-amber-800 px-0.5">
+                            <span>AIRMAIL</span>
+                            <span>25¢</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Interactive Postcard Form with Ruled Guidelines */}
                     {success ? (
-                      <div className="py-12 text-center space-y-3 bg-emerald-50 rounded-2xl border border-emerald-200 p-6 my-auto">
-                        <div className="text-5xl animate-bounce">🎉</div>
-                        <h3 className="text-2xl font-bold text-emerald-800 font-handwriting">
-                          Letter Delivered Safely!
+                      <div className="py-10 text-center space-y-3 bg-emerald-50 rounded-2xl border-2 border-emerald-300 p-6 my-auto">
+                        <div className="text-4xl animate-bounce">📮</div>
+                        <h3 className="text-2xl font-bold text-emerald-900 font-handwriting">
+                          Postcard Delivered Safely!
                         </h3>
-                        <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto">
-                          Thank you for reaching out. Devaroopa will review your letter and get back to you soon.
+                        <p className="text-xs sm:text-sm text-stone-600 max-w-sm mx-auto font-medium">
+                          Thank you for reaching out. Devaroopa has received your dispatch and will reply shortly!
                         </p>
                       </div>
                     ) : (
-                      <form onSubmit={handleSubmit} className="space-y-4">
+                      <form onSubmit={handleSubmit} className="space-y-3 pt-1">
                         {errorMsg && (
-                          <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">
+                          <div className="p-2.5 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200 font-mono">
                             {errorMsg}
                           </div>
                         )}
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-slate-700">Name</label>
+                        {/* Ruled Line 1: To / Name */}
+                        <div className="relative border-b-2 border-stone-400/80 pb-1 flex items-baseline gap-2">
+                          <label className="text-xs font-mono font-bold text-stone-700 uppercase tracking-wider shrink-0">
+                            To (Name):
+                          </label>
                           <input
                             type="text"
                             required
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Your Name"
-                            className="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
+                            placeholder="Your Full Name"
+                            className="w-full bg-transparent text-xs text-stone-900 font-handwriting text-lg focus:outline-hidden placeholder:font-sans placeholder:text-xs placeholder:text-stone-400"
                           />
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-slate-700">Email</label>
+                        {/* Ruled Line 2: Return Address / Email */}
+                        <div className="relative border-b-2 border-stone-400/80 pb-1 flex items-baseline gap-2">
+                          <label className="text-xs font-mono font-bold text-stone-700 uppercase tracking-wider shrink-0">
+                            Return Email:
+                          </label>
                           <input
                             type="email"
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Your Email Address"
-                            className="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
+                            placeholder="your.email@domain.com"
+                            className="w-full bg-transparent text-xs text-stone-900 font-mono focus:outline-hidden placeholder:text-xs placeholder:text-stone-400"
                           />
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-slate-700">Subject</label>
+                        {/* Ruled Line 3: Subject */}
+                        <div className="relative border-b-2 border-stone-400/80 pb-1 flex items-baseline gap-2">
+                          <label className="text-xs font-mono font-bold text-stone-700 uppercase tracking-wider shrink-0">
+                            Regarding:
+                          </label>
                           <input
                             type="text"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
-                            placeholder="Subject / Project Inquiry"
-                            className="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
+                            placeholder="Project Inquiry / Tech Collaboration"
+                            className="w-full bg-transparent text-xs text-stone-900 font-handwriting text-lg focus:outline-hidden placeholder:font-sans placeholder:text-xs placeholder:text-stone-400"
                           />
                         </div>
 
-                        <div className="space-y-1">
-                          <label className="text-xs font-bold text-slate-700">Message</label>
+                        {/* Ruled Message Area (Multi-line postcard ruled notebook guidelines) */}
+                        <div className="space-y-1 pt-1">
+                          <label className="text-xs font-mono font-bold text-stone-700 uppercase tracking-wider block">
+                            Postcard Message:
+                          </label>
                           <textarea
                             required
-                            rows={4}
+                            rows={3}
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
-                            placeholder="Write your message here..."
-                            className="w-full px-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all resize-none"
+                            placeholder="Write your note here on the postcard..."
+                            className="w-full p-2.5 bg-amber-50/30 rounded-xl border border-stone-300 text-xs text-stone-900 font-handwriting text-xl focus:outline-hidden focus:border-stone-500 focus:bg-white/80 transition-all resize-none leading-relaxed"
                           />
                         </div>
 
-                        <button
-                          type="submit"
-                          disabled={loading}
-                          className="w-full sm:w-auto px-8 py-3 bg-[#1e293b] hover:bg-[#0f172a] disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md hover:-translate-y-0.5 cursor-pointer flex items-center justify-center gap-2"
-                        >
-                          {loading ? (
-                            <>
-                              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                              <span>Delivering...</span>
-                            </>
-                          ) : (
-                            <span>Send Message ✈</span>
-                          )}
-                        </button>
+                        {/* Dispatch Button Styled as Postal Franking / Wax Seal Button */}
+                        <div className="pt-2 flex items-center justify-between">
+                          <button
+                            type="submit"
+                            disabled={loading}
+                            className="px-6 py-2.5 bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 hover:from-amber-900 hover:to-rose-900 disabled:opacity-50 text-amber-100 rounded-xl text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-md hover:-translate-y-0.5 cursor-pointer flex items-center gap-2 border border-amber-300/40"
+                          >
+                            {loading ? (
+                              <>
+                                <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                <span>Dispatching...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>✉</span>
+                                <span>Dispatch Postcard ✈</span>
+                              </>
+                            )}
+                          </button>
+
+                          <span className="text-[10px] font-mono text-stone-400">
+                            POSTAGE PRE-PAID · AIR TRANSMISSION
+                          </span>
+                        </div>
                       </form>
                     )}
 
-                    {/* Sitting Postman Character in Bottom-Right Corner (Frame 7 & 8) */}
-                    <div className="relative pt-4 flex items-end justify-end">
+                    {/* Sitting Postman Character in Bottom-Right Corner - Completely Transparent */}
+                    <div className="relative pt-1 flex items-end justify-end select-none pointer-events-none">
                       <motion.div
                         animate={{ y: [0, -3, 0] }}
                         transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-                        className="relative w-44 sm:w-52 md:w-60 select-none -mr-3 -mb-3"
+                        className="relative w-36 sm:w-44 md:w-48"
                       >
                         <img
-                          src="/assets/postman/postman_sitting.jpg"
+                          src="/assets/postman/postman_sitting.png"
                           alt="Cute postman resting happily"
-                          className="w-full h-auto mix-blend-multiply drop-shadow-md"
+                          className="w-full h-auto drop-shadow-md select-none"
                         />
                         {/* Floating love heart bubble */}
                         <motion.div
@@ -693,8 +833,8 @@ export const ContactModal: React.FC<ContactModalProps> = ({
               </div>
 
               {/* Bottom Footer Note */}
-              <div className="mt-8 text-center text-xs text-slate-500 font-mono flex items-center justify-center gap-3">
-                <span>Hand-delivered with care</span>
+              <div className="mt-6 text-center text-xs text-stone-600 font-mono flex items-center justify-center gap-3">
+                <span>Hand-delivered across the spatial web</span>
                 <span>·</span>
                 <span>devaroopa portfolio</span>
               </div>
