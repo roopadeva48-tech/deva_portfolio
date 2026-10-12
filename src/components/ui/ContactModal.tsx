@@ -417,59 +417,141 @@ export const ContactModal: React.FC<ContactModalProps> = ({
               </motion.div>
             )}
 
-            {/* SCENE 4 & 5: Envelope Covers Full Screen & Opens with Golden Glow */}
+            {/* SCENE 4 & 5: Authentic Envelope Vector Structure Matching Reference */}
             {(stage === 'fullscreen_envelope' || stage === 'opening') && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.96 }}
+                initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
-                className="absolute inset-0 z-40 bg-[#fefaf0] flex items-center justify-center p-4 sm:p-8"
+                transition={{ duration: 0.45 }}
+                className="absolute inset-0 z-40 bg-[#fefaf0]/95 backdrop-blur-xs flex flex-col items-center justify-center p-4 sm:p-8"
               >
-                {/* Full-screen Airmail Border */}
-                <div className="absolute inset-0 border-[16px] sm:border-[24px] border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_16px,#ffffff_16px,#ffffff_32px,#2563eb_32px,#2563eb_48px,#ffffff_48px,#ffffff_64px)_16] pointer-events-none" />
+                {/* Airmail Border on Screen Perimeter */}
+                <div className="absolute inset-0 border-[14px] sm:border-[20px] border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_14px,#ffffff_14px,#ffffff_28px,#1d4ed8_28px,#1d4ed8_42px,#ffffff_42px,#ffffff_56px)_14] pointer-events-none" />
 
-                {/* Envelope Body Frame */}
+                {/* THE ENVELOPE CONTAINER (Perspective 1200 for 3D Flap Opening) */}
                 <div
-                  style={{ perspective: 1400 }}
-                  className="relative w-full max-w-4xl h-[75vh] bg-[#fffbf2] rounded-3xl border-2 border-amber-200/80 shadow-2xl overflow-hidden flex flex-col items-center justify-center"
+                  style={{ perspective: 1200 }}
+                  className="relative w-full max-w-lg aspect-[7/5] flex items-center justify-center my-auto"
                 >
-                  {/* Flap Opening 3D Animation */}
-                  <motion.div
-                    initial={{ rotateX: 0 }}
-                    animate={
-                      stage === 'opening'
-                        ? { rotateX: -180, y: -20, opacity: 0.4 }
-                        : { rotateX: 0 }
-                    }
-                    transition={{ duration: 0.9, ease: [0.4, 0, 0.2, 1] }}
-                    style={{ transformOrigin: 'top center', transformStyle: 'preserve-3d' }}
-                    className="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-amber-100 to-[#fff8eb] border-b-2 border-amber-300 shadow-lg flex items-center justify-center z-20"
-                  >
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-rose-500 via-red-600 to-rose-800 shadow-xl flex items-center justify-center border-2 border-red-700/60 ring-4 ring-red-400/30">
-                      <span className="text-white text-2xl drop-shadow-xs">❤️</span>
-                    </div>
-                  </motion.div>
+                  {/* 1. Envelope Back Wall */}
+                  <div className="absolute inset-0 bg-[#fde68a] rounded-2xl shadow-2xl border-2 border-amber-400 overflow-visible" />
 
-                  {/* Golden Rays Shining from Inside Opening Envelope */}
+                  {/* 2. Open Flap Behind (When Opened, Points UP ▲) */}
                   {stage === 'opening' && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1.2 }}
-                      transition={{ duration: 0.8 }}
-                      className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
+                      initial={{ opacity: 0, scaleY: 0 }}
+                      animate={{ opacity: 1, scaleY: 1 }}
+                      transition={{ duration: 0.5, ease: 'easeOut' }}
+                      style={{ transformOrigin: 'bottom center' }}
+                      className="absolute -top-24 sm:-top-32 inset-x-0 h-24 sm:h-32 flex justify-center z-10 pointer-events-none"
                     >
-                      <div className="w-96 h-96 rounded-full bg-gradient-to-r from-amber-300/60 via-yellow-200/80 to-amber-400/60 blur-3xl animate-pulse" />
+                      <svg viewBox="0 0 200 90" className="w-full h-full drop-shadow-lg">
+                        <polygon
+                          points="0,90 200,90 100,0"
+                          fill="#fef08a"
+                          stroke="#d97706"
+                          strokeWidth="2"
+                        />
+                      </svg>
+                      {/* Wax Seal at the Open Flap Peak */}
+                      <div className="absolute top-1 w-10 h-10 rounded-full bg-gradient-to-br from-rose-500 via-red-600 to-rose-800 shadow-md flex items-center justify-center border border-red-700">
+                        <span className="text-white text-base">❤️</span>
+                      </div>
                     </motion.div>
                   )}
 
-                  <div className="text-center space-y-2 z-10">
-                    <span className="font-handwriting text-3xl text-amber-700 font-bold">
-                      Opening Letter...
-                    </span>
-                    <p className="text-xs font-mono text-slate-500">
-                      A special transmission from devaroopa is inside!
-                    </p>
+                  {/* 3. The Letter / Postcard Inside - Slides UP Out of the Pocket */}
+                  <motion.div
+                    initial={{ y: 0, scale: 0.96 }}
+                    animate={
+                      stage === 'opening'
+                        ? { y: -130, scale: 1 }
+                        : { y: 0, scale: 0.96 }
+                    }
+                    transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute inset-x-6 top-4 h-[92%] bg-[#fcfaf2] rounded-2xl shadow-lg border-2 border-amber-300 p-4 sm:p-6 z-20 flex flex-col justify-between overflow-hidden"
+                  >
+                    {/* Airmail Trim on Emerging Letter */}
+                    <div className="absolute inset-0 border-6 border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_8px,#ffffff_8px,#ffffff_16px,#1d4ed8_16px,#1d4ed8_24px,#ffffff_24px,#ffffff_32px)_6] pointer-events-none rounded-2xl" />
+
+                    {/* Letter Header Line */}
+                    <div className="relative z-10 flex items-center justify-between border-b border-stone-300 pb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs">✈</span>
+                        <span className="font-serif font-bold text-xs sm:text-sm tracking-widest text-stone-800 uppercase">
+                          POST CARD
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold text-amber-800">
+                        DEVA 3D
+                      </span>
+                    </div>
+
+                    {/* Ruled lines inside emerging card (matching reference illustration!) */}
+                    <div className="relative z-10 space-y-2.5 py-2">
+                      <div className="h-2 w-3/4 bg-stone-300/60 rounded-full" />
+                      <div className="h-2 w-full bg-stone-200/80 rounded-full" />
+                      <div className="h-2 w-5/6 bg-stone-200/80 rounded-full" />
+                      <div className="h-2 w-2/3 bg-stone-200/80 rounded-full" />
+                    </div>
+
+                    <div className="relative z-10 flex items-center justify-between text-[9px] font-mono text-stone-500 pt-1">
+                      <span>PAR AVION</span>
+                      <span>OCT 2026</span>
+                    </div>
+                  </motion.div>
+
+                  {/* 4. Golden Shine Radiating from Pocket */}
+                  {stage === 'opening' && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1.25 }}
+                      transition={{ duration: 0.7 }}
+                      className="absolute inset-0 flex items-center justify-center pointer-events-none z-25"
+                    >
+                      <div className="w-80 h-80 rounded-full bg-gradient-to-r from-amber-300/60 via-yellow-200/80 to-amber-400/60 blur-2xl" />
+                    </motion.div>
+                  )}
+
+                  {/* 5. The Front Pocket (Left, Right & Bottom Flaps In Front of Letter Base) */}
+                  <div className="absolute inset-0 z-30 pointer-events-none">
+                    <svg viewBox="0 0 200 140" className="w-full h-full drop-shadow-md">
+                      {/* Left Flap */}
+                      <polygon points="0,0 95,70 0,140" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+                      {/* Right Flap */}
+                      <polygon points="200,0 105,70 200,140" fill="#fef3c7" stroke="#d97706" strokeWidth="1" />
+                      {/* Bottom Flap */}
+                      <polygon points="0,140 200,140 100,60" fill="#fde68a" stroke="#d97706" strokeWidth="1.5" />
+                    </svg>
                   </div>
+
+                  {/* 6. Closed Top Flap (Folds DOWN over front when closed) */}
+                  {stage === 'fullscreen_envelope' && (
+                    <motion.div
+                      initial={{ rotateX: 0 }}
+                      animate={{ rotateX: 0 }}
+                      style={{ transformOrigin: 'top center', transformStyle: 'preserve-3d' }}
+                      className="absolute top-0 inset-x-0 h-1/2 z-40 pointer-events-none"
+                    >
+                      <svg viewBox="0 0 200 75" className="w-full h-full drop-shadow-md">
+                        <polygon points="0,0 200,0 100,75" fill="#fde68a" stroke="#d97706" strokeWidth="1.5" />
+                      </svg>
+                      {/* Wax Seal at the Closed Flap Tip */}
+                      <div className="absolute bottom-[-18px] left-1/2 -translate-x-1/2 w-11 h-11 rounded-full bg-gradient-to-br from-rose-500 via-red-600 to-rose-800 shadow-xl flex items-center justify-center border-2 border-red-700">
+                        <span className="text-white text-lg">❤️</span>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Status Notice Below */}
+                <div className="text-center mt-6 z-40 space-y-1">
+                  <span className="font-handwriting text-3xl text-amber-900 font-bold">
+                    {stage === 'opening' ? 'Opening Postcard Letter...' : 'Special Delivery Received!'}
+                  </span>
+                  <p className="text-xs font-mono text-stone-600">
+                    Transmission from devaroopa is inside
+                  </p>
                 </div>
               </motion.div>
             )}
@@ -478,6 +560,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 
         {/* ========================================================
             3. SCENE 6, 7 & 8: REAL AUTHENTIC POSTCARD DESIGN
+               - Open envelope crown behind top
                - Vintage Post Card header & Union Postale Universelle
                - Iconic Divided Back layout (Message on left, Address on right)
                - Perforated scalloped postage stamp with orbital artwork
@@ -497,17 +580,28 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             {/* Ambient Sunlight & Warm Vignette Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-stone-900/15 via-[#fdfbf7]/85 to-stone-900/20 pointer-events-none" />
 
-            <div className="relative z-10 w-full max-w-6xl mx-auto px-3 sm:px-6 md:px-8 py-6 sm:py-10 flex flex-col items-center">
-              {/* REAL AUTHENTIC POSTCARD CONTAINER */}
+            <div className="relative z-10 w-full max-w-6xl mx-auto px-3 sm:px-6 md:px-8 pt-10 sm:pt-14 pb-8 sm:pb-12 flex flex-col items-center">
+              {/* REAL AUTHENTIC POSTCARD CONTAINER (With Open Envelope Flap Crown) */}
               <div
                 id="contact-postcard-form"
-                className="relative w-full max-w-5xl bg-[#fcfaf2] rounded-2xl sm:rounded-3xl p-4 sm:p-7 md:p-9 shadow-[0_25px_60px_-10px_rgba(45,30,15,0.28),0_8px_20px_-5px_rgba(0,0,0,0.12)] border-2 border-stone-300/80 overflow-hidden"
+                className="relative w-full max-w-5xl bg-[#fcfaf2] rounded-3xl p-4 sm:p-7 md:p-9 shadow-[0_25px_60px_-10px_rgba(45,30,15,0.28),0_8px_20px_-5px_rgba(0,0,0,0.12)] border-2 border-stone-300/80 overflow-visible"
               >
+                {/* Authentic Open Envelope Flap Peak (Matching Reference Illustration Structure) */}
+                <div className="absolute -top-7 sm:-top-11 left-1/2 -translate-x-1/2 w-48 sm:w-64 h-8 sm:h-12 pointer-events-none z-0">
+                  <svg viewBox="0 0 200 50" className="w-full h-full drop-shadow-md">
+                    <polygon points="0,50 200,50 100,0" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.5" />
+                  </svg>
+                  {/* Wax Seal Centered on Open Flap Peak */}
+                  <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-br from-rose-500 via-red-600 to-rose-800 shadow-md flex items-center justify-center border border-red-700/80">
+                    <span className="text-white text-[10px] sm:text-xs">❤️</span>
+                  </div>
+                </div>
+
                 {/* 1. Classic Airmail Diagonal Chevrons (Red & Blue Perimeter) */}
-                <div className="absolute inset-0 border-8 sm:border-10 border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_12px,#ffffff_12px,#ffffff_24px,#1d4ed8_24px,#1d4ed8_36px,#ffffff_36px,#ffffff_48px)_10] pointer-events-none rounded-2xl sm:rounded-3xl" />
+                <div className="absolute inset-0 border-8 sm:border-10 border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_12px,#ffffff_12px,#ffffff_24px,#1d4ed8_24px,#1d4ed8_36px,#ffffff_36px,#ffffff_48px)_10] pointer-events-none rounded-3xl z-10" />
 
                 {/* Inner Fine Margin Frame Line */}
-                <div className="absolute inset-3 sm:inset-4 border border-stone-300/70 pointer-events-none rounded-xl" />
+                <div className="absolute inset-3 sm:inset-4 border border-stone-300/70 pointer-events-none rounded-2xl z-10" />
 
                 {/* 2. AUTHENTIC POSTCARD HEADER */}
                 <div className="relative z-10 pt-2 pb-4 text-center border-b-2 border-stone-300/80 mx-2 sm:mx-4">
