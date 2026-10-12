@@ -311,6 +311,63 @@ export async function fetchProfile(): Promise<ProfileData> {
   }
 }
 
+export const fallbackProjects: ProjectItem[] = [
+  {
+    id: 'anti-gravity-sandbox',
+    title: 'Aetheria: Spatial Physics Engine',
+    category: '3D Spatial',
+    year: '2025',
+    tagline: 'Real-time zero-G spatial sandbox with 10,000 instanced floating artifacts.',
+    description: 'A WebGL and Three.js physics sandbox allowing users to manipulate gravitational fields, orbital velocity, and magnetic forces in real-time.',
+    technologies: ['Three.js', 'GLSL', 'TypeScript', 'Web Audio API', 'React 19'],
+    metrics: '120 FPS physics loop via Web Workers · 4.8M particle interactions',
+    role: 'Lead Architect & Shader Artist',
+    coverGradient: 'from-cyan-500 to-blue-600',
+    interactiveDemoType: 'particles',
+    links: { live: '#', github: 'https://github.com/roopadeva/aetheria-zero-g' },
+    features: [
+      'Custom spatial acceleration quadtrees for collision resolution',
+      'Dynamic audio synthesis reacting to collision impact speeds'
+    ]
+  },
+  {
+    id: 'radial-urbanism',
+    title: 'Orbit City: Curvature Architectural Studio',
+    category: '3D Spatial',
+    year: '2024',
+    tagline: 'Procedural radial city generation on miniature planetary bodies.',
+    description: 'Inspired by miniature Little Prince planets and architectural models, wrapping high-rise towers around curved spherical coordinates.',
+    technologies: ['Three.js', 'Framer Motion', 'Next.js', 'Tailwind CSS'],
+    metrics: 'Under 1.2s First Contentful Paint',
+    role: 'Creative Developer & 3D Designer',
+    coverGradient: 'from-amber-400 to-orange-600',
+    interactiveDemoType: 'orbit',
+    links: { live: '#', github: 'https://github.com/roopadeva/orbit-city' },
+    features: [
+      'Spherical normal projection for accurate building radial alignment',
+      'Atmospheric cloud ring system with volumetric depth simulation'
+    ]
+  },
+  {
+    id: 'kinetic-animatic-novel',
+    title: 'Chronicles of Wanderlust: Interactive Animatic',
+    category: 'Animatic & Motion',
+    year: '2024',
+    tagline: 'Hand-drawn linework meets real-time 3D camera pan storytelling.',
+    description: 'An interactive graphic narrative blending hand-drawn rough ink animatics with 3D camera dollies.',
+    technologies: ['Framer Motion', 'Three.js', 'SVG Morphing', 'Canvas API'],
+    metrics: 'FWA of the Day Nominee',
+    role: 'Animator & Frontend Engineer',
+    coverGradient: 'from-teal-400 to-emerald-600',
+    interactiveDemoType: 'animatic',
+    links: { live: '#', github: 'https://github.com/roopadeva/animatic-chronicles' },
+    features: [
+      'Scrubbable timeline with seamless camera sync',
+      'Dynamic ink bleeding shaders on canvas load'
+    ]
+  }
+];
+
 export async function fetchProjects(): Promise<ProjectItem[]> {
   try {
     const res = await fetch('/api/projects');
@@ -319,62 +376,7 @@ export async function fetchProjects(): Promise<ProjectItem[]> {
     return json.data;
   } catch (err) {
     console.warn('Using local fallback projects data:', err);
-    return [
-      {
-        id: 'anti-gravity-sandbox',
-        title: 'Aetheria: Spatial Physics Engine',
-        category: '3D Spatial',
-        year: '2025',
-        tagline: 'Real-time zero-G spatial sandbox with 10,000 instanced floating artifacts.',
-        description: 'A WebGL and Three.js physics sandbox allowing users to manipulate gravitational fields, orbital velocity, and magnetic forces in real-time.',
-        technologies: ['Three.js', 'GLSL', 'TypeScript', 'Web Audio API', 'React 19'],
-        metrics: '120 FPS physics loop via Web Workers · 4.8M particle interactions',
-        role: 'Lead Architect & Shader Artist',
-        coverGradient: 'from-cyan-500 to-blue-600',
-        interactiveDemoType: 'particles',
-        links: { live: '#', github: 'https://github.com/roopadeva/aetheria-zero-g' },
-        features: [
-          'Custom spatial acceleration quadtrees for collision resolution',
-          'Dynamic audio synthesis reacting to collision impact speeds'
-        ]
-      },
-      {
-        id: 'radial-urbanism',
-        title: 'Orbit City: Curvature Architectural Studio',
-        category: '3D Spatial',
-        year: '2024',
-        tagline: 'Procedural radial city generation on miniature planetary bodies.',
-        description: 'Inspired by miniature Little Prince planets and architectural models, wrapping high-rise towers around curved spherical coordinates.',
-        technologies: ['Three.js', 'Framer Motion', 'Next.js', 'Tailwind CSS'],
-        metrics: 'Under 1.2s First Contentful Paint',
-        role: 'Creative Developer & 3D Designer',
-        coverGradient: 'from-amber-400 to-orange-600',
-        interactiveDemoType: 'orbit',
-        links: { live: '#', github: 'https://github.com/roopadeva/orbit-city' },
-        features: [
-          'Spherical normal projection for accurate building radial alignment',
-          'Atmospheric cloud ring system with volumetric depth simulation'
-        ]
-      },
-      {
-        id: 'kinetic-animatic-novel',
-        title: 'Chronicles of Wanderlust: Interactive Animatic',
-        category: 'Animatic & Motion',
-        year: '2024',
-        tagline: 'Hand-drawn linework meets real-time 3D camera pan storytelling.',
-        description: 'An interactive graphic narrative blending hand-drawn rough ink animatics with 3D camera dollies.',
-        technologies: ['Framer Motion', 'Three.js', 'SVG Morphing', 'Canvas API'],
-        metrics: 'FWA of the Day Nominee',
-        role: 'Animator & Frontend Engineer',
-        coverGradient: 'from-teal-400 to-emerald-600',
-        interactiveDemoType: 'animatic',
-        links: { live: '#', github: 'https://github.com/roopadeva/animatic-chronicles' },
-        features: [
-          'Scrubbable timeline with seamless camera sync',
-          'Dynamic ink bleeding shaders on canvas load'
-        ]
-      }
-    ];
+    return fallbackProjects;
   }
 }
 

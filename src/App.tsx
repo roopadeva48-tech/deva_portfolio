@@ -413,6 +413,8 @@ export default function App() {
         isOpen={isProfileOpen}
         onClose={navigateBack}
         profile={profile}
+        projects={projects}
+        certificates={certificates}
         onNavigateToProjects={handleNavigateToProjects}
         onOpenContact={() => navigateTo('/contact')}
       />

@@ -1,150 +1,40 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ProfileData } from '../../types';
+import { ProfileData, ProjectItem, CertificateItem } from '../../types';
 import { sound } from '../../utils/audio';
-import { sendContactMessage } from '../../services/api';
+import { sendContactMessage, fallbackProjects, fallbackCertificates } from '../../services/api';
 import confetti from 'canvas-confetti';
+import {
+  WritingGirlCharacter,
+  BeanbagGirlIllustration,
+  JugglingGirlIllustration,
+} from './illustrated/GirlIllustrations';
+import {
+  PaperPlaneDoodle,
+  ScissorsDoodle,
+  LightbulbDoodle,
+  SquigglyArrowDoodle,
+  PushPinDoodle,
+  ArtisticDevaTitle,
+} from './illustrated/Doodles';
 
 interface ProfileShowcaseProps {
   isOpen: boolean;
   onClose: () => void;
   profile: ProfileData | null;
+  projects?: ProjectItem[];
+  certificates?: CertificateItem[];
   onNavigateToProjects: () => void;
   onOpenContact: () => void;
 }
-
-// Interactive 3D Card Frame with Mouse-Tracking Perspective Tilt & Specular Light Sheen
-const Interactive3DPhotoFrame: React.FC<{
-  avatar: string;
-  name: string;
-}> = ({ avatar, name }) => {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [coords, setCoords] = useState({
-    rotateX: 0,
-    rotateY: 0,
-    glareX: 50,
-    glareY: 50,
-    glareOpacity: 0,
-  });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -12; // tilt -12 to +12 deg
-    const rotateY = ((x - centerX) / centerX) * 12;
-
-    setCoords({
-      rotateX,
-      rotateY,
-      glareX: (x / rect.width) * 100,
-      glareY: (y / rect.height) * 100,
-      glareOpacity: 0.45,
-    });
-  };
-
-  const handleMouseLeave = () => {
-    setCoords({
-      rotateX: 0,
-      rotateY: 0,
-      glareX: 50,
-      glareY: 50,
-      glareOpacity: 0,
-    });
-  };
-
-  return (
-    <div
-      style={{ perspective: 1200 }}
-      className="relative shrink-0 flex justify-center items-center py-3 select-none"
-    >
-      <motion.div
-        ref={cardRef}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
-        animate={{
-          rotateX: coords.rotateX,
-          rotateY: coords.rotateY,
-          scale: coords.glareOpacity > 0 ? 1.025 : 1,
-        }}
-        transition={{ type: 'spring', stiffness: 260, damping: 20, mass: 0.8 }}
-        style={{ transformStyle: 'preserve-3d' }}
-        className="relative w-72 sm:w-80 md:w-[340px] rounded-3xl p-3.5 bg-gradient-to-b from-white via-slate-100 to-slate-200/95 shadow-[0_30px_70px_-20px_rgba(15,23,42,0.35),0_15px_30px_-10px_rgba(15,23,42,0.2),0_0_0_1px_rgba(255,255,255,0.9)] border-2 border-white/90 ring-1 ring-slate-900/10 cursor-pointer group"
-      >
-        {/* Physical 3D Beveled Frame Inset */}
-        <div
-          style={{ transform: 'translateZ(26px)' }}
-          className="relative w-full aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl bg-slate-950 border-2 border-slate-900"
-        >
-          {/* Main Photo in Bigger, Clear Format */}
-          <img
-            src={avatar}
-            alt={name}
-            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
-          />
-
-          {/* Dynamic Interactive 3D Specular Light Glare */}
-          <div
-            className="pointer-events-none absolute inset-0 transition-opacity duration-300 mix-blend-overlay"
-            style={{
-              background: `radial-gradient(circle at ${coords.glareX}% ${coords.glareY}%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 65%)`,
-              opacity: coords.glareOpacity,
-            }}
-          />
-
-          {/* Ambient Film Vignette */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-white/10" />
-
-          {/* High-Tech Holographic Grid / Corner Brackets */}
-          <div className="pointer-events-none absolute inset-2.5 border border-white/20 rounded-xl" />
-          <div className="pointer-events-none absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-amber-400" />
-          <div className="pointer-events-none absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-amber-400" />
-          <div className="pointer-events-none absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-amber-400" />
-          <div className="pointer-events-none absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-amber-400" />
-
-          {/* 3D Depth Card Footer Tag */}
-          <div
-            style={{ transform: 'translateZ(34px)' }}
-            className="absolute bottom-3.5 inset-x-3.5 flex items-center justify-between pointer-events-none"
-          >
-            <span className="px-3 py-1 bg-black/75 backdrop-blur-md rounded-lg text-[10px] font-mono font-bold text-amber-300 border border-white/20 shadow-md">
-              PORTFOLIO ARCHITECT
-            </span>
-            <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/90 backdrop-blur-md rounded-lg text-[10px] font-mono font-bold text-white shadow-md">
-              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-              AVAILABLE
-            </span>
-          </div>
-        </div>
-
-        {/* 3D Floating Elevated Badge */}
-        <div
-          style={{ transform: 'translateZ(50px)' }}
-          className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-amber-400 text-slate-950 text-xs font-mono font-black px-4 py-1.5 rounded-xl border-2 border-slate-950 shadow-[0_10px_20px_rgba(0,0,0,0.25)] flex items-center gap-2 whitespace-nowrap"
-        >
-          <span>👩‍💻</span>
-          <span>GLOBE PILOT · DEVAROOPA</span>
-          <span className="text-[10px] bg-slate-950 text-amber-400 px-1.5 py-0.5 rounded font-bold">
-            3D
-          </span>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
 
 export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   isOpen,
   onClose,
   profile,
-  onNavigateToProjects,
-  onOpenContact,
+  projects = [],
+  certificates = [],
 }) => {
-  const [activeTab, setActiveTab] = useState<'about' | 'skills' | 'timeline'>('about');
   const [copiedEmail, setCopiedEmail] = useState(false);
 
   // Embedded contact form state
@@ -157,6 +47,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   const [contactErr, setContactErr] = useState('');
 
   if (!isOpen || !profile) return null;
+
+  const displayProjects = projects.length > 0 ? projects : fallbackProjects;
+  const displayCertificates = certificates.length > 0 ? certificates : fallbackCertificates;
 
   const handleCopyEmail = () => {
     sound.playClick();
@@ -183,10 +76,10 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
       sound.playChime();
       setSentSuccess(true);
       confetti({
-        particleCount: 40,
-        spread: 60,
+        particleCount: 50,
+        spread: 70,
         origin: { y: 0.7 },
-        colors: ['#22c55e', '#38bdf8', '#facc15'],
+        colors: ['#ea580c', '#f59e0b', '#38bdf8', '#fb7185'],
       });
       setTimeout(() => {
         setContactName('');
@@ -206,33 +99,57 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-40 bg-white text-slate-900 overflow-y-auto flex flex-col selection:bg-teal-500 selection:text-white"
+        className="fixed inset-0 z-40 bg-[#fdfbf7] text-[#1e293b] overflow-y-auto flex flex-col selection:bg-amber-400 selection:text-slate-900"
       >
-        {/* 1. Sticky Navigation Header */}
-        <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs w-full">
-          <div className="w-full px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
+        {/* ========================================================
+            1. STICKY HEADER (PRESERVED "Back to 3D Globe" on Far-Left)
+           ======================================================== */}
+        <header className="sticky top-0 z-50 bg-[#fdfbf7]/95 backdrop-blur-md border-b border-amber-200/50 shadow-xs w-full">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 h-16 flex items-center justify-between">
             {/* Left End: Back to 3D Globe */}
             <button
               onClick={() => {
                 sound.playClick();
                 onClose();
               }}
-              className="flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl text-xs font-bold transition-all hover:-translate-x-0.5 cursor-pointer border border-slate-200"
+              className="flex items-center gap-2 px-3.5 py-2 bg-white hover:bg-amber-50 text-slate-900 rounded-xl text-xs font-bold transition-all hover:-translate-x-0.5 cursor-pointer border border-amber-200 shadow-xs"
             >
               <span>←</span>
               <span>Back to 3D Globe</span>
               <span className="text-sm">🌍</span>
             </button>
 
-            {/* Right End: Action */}
+            {/* Quick Section Nav Links */}
+            <nav className="hidden md:flex items-center gap-6 text-xs font-bold text-slate-600">
+              <a href="#about" className="hover:text-amber-600 transition-colors">
+                About
+              </a>
+              <a href="#skills" className="hover:text-amber-600 transition-colors">
+                Skills
+              </a>
+              <a href="#experience" className="hover:text-amber-600 transition-colors">
+                Experience
+              </a>
+              <a href="#projects" className="hover:text-amber-600 transition-colors">
+                Projects
+              </a>
+              <a href="#certificates" className="hover:text-amber-600 transition-colors">
+                Certificates
+              </a>
+              <a href="#contact" className="hover:text-amber-600 transition-colors">
+                Contact
+              </a>
+            </nav>
+
+            {/* Right End: Get in Touch Action */}
             <div className="flex items-center gap-2">
               <a
-                href="#contact-section"
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                href="#contact"
+                className="px-4 py-2 bg-[#1e293b] hover:bg-[#0f172a] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
                 Get in Touch
               </a>
@@ -240,239 +157,262 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
           </div>
         </header>
 
-        {/* 2. Open Seamless Page Layout (NO CONTAINERS) */}
-        <div className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-14">
-          {/* Hero Profile Showcase (Open Layout with Bigger 3D Photo Card) */}
-          <section className="relative flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-14 pt-2">
-            {/* Bigger 3D Framed Card */}
-            <Interactive3DPhotoFrame avatar={profile.avatar} name={profile.name} />
+        {/* Ambient Decorative Doodles in Page Background */}
+        <div className="pointer-events-none fixed inset-0 overflow-hidden opacity-30 z-0">
+          <div className="absolute top-24 left-6">
+            <LightbulbDoodle />
+          </div>
+          <div className="absolute top-48 right-12 hidden lg:block">
+            <PaperPlaneDoodle />
+          </div>
+          <div className="absolute top-[42%] left-4 text-2xl select-none font-doodle text-amber-500">
+            ✦
+          </div>
+          <div className="absolute top-[68%] right-8 text-3xl select-none font-doodle text-rose-400">
+            ✧
+          </div>
+        </div>
 
-            {/* Bio, Typography & Actions (Seamlessly open, no container) */}
-            <div className="flex-1 space-y-5 text-center lg:text-left">
-              {/* Name & Availability Status */}
-              <div className="space-y-1.5">
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                  <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-slate-950">
-                    {profile.name}
-                  </h1>
-                  <span className="text-xs text-slate-500 font-mono px-2.5 py-0.5 bg-slate-100 rounded-full border border-slate-200">
-                    {profile.pronouns || 'she/her'}
-                  </span>
-                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                    ● Available for Projects
-                  </span>
-                </div>
-
-                <p className="text-lg sm:text-xl font-bold text-teal-800">
-                  {profile.title}
-                </p>
+        {/* ========================================================
+            2. MAIN CONTENT SECTIONS (ILLUSTRATED AESTHETIC)
+           ======================================================== */}
+        <div className="relative z-10 flex-1 w-full max-w-6xl mx-auto px-4 sm:px-8 py-8 sm:py-12 space-y-20">
+          {/* ----------------------------------------------------
+              SECTION 1: HERO / LANDING PAGE
+              - Girl writes "Deva" in artistic handwritten script
+              - Hand-drawn doodles, intro & action buttons
+             ---------------------------------------------------- */}
+          <section className="relative pt-4 sm:pt-8 pb-10 flex flex-col items-center text-center">
+            {/* The Girl Writing "Deva" Composition */}
+            <div className="relative w-full max-w-4xl flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 my-2">
+              {/* Handwritten Script Title "Deva's" */}
+              <div className="order-2 md:order-1 flex flex-col items-center md:items-end z-10">
+                <ArtisticDevaTitle suffix="'s" />
+                <span className="font-handwriting text-2xl sm:text-3xl text-amber-700 font-bold -rotate-2 mt-1">
+                  Creative Technologist & 3D Interactive Engineer
+                </span>
               </div>
 
-              {/* Main Headline & Location */}
-              <p className="text-base text-slate-600 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+              {/* Animated Illustrated Girl Character Writing the Title */}
+              <div className="order-1 md:order-2 w-52 sm:w-64 md:w-72 shrink-0 relative">
+                <WritingGirlCharacter />
+              </div>
+            </div>
+
+            {/* Short Introduction & Bio */}
+            <div className="max-w-2xl mx-auto mt-6 space-y-4">
+              <p className="text-base sm:text-lg text-slate-700 leading-relaxed font-medium">
                 {profile.headline}
               </p>
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs text-slate-500 pt-1">
-                <span className="flex items-center gap-1.5 font-semibold text-slate-800">
+              <div className="flex flex-wrap items-center justify-center gap-3 text-xs text-slate-500 font-mono">
+                <span className="px-3 py-1 bg-amber-100/70 text-amber-900 rounded-full border border-amber-200">
                   📍 {profile.location}
                 </span>
-                <span>·</span>
-                <span className="font-semibold text-slate-800">
-                  WebGL, Spatial Three.js & Creative Engineering
+                <span className="px-3 py-1 bg-emerald-100/70 text-emerald-900 rounded-full border border-emerald-200">
+                  ● Available for Select Projects
                 </span>
               </div>
+            </div>
 
-              {/* Action Buttons & Socials */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2.5 pt-2">
-                <button
-                  onClick={handleCopyEmail}
-                  className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-2 cursor-pointer"
-                >
-                  <span>✉</span>
-                  <span>{copiedEmail ? 'Copied to Clipboard!' : 'roopadeva48@gmail.com'}</span>
-                </button>
-                {profile.socials?.map((s, i) => (
-                  <a
-                    key={i}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl transition-colors border border-slate-200"
-                  >
-                    {s.platform}
-                  </a>
-                ))}
+            {/* Action Buttons & Curly Arrow */}
+            <div className="relative mt-8 flex flex-wrap items-center justify-center gap-4">
+              <a
+                href="#projects"
+                className="px-6 py-3 bg-[#1e293b] hover:bg-[#0f172a] text-white rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-md hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
+              >
+                <span>Explore My Work</span>
+                <span>↓</span>
+              </a>
+
+              <a
+                href="#contact"
+                className="px-6 py-3 bg-white hover:bg-amber-50 text-slate-800 rounded-2xl text-xs sm:text-sm font-bold transition-all border border-amber-200 shadow-xs hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
+              >
+                <span>Get in Touch</span>
+                <span>✉</span>
+              </a>
+
+              <button
+                onClick={handleCopyEmail}
+                className="px-5 py-3 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-2xl text-xs font-bold transition-all border border-amber-300 shadow-xs cursor-pointer flex items-center gap-1.5"
+              >
+                <span>{copiedEmail ? 'Copied!' : 'Copy Email'}</span>
+                <span>📋</span>
+              </button>
+
+              {/* Doodled curly arrow pointing down */}
+              <div className="hidden sm:block absolute -right-20 top-0">
+                <SquigglyArrowDoodle label="scroll down!" direction="down" />
               </div>
             </div>
           </section>
 
-          {/* Section Navigation Tabs (Seamless Minimalist Bar, No Boxed Container) */}
-          <div className="border-b border-slate-200/90 pb-3 flex items-center justify-center sm:justify-start gap-4 sm:gap-8 overflow-x-auto">
-            <button
-              onClick={() => {
-                sound.playClick();
-                setActiveTab('about');
-              }}
-              className={`pb-2 text-sm font-bold transition-all relative cursor-pointer ${
-                activeTab === 'about'
-                  ? 'text-slate-950 font-black'
-                  : 'text-slate-400 hover:text-slate-800'
-              }`}
-            >
-              Story & Bio
-              {activeTab === 'about' && (
-                <motion.div
-                  layoutId="tabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-950 rounded-full"
-                />
-              )}
-            </button>
-            <button
-              onClick={() => {
-                sound.playClick();
-                setActiveTab('skills');
-              }}
-              className={`pb-2 text-sm font-bold transition-all relative cursor-pointer ${
-                activeTab === 'skills'
-                  ? 'text-slate-950 font-black'
-                  : 'text-slate-400 hover:text-slate-800'
-              }`}
-            >
-              Tech Stack & Capabilities
-              {activeTab === 'skills' && (
-                <motion.div
-                  layoutId="tabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-950 rounded-full"
-                />
-              )}
-            </button>
-            <button
-              onClick={() => {
-                sound.playClick();
-                setActiveTab('timeline');
-              }}
-              className={`pb-2 text-sm font-bold transition-all relative cursor-pointer ${
-                activeTab === 'timeline'
-                  ? 'text-slate-950 font-black'
-                  : 'text-slate-400 hover:text-slate-800'
-              }`}
-            >
-              Experience & Milestones
-              {activeTab === 'timeline' && (
-                <motion.div
-                  layoutId="tabUnderline"
-                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-950 rounded-full"
-                />
-              )}
-            </button>
-          </div>
+          {/* Doodled Separator */}
+          <ScissorsDoodle />
 
-          {/* Tab 1: Story & Bio (Open Editorial Layout, No Container Box) */}
-          {activeTab === 'about' && (
-            <motion.section
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-10"
-            >
-              <div className="space-y-4">
-                <h2 className="text-2xl font-black text-slate-950 flex items-center gap-2">
+          {/* ----------------------------------------------------
+              SECTION 2: ABOUT ME
+              - Girl relaxing in warm beanbag chair with laptop (Frame 8s)
+              - Story, stats, and "Off the clock" hobbies
+             ---------------------------------------------------- */}
+          <section id="about" className="space-y-10 scroll-mt-24">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-handwriting text-xl text-amber-600 font-bold block">
+                  Get to know me
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                   <span>📖</span>
-                  <span>The Creative Journey</span>
+                  <span>About Me</span>
                 </h2>
-                <div className="space-y-4 text-base text-slate-700 leading-relaxed max-w-3xl">
-                  <p className="text-slate-950 font-medium text-lg leading-relaxed">
+              </div>
+              <span className="font-mono text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+                01 / STORY
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Illustrated Character on Beanbag Chair (Frame 8s) */}
+              <div className="lg:col-span-5 flex flex-col items-center">
+                <div className="w-full max-w-sm">
+                  <BeanbagGirlIllustration />
+                </div>
+                {/* Polaroid Sticker with Real Photo Accent */}
+                <div className="mt-4 rotate-2 bg-white p-3 rounded-2xl shadow-md border border-amber-100 flex items-center gap-3 max-w-xs">
+                  <img
+                    src={profile.avatar}
+                    alt={profile.name}
+                    className="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0"
+                  />
+                  <div>
+                    <div className="text-xs font-bold text-slate-900 font-handwriting text-lg leading-tight">
+                      devaroopa
+                    </div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      spatial engineer & artist
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Narrative Story & Stats */}
+              <div className="lg:col-span-7 space-y-6">
+                <div className="space-y-4 text-base text-slate-700 leading-relaxed">
+                  <p className="text-lg font-bold text-slate-900 leading-snug">
                     {profile.bio}
                   </p>
                   {profile.extendedBio.map((paragraph, idx) => (
                     <p key={idx}>{paragraph}</p>
                   ))}
                 </div>
-              </div>
 
-              {/* Curiosities & Passions */}
-              <div className="space-y-3 pt-2">
-                <h3 className="text-xs font-mono font-bold tracking-wider text-slate-400 uppercase">
-                  Curiosities & Core Passions
-                </h3>
-                <div className="flex flex-wrap gap-2.5">
-                  {profile.passions.map((p, i) => (
-                    <span
-                      key={i}
-                      className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold rounded-xl border border-slate-200 transition-colors"
+                {/* Creative Stat Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  {profile.stats.map((s, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white p-4 rounded-2xl border border-amber-100 shadow-xs text-center space-y-1 hover:border-amber-300 transition-colors"
                     >
-                      ✦ {p}
-                    </span>
+                      <div className="text-2xl sm:text-3xl font-black text-amber-600 font-script">
+                        {s.value}
+                      </div>
+                      <div className="text-xs font-bold text-slate-800">{s.label}</div>
+                      <div className="text-[10px] text-slate-500 line-clamp-1">{s.description}</div>
+                    </div>
                   ))}
                 </div>
-              </div>
 
-              {/* Education Foundation */}
-              {profile.education && profile.education.length > 0 && (
-                <div className="space-y-3 pt-2">
-                  <h3 className="text-xs font-mono font-bold tracking-wider text-slate-400 uppercase">
-                    Academic Foundation
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
-                    {profile.education.map((edu, idx) => (
-                      <div
+                {/* "Off the clock, you'll find me:" (Frame 8s) */}
+                <div className="space-y-2.5 pt-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-handwriting text-lg text-slate-700 font-bold">
+                      Off the clock, you'll find me:
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {profile.passions.map((p, idx) => (
+                      <span
                         key={idx}
-                        className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-between"
+                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-950 text-xs font-semibold rounded-xl border border-amber-200 transition-colors flex items-center gap-1.5"
                       >
-                        <div>
-                          <div className="text-xs font-bold text-slate-950">{edu.degree}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">{edu.institution}</div>
-                        </div>
-                        <div className="text-xs font-mono text-slate-400 mt-2">{edu.year}</div>
-                      </div>
+                        <span>✦</span>
+                        <span>{p}</span>
+                      </span>
                     ))}
                   </div>
                 </div>
-              )}
-            </motion.section>
-          )}
+              </div>
+            </div>
+          </section>
 
-          {/* Tab 2: Tech Stack (Open Grid Layout, No Container Box) */}
-          {activeTab === 'skills' && (
-            <motion.section
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-8"
-            >
+          {/* Doodled Separator */}
+          <ScissorsDoodle />
+
+          {/* ----------------------------------------------------
+              SECTION 3: SKILLS ("Tools I'm fluent in" — Frame 12s)
+              - Juggling Girl on Unicycle illustration
+              - Categorized tools with playful proficiency meters
+             ---------------------------------------------------- */}
+          <section id="skills" className="space-y-10 scroll-mt-24">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black text-slate-950 flex items-center gap-2 mb-1">
+                <span className="font-handwriting text-xl text-amber-600 font-bold block">
+                  Technical Arsenal
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                   <span>⚡</span>
-                  <span>Technical Arsenal & Tooling</span>
+                  <span>Tools I'm Fluent In</span>
                 </h2>
-                <p className="text-xs text-slate-500">
-                  Comprehensive breakdown of core engineering, 3D WebGL graphics, and frontend architectural skills.
-                </p>
+              </div>
+              <span className="font-mono text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+                02 / SKILLS
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Illustrated Juggling Girl (Frame 12s) */}
+              <div className="lg:col-span-4 flex justify-center">
+                <div className="w-full max-w-xs">
+                  <JugglingGirlIllustration />
+                </div>
               </div>
 
-              <div className="space-y-8">
+              {/* Categorized Skills Grid */}
+              <div className="lg:col-span-8 space-y-6">
                 {profile.skills.map((group, gIdx) => (
                   <div key={gIdx} className="space-y-3">
-                    <h3 className="text-xs font-mono font-bold tracking-wider text-teal-800 uppercase flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-teal-600" />
+                    <h3 className="text-xs font-mono font-bold tracking-wider text-amber-800 uppercase flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
                       <span>{group.category}</span>
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {group.items.map((skill, sIdx) => (
                         <div
                           key={sIdx}
-                          className="p-4 bg-slate-50 hover:bg-slate-100/90 rounded-2xl border border-slate-200/80 flex flex-col justify-between transition-colors"
+                          className="bg-white p-3.5 rounded-2xl border border-amber-100 shadow-xs hover:shadow-sm transition-all flex flex-col justify-between"
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-bold text-slate-900">{skill.name}</span>
-                            <span className="text-xs font-mono font-semibold text-slate-500">
+                            <span className="text-xs font-mono font-bold text-amber-600">
                               {skill.level}%
                             </span>
                           </div>
-                          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-slate-950 rounded-full transition-all duration-700"
-                              style={{ width: `${skill.level}%` }}
-                            />
+
+                          {/* Playful Colorful Proficiency Dot Bar */}
+                          <div className="flex items-center gap-1.5">
+                            {[20, 40, 60, 80, 100].map((step, idx) => (
+                              <div
+                                key={idx}
+                                className={`h-2 flex-1 rounded-full transition-all duration-500 ${
+                                  skill.level >= step
+                                    ? 'bg-amber-500'
+                                    : skill.level >= step - 10
+                                    ? 'bg-amber-300'
+                                    : 'bg-slate-100'
+                                }`}
+                              />
+                            ))}
                           </div>
                         </div>
                       ))}
@@ -480,147 +420,382 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   </div>
                 ))}
               </div>
-            </motion.section>
-          )}
+            </div>
+          </section>
 
-          {/* Tab 3: Timeline (Open Timeline, No Container Box) */}
-          {activeTab === 'timeline' && (
-            <motion.section
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-8"
-            >
+          {/* Doodled Separator */}
+          <ScissorsDoodle />
+
+          {/* ----------------------------------------------------
+              SECTION 4: EXPERIENCE & MILESTONES (Frame 18s)
+              - Notebook sketch cards with red pushpins 📌
+             ---------------------------------------------------- */}
+          <section id="experience" className="space-y-10 scroll-mt-24">
+            <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-black text-slate-950 flex items-center gap-2 mb-1">
+                <span className="font-handwriting text-xl text-amber-600 font-bold block">
+                  Career Milestones
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
                   <span>💼</span>
-                  <span>Career & Production Experience</span>
+                  <span>Work & Experience</span>
                 </h2>
-                <p className="text-xs text-slate-500">
-                  Milestones architecting web applications, spatial systems, and interactive productions.
-                </p>
+              </div>
+              <span className="font-mono text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+                03 / EXPERIENCE
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {profile.experience.map((exp, eIdx) => (
+                <div
+                  key={eIdx}
+                  className="relative bg-white rounded-3xl p-6 sm:p-7 border-2 border-dashed border-amber-200/90 shadow-sm hover:border-amber-400 transition-all space-y-4 pt-8"
+                >
+                  {/* Push Pin at Top Center (Frame 18s) */}
+                  <div className="absolute -top-3.5 left-8">
+                    <PushPinDoodle color={eIdx % 2 === 0 ? '#ef4444' : '#f59e0b'} />
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-amber-100 pb-3">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900">{exp.role}</h3>
+                      <p className="text-xs font-bold text-amber-700">{exp.company}</p>
+                    </div>
+                    <span className="text-xs font-mono font-semibold text-slate-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 w-fit">
+                      {exp.period}
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    {exp.description}
+                  </p>
+
+                  <ul className="space-y-1.5 text-xs text-slate-600">
+                    {exp.highlights.map((h, hIdx) => (
+                      <li key={hIdx} className="flex items-start gap-2">
+                        <span className="text-amber-500 font-bold">✔</span>
+                        <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Doodled Separator */}
+          <ScissorsDoodle />
+
+          {/* ----------------------------------------------------
+              SECTION 5: FEATURED PROJECTS
+              - Attractive cards with tech stack badges, links
+             ---------------------------------------------------- */}
+          <section id="projects" className="space-y-10 scroll-mt-24">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-handwriting text-xl text-amber-600 font-bold block">
+                  Creative Portfolio
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                  <span>🚀</span>
+                  <span>Featured Projects</span>
+                </h2>
+              </div>
+              <span className="font-mono text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+                04 / PROJECTS
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {displayProjects.map((prj: ProjectItem, pIdx: number) => (
+                <div
+                  key={prj.id || pIdx}
+                  className="bg-white rounded-3xl p-6 sm:p-7 border border-amber-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-4 group"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="px-3 py-1 bg-amber-50 text-amber-800 text-[11px] font-mono font-bold rounded-lg border border-amber-200">
+                        {prj.category}
+                      </span>
+                      <span className="text-xs font-mono text-slate-400">{prj.year}</span>
+                    </div>
+
+                    <h3 className="text-xl font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
+                      {prj.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                      {prj.tagline || prj.description}
+                    </p>
+
+                    {/* Technologies Pills */}
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {prj.technologies.map((tech: string, tIdx: number) => (
+                        <span
+                          key={tIdx}
+                          className="px-2.5 py-1 bg-slate-50 text-slate-700 text-[10px] font-mono font-semibold rounded-md border border-slate-200"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Metrics & Actions */}
+                  <div className="border-t border-amber-100 pt-3 flex items-center justify-between text-xs">
+                    <span className="text-[11px] font-mono text-slate-500 line-clamp-1">
+                      ⚡ {prj.metrics}
+                    </span>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {prj.links?.github && (
+                        <a
+                          href={prj.links.github}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-bold transition-colors cursor-pointer"
+                        >
+                          Code
+                        </a>
+                      )}
+                      {prj.links?.live && (
+                        <a
+                          href={prj.links.live}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold transition-colors cursor-pointer"
+                        >
+                          Live Demo ↗
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Doodled Separator */}
+          <ScissorsDoodle />
+
+          {/* ----------------------------------------------------
+              SECTION 6: CERTIFICATES & ACHIEVEMENTS
+              - Visually appealing cards with badge icons
+             ---------------------------------------------------- */}
+          <section id="certificates" className="space-y-10 scroll-mt-24">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="font-handwriting text-xl text-amber-600 font-bold block">
+                  Verified Honors
+                </span>
+                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+                  <span>🏆</span>
+                  <span>Certificates & Achievements</span>
+                </h2>
+              </div>
+              <span className="font-mono text-xs text-slate-400 bg-white px-3 py-1 rounded-full border border-slate-200">
+                05 / CERTIFICATES
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {displayCertificates.map((cert, cIdx) => (
+                <div
+                  key={cert.id || cIdx}
+                  className="bg-white rounded-2xl p-5 border border-amber-100 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">{cert.badgeIcon || '📜'}</span>
+                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">
+                        {cert.gradeScore || 'Verified'}
+                      </span>
+                    </div>
+
+                    <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                      {cert.title}
+                    </h4>
+                    <p className="text-xs text-amber-700 font-semibold">{cert.issuer}</p>
+                    <p className="text-xs text-slate-500 line-clamp-2">{cert.description}</p>
+                  </div>
+
+                  <div className="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                    <span>{cert.issueDate}</span>
+                    {cert.verificationUrl && (
+                      <a
+                        href={cert.verificationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 cursor-pointer"
+                      >
+                        Verify ↗
+                      </a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ----------------------------------------------------
+              SECTION 7: EDUCATION
+             ---------------------------------------------------- */}
+          {profile.education && profile.education.length > 0 && (
+            <section className="space-y-6">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🎓</span>
+                <h3 className="text-2xl font-bold text-slate-900">Academic Foundation</h3>
               </div>
 
-              <div className="relative border-l-2 border-slate-200 pl-6 sm:pl-8 space-y-8 ml-2">
-                {profile.experience.map((exp, eIdx) => (
-                  <div key={eIdx} className="relative group">
-                    <div className="absolute -left-[31px] sm:-left-[39px] top-1.5 w-4 h-4 rounded-full bg-slate-950 ring-4 ring-white shadow-sm" />
-                    <div className="space-y-2 bg-slate-50 p-5 rounded-2xl border border-slate-200/80">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                        <h4 className="text-base font-bold text-slate-950">{exp.role}</h4>
-                        <span className="text-xs font-mono font-semibold text-slate-500 bg-white px-2.5 py-0.5 rounded-md border border-slate-200 w-fit">
-                          {exp.period}
-                        </span>
-                      </div>
-                      <p className="text-xs font-bold text-teal-800">{exp.company}</p>
-                      <p className="text-xs text-slate-600 leading-relaxed">{exp.description}</p>
-                      <ul className="list-disc list-inside space-y-1 text-xs text-slate-500 pt-1">
-                        {exp.highlights.map((h, hIdx) => (
-                          <li key={hIdx}>{h}</li>
-                        ))}
-                      </ul>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {profile.education.map((edu, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white p-5 rounded-2xl border border-amber-100 shadow-xs flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="text-sm font-bold text-slate-950">{edu.degree}</div>
+                      <div className="text-xs text-slate-600 mt-1">{edu.institution}</div>
+                    </div>
+                    <div className="text-xs font-mono text-amber-700 font-semibold mt-3">
+                      {edu.year}
                     </div>
                   </div>
                 ))}
               </div>
-            </motion.section>
+            </section>
           )}
 
-          {/* Contact Section (Open Design, No Dark Box Container) */}
-          <section id="contact-section" className="pt-8 border-t border-slate-200/90 space-y-8">
-            <div className="space-y-2 text-center lg:text-left">
-              <span className="text-xs font-mono font-bold tracking-widest text-teal-700 uppercase">
-                GET IN TOUCH
+          {/* Doodled Separator */}
+          <ScissorsDoodle />
+
+          {/* ----------------------------------------------------
+              SECTION 8: CONTACT FORM & SOCIALS
+             ---------------------------------------------------- */}
+          <section id="contact" className="space-y-8 scroll-mt-24 pt-4">
+            <div className="text-center max-w-xl mx-auto space-y-2">
+              <span className="font-handwriting text-2xl text-amber-600 font-bold block">
+                Say Hello!
               </span>
-              <h2 className="text-3xl font-black tracking-tight text-slate-950">
+              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 Let's Build Something Memorable
               </h2>
-              <p className="text-sm text-slate-600 max-w-xl">
-                Have an ambitious project, creative engagement, or 3D interactive concept? Send a message directly to devaroopa.
+              <p className="text-xs sm:text-sm text-slate-600">
+                Have an ambitious creative project, WebGL concept, or just want to chat about 3D worlds? Send a message directly.
               </p>
             </div>
 
-            {sentSuccess ? (
-              <div className="py-8 text-center space-y-2 bg-emerald-50 rounded-2xl border border-emerald-200 p-6 max-w-2xl">
-                <div className="text-3xl">🎉</div>
-                <h3 className="text-lg font-bold text-emerald-800">Message Received!</h3>
-                <p className="text-xs text-slate-600">
-                  Thank you for reaching out. devaroopa will get back to you shortly at {contactEmail}.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSendContact} className="space-y-4 max-w-2xl">
-                {contactErr && (
-                  <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">
-                    {contactErr}
-                  </div>
-                )}
+            <div className="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-amber-100 shadow-md">
+              {sentSuccess ? (
+                <div className="py-8 text-center space-y-2">
+                  <div className="text-4xl">🎉</div>
+                  <h3 className="text-lg font-bold text-emerald-800">Message Received!</h3>
+                  <p className="text-xs text-slate-600">
+                    Thank you for reaching out. Deva will get back to you shortly at {contactEmail}.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleSendContact} className="space-y-4">
+                  {contactErr && (
+                    <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">
+                      {contactErr}
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-700">Your Name *</label>
+                      <input
+                        type="text"
+                        required
+                        value={contactName}
+                        onChange={(e) => setContactName(e.target.value)}
+                        placeholder="e.g. Alex Morgan"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-slate-700">Your Email *</label>
+                      <input
+                        type="email"
+                        required
+                        value={contactEmail}
+                        onChange={(e) => setContactEmail(e.target.value)}
+                        placeholder="alex@domain.com"
+                        className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-700">Your Name *</label>
+                    <label className="text-xs font-semibold text-slate-700">Subject / Inquiry</label>
                     <input
                       type="text"
-                      required
-                      value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
-                      placeholder="e.g. Alex Morgan"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-slate-900 focus:bg-white transition-all"
+                      value={contactSubject}
+                      onChange={(e) => setContactSubject(e.target.value)}
+                      placeholder="e.g. 3D WebGL Portfolio or Creative Project"
+                      className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-700">Your Email *</label>
-                    <input
-                      type="email"
+                    <label className="text-xs font-semibold text-slate-700">Message *</label>
+                    <textarea
                       required
-                      value={contactEmail}
-                      onChange={(e) => setContactEmail(e.target.value)}
-                      placeholder="alex@domain.com"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-slate-900 focus:bg-white transition-all"
+                      rows={4}
+                      value={contactMsg}
+                      onChange={(e) => setContactMsg(e.target.value)}
+                      placeholder="Tell me about your idea, timeline, or requirements..."
+                      className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all resize-none"
                     />
                   </div>
-                </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Subject / Inquiry</label>
-                  <input
-                    type="text"
-                    value={contactSubject}
-                    onChange={(e) => setContactSubject(e.target.value)}
-                    placeholder="e.g. 3D WebGL Portfolio or Creative Project"
-                    className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-slate-900 focus:bg-white transition-all"
-                  />
-                </div>
+                  <button
+                    type="submit"
+                    disabled={isSending}
+                    className="w-full sm:w-auto px-7 py-3 bg-[#1e293b] hover:bg-[#0f172a] disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isSending ? (
+                      <>
+                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Sending message...</span>
+                      </>
+                    ) : (
+                      <span>Send Message 🚀</span>
+                    )}
+                  </button>
+                </form>
+              )}
+            </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-slate-700">Message *</label>
-                  <textarea
-                    required
-                    rows={4}
-                    value={contactMsg}
-                    onChange={(e) => setContactMsg(e.target.value)}
-                    placeholder="Tell me about your idea, timeline, or requirements..."
-                    className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-slate-900 focus:bg-white transition-all resize-none"
-                  />
-                </div>
+            {/* Social Links & Quick Contact */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-4">
+              <button
+                onClick={handleCopyEmail}
+                className="px-4 py-2 bg-white hover:bg-amber-50 text-slate-800 text-xs font-bold rounded-xl transition-all border border-amber-200 shadow-xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>✉</span>
+                <span>{copiedEmail ? 'Copied to Clipboard!' : 'roopadeva48@gmail.com'}</span>
+              </button>
 
-                <button
-                  type="submit"
-                  disabled={isSending}
-                  className="px-6 py-3 bg-slate-950 hover:bg-slate-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-2"
+              {profile.socials?.map((s, i) => (
+                <a
+                  key={i}
+                  href={s.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3.5 py-2 bg-white hover:bg-amber-50 text-slate-800 text-xs font-semibold rounded-xl transition-colors border border-amber-200 shadow-xs"
                 >
-                  {isSending ? (
-                    <>
-                      <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Transmitting...</span>
-                    </>
-                  ) : (
-                    <span>Send Message 🚀</span>
-                  )}
-                </button>
-              </form>
-            )}
+                  {s.platform}
+                </a>
+              ))}
+            </div>
           </section>
+
+          {/* Footer note */}
+          <footer className="pt-10 pb-6 text-center border-t border-amber-200/50 text-xs text-slate-400 font-mono">
+            Crafted with ♡ by devaroopa · React 19, Three.js & Framer Motion
+          </footer>
         </div>
       </motion.div>
     </AnimatePresence>

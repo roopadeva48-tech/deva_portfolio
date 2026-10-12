@@ -60,3 +60,14 @@
   background: rgba(100, 116, 139, 0.7);
 }
 
+.font-handwriting {
+  font-family: 'Caveat', cursive, sans-serif;
+}
+
+.font-script {
+  font-family: 'Dancing Script', cursive, sans-serif;
+}
+
+.font-doodle {
+  font-family: 'Gaegu', cursive, sans-serif;
+}
