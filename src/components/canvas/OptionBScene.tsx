@@ -478,19 +478,25 @@ export const OptionBScene: React.FC<OptionBSceneProps> = ({
     houseBody.receiveShadow = true;
     houseRoot.add(houseBody);
 
-    // Red Gabled Roof
+    // Blue Gabled Roof matching skyscraper building blue (0x0284c7)
     const roofGeo = new THREE.ConeGeometry(0.75, 0.55, 4);
-    const roofMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.5 });
+    const roofMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7,
+      roughness: 0.25,
+      metalness: 0.45,
+      emissive: 0x0369a1,
+      emissiveIntensity: 0.2,
+    });
     const roof = new THREE.Mesh(roofGeo, roofMat);
     roof.position.set(0, 0.65 + 0.275, 0);
     roof.rotation.y = Math.PI / 4;
     roof.castShadow = true;
     houseRoot.add(roof);
 
-    // Chimney with cartoon smoke puff
+    // Chimney with matching deep blue
     const chimney = new THREE.Mesh(
       new THREE.BoxGeometry(0.15, 0.35, 0.15),
-      new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.8 })
+      new THREE.MeshStandardMaterial({ color: 0x0369a1, roughness: 0.6 })
     );
     chimney.position.set(0.22, 0.88, 0.18);
     chimney.castShadow = true;

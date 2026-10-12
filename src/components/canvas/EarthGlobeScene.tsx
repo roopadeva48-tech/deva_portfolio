@@ -712,19 +712,25 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     houseBody.receiveShadow = true;
     houseRoot.add(houseBody);
 
-    // Steep Red Gabled Roof matching image
+    // Steep Gabled Roof matching skyscraper building blue (0x0284c7)
     const roofGeo = new THREE.ConeGeometry(0.76, 0.58, 4);
-    const roofMat = new THREE.MeshStandardMaterial({ color: 0xdc2626, roughness: 0.45 });
+    const roofMat = new THREE.MeshStandardMaterial({
+      color: 0x0284c7, // Vibrant reflective sky blue matching skyscrapers
+      roughness: 0.25,
+      metalness: 0.45,
+      emissive: 0x0369a1,
+      emissiveIntensity: 0.2,
+    });
     const roof = new THREE.Mesh(roofGeo, roofMat);
     roof.position.set(0, 0.72 + 0.29, 0);
     roof.rotation.y = Math.PI / 4;
     roof.castShadow = true;
     houseRoot.add(roof);
 
-    // Brick Chimney
+    // Architectural Chimney in matching deep ocean blue
     const chimney = new THREE.Mesh(
       new THREE.BoxGeometry(0.16, 0.38, 0.16),
-      new THREE.MeshStandardMaterial({ color: 0x991b1b, roughness: 0.8 })
+      new THREE.MeshStandardMaterial({ color: 0x0369a1, roughness: 0.5, metalness: 0.2 })
     );
     chimney.position.set(0.22, 0.95, 0.18);
     chimney.castShadow = true;
