@@ -73,7 +73,7 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
       className={`relative inline-block select-none group ${className}`}
     >
       {/* Decorative Washi Tape at Top */}
-      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-28 sm:w-32 h-6 bg-amber-200/85 backdrop-blur-xs border-y border-dashed border-amber-400/80 rounded-xs rotate-[2deg] shadow-xs z-30 pointer-events-none flex items-center justify-center">
+      <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 w-28 sm:w-32 h-6 bg-amber-200/95 border-y border-dashed border-amber-400/80 rounded-xs rotate-[2deg] shadow-xs z-30 pointer-events-none flex items-center justify-center">
         <span className="text-[10px] font-mono tracking-widest text-amber-800 uppercase opacity-75">
           PORTRAIT
         </span>
@@ -95,7 +95,7 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
       {/* Outer Polaroid / Gallery Frame */}
       <div className="relative bg-[#fefaf0] p-3 sm:p-4 pb-5 sm:pb-6 rounded-3xl shadow-[0_20px_45px_-10px_rgba(45,30,15,0.22),0_4px_12px_rgba(0,0,0,0.06)] border-2 border-amber-200/90 ring-1 ring-amber-300/40 w-56 sm:w-64 md:w-72 transition-shadow duration-300 group-hover:shadow-[0_28px_55px_-10px_rgba(45,30,15,0.28)]">
         {/* Inner Photo Window */}
-        <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50/50 to-amber-100/60 border border-amber-300/60 shadow-inner flex flex-col items-center justify-center">
+        <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-amber-50/50 border border-amber-300/60 shadow-inner flex flex-col items-center justify-center">
           {/* If Photo is loaded and valid */}
           {!hasError && currentSrc ? (
             <>
@@ -105,9 +105,6 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
                 onError={() => setHasError(true)}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
-
-              {/* Glass Glare / Shimmer Effect across photo */}
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
               {/* Hover overlay with button to change/update photo */}
               <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">

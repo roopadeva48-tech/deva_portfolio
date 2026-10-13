@@ -181,7 +181,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
         {/* ========================================================
             1. TOP STICKY NAVIGATION BAR (Full-Bleed Far-Left)
            ======================================================== */}
-        <header className="relative z-50 bg-[#fdfbf7]/95 backdrop-blur-md border-b border-amber-200/50 shadow-xs w-full px-4 sm:px-6 md:px-8">
+        <header className="relative z-50 bg-[#fdfbf7] border-b border-amber-200/50 shadow-xs w-full px-4 sm:px-6 md:px-8">
           <div className="w-full h-16 flex items-center justify-between">
             {/* Literally on the Far-Left: Back to 3D Globe */}
             <button
@@ -423,7 +423,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                 initial={{ opacity: 0, scale: 0.94 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.45 }}
-                className="absolute inset-0 z-40 bg-[#fefaf0]/95 backdrop-blur-xs flex flex-col items-center justify-center p-4 sm:p-8"
+                className="absolute inset-0 z-40 bg-[#fefaf0] flex flex-col items-center justify-center p-4 sm:p-8"
               >
                 {/* Airmail Border on Screen Perimeter */}
                 <div className="absolute inset-0 border-[14px] sm:border-[20px] border-transparent [border-image:repeating-linear-gradient(45deg,#dc2626_0,#dc2626_14px,#ffffff_14px,#ffffff_28px,#1d4ed8_28px,#1d4ed8_42px,#ffffff_42px,#ffffff_56px)_14] pointer-events-none" />
@@ -574,11 +574,13 @@ export const ContactModal: React.FC<ContactModalProps> = ({
             initial={{ opacity: 0, y: 30, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="relative flex-1 w-full overflow-y-auto bg-cover bg-center"
-            style={{ backgroundImage: 'url(/assets/postman/postman_garden_bg.jpg)' }}
+            className="relative flex-1 w-full overflow-y-auto"
           >
-            {/* Ambient Sunlight & Warm Vignette Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-stone-900/15 via-[#fdfbf7]/85 to-stone-900/20 pointer-events-none" />
+            {/* Crystal-clear full-bleed background illustration with ZERO frosted glass wash or dividing seams */}
+            <div
+              className="fixed inset-0 bg-cover bg-center pointer-events-none z-0"
+              style={{ backgroundImage: 'url(/assets/postman/postman_garden_bg.jpg)' }}
+            />
 
             <div className="relative z-10 w-full max-w-6xl mx-auto px-3 sm:px-6 md:px-8 pt-10 sm:pt-14 pb-8 sm:pb-12 flex flex-col items-center">
               {/* REAL AUTHENTIC POSTCARD CONTAINER (With Open Envelope Flap Crown) */}
