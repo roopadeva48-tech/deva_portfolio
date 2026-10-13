@@ -5,10 +5,10 @@ import { sound } from '../../utils/audio';
 import { sendContactMessage, fallbackProjects, fallbackCertificates } from '../../services/api';
 import confetti from 'canvas-confetti';
 import {
-  WritingGirlCharacter,
   BeanbagGirlIllustration,
   JugglingGirlIllustration,
 } from './illustrated/GirlIllustrations';
+import { ProfilePhotoFrame } from './ProfilePhotoFrame';
 import {
   PaperPlaneDoodle,
   ScissorsDoodle,
@@ -171,9 +171,12 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </span>
               </div>
 
-              {/* Animated Illustrated Girl Character Writing the Title */}
-              <div className="order-1 md:order-2 w-52 sm:w-64 md:w-72 shrink-0 relative">
-                <WritingGirlCharacter />
+              {/* Aesthetic Photo Frame for User's Personal Photo */}
+              <div className="order-1 md:order-2 shrink-0 relative my-2">
+                <ProfilePhotoFrame
+                  photoUrl={profile.avatar || '/assets/profile/deva_photo.jpg'}
+                  name={profile.name || 'Devaroopa'}
+                />
               </div>
             </div>
 
