@@ -218,17 +218,6 @@ export const ContactModal: React.FC<ContactModalProps> = ({
                   <span>🎬</span>
                 </button>
               )}
-
-              <button
-                onClick={() => {
-                  sound.playClick();
-                  const formEl = document.getElementById('contact-postcard-form');
-                  formEl?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="px-4 py-2 bg-[#1e293b] hover:bg-[#0f172a] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-              >
-                Get in Touch
-              </button>
             </div>
           </div>
         </header>

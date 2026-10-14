@@ -123,15 +123,8 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               <span className="text-sm">🌍</span>
             </button>
 
-            {/* Right End: Get in Touch Action */}
-            <div className="flex items-center gap-2">
-              <a
-                href="#contact"
-                className="px-4 py-2 bg-[#1e293b] hover:bg-[#0f172a] text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-              >
-                Get in Touch
-              </a>
-            </div>
+            {/* Right End: Clean spacer */}
+            <div className="flex items-center gap-2" />
           </div>
         </header>
 
