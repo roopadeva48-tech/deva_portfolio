@@ -923,28 +923,6 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     diamondGroup.add(diamondMesh);
     signsGroup.add(diamondGroup);
 
-    // C. At 5:30: Red-and-White Triangular Warning Sign with airplane
-    const signPostPos = new THREE.Vector3(globeRadius * 0.25, -globeRadius * 0.92, 0.25);
-    const signGroup = new THREE.Group();
-    signGroup.position.copy(signPostPos);
-    signGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), signPostPos.clone().normalize());
-
-    const post = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.015, 0.015, 0.85),
-      new THREE.MeshStandardMaterial({ color: 0x94a3b8 })
-    );
-    post.position.set(0, 0.42, 0);
-    signGroup.add(post);
-
-    const triangleSign = new THREE.Mesh(
-      new THREE.ConeGeometry(0.24, 0.03, 3),
-      new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.3 })
-    );
-    triangleSign.rotation.x = Math.PI / 2;
-    triangleSign.position.set(0, 0.78, 0);
-    signGroup.add(triangleSign);
-    signsGroup.add(signGroup);
-
     // --- 12. FLUFFY CUMULUS CLOUD RING (INITIAL DESIGN) ---
     const cloudsGroup = new THREE.Group();
     globeRoot.add(cloudsGroup);
