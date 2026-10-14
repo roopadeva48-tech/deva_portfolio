@@ -897,32 +897,9 @@ export const EarthGlobeScene: React.FC<EarthGlobeSceneProps> = ({
     balloonsGroup.add(balloon1);
     balloonsGroup.add(balloon2);
 
-    // --- 11. ROAD SIGNS & DIRECTIONAL POSTS (IDENTICAL TO REFERENCE IMAGE) ---
+    // --- 11. ROAD SIGNS & DIRECTIONAL POSTS ---
     const signsGroup = new THREE.Group();
     globeRoot.add(signsGroup);
-
-    // A. At 11:00: Wooden Directional Signpost with multiple arrow pointer boards!
-    const woodSignPos = new THREE.Vector3(-globeRadius * 0.55, globeRadius * 0.85, 0.2);
-    const woodSignGroup = new THREE.Group();
-    woodSignGroup.position.copy(woodSignPos);
-    woodSignGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), woodSignPos.clone().normalize());
-
-    const woodPost = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.035, 0.035, 1.1),
-      new THREE.MeshStandardMaterial({ color: 0xb45309, roughness: 0.9 })
-    );
-    woodPost.position.set(0, 0.55, 0);
-    woodSignGroup.add(woodPost);
-
-    // 3 Directional Arrow Boards pointing left & right (just like in image at 11 o'clock!)
-    const boardMat = new THREE.MeshStandardMaterial({ color: 0xfde047, roughness: 0.7 });
-    [-0.15, 0.1, 0.35].forEach((by, idx) => {
-      const board = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.12, 0.03), boardMat);
-      board.position.set((idx % 2 === 0 ? 0.08 : -0.08), 0.7 + by * 0.3, 0);
-      board.rotation.z = (idx % 2 === 0 ? 0.08 : -0.08);
-      woodSignGroup.add(board);
-    });
-    signsGroup.add(woodSignGroup);
 
     // B. At 1:00: Yellow Diamond Road Sign
     const diamondSignPos = new THREE.Vector3(globeRadius * 0.65, globeRadius * 0.75, -0.2);
