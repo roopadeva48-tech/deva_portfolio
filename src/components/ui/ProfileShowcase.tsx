@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProfileData, ProjectItem, CertificateItem } from '../../types';
 import { sound } from '../../utils/audio';
-import { sendContactMessage, fallbackProjects, fallbackCertificates } from '../../services/api';
-import confetti from 'canvas-confetti';
+import { fallbackProjects, fallbackCertificates } from '../../services/api';
 import {
   BeanbagGirlIllustration,
   JugglingGirlIllustration,
@@ -34,17 +33,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   profile,
   projects = [],
   certificates = [],
+  onOpenContact,
 }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
-
-  // Embedded contact form state
-  const [contactName, setContactName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [contactSubject, setContactSubject] = useState('');
-  const [contactMsg, setContactMsg] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const [sentSuccess, setSentSuccess] = useState(false);
-  const [contactErr, setContactErr] = useState('');
 
   if (!isOpen || !profile) return null;
 
@@ -56,44 +47,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
     navigator.clipboard.writeText('roopadeva48@gmail.com');
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2500);
-  };
-
-  const handleSendContact = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!contactName || !contactEmail || !contactMsg) {
-      setContactErr('Please fill in your name, email, and message.');
-      return;
-    }
-    try {
-      setIsSending(true);
-      setContactErr('');
-      await sendContactMessage({
-        name: contactName,
-        email: contactEmail,
-        subject: contactSubject,
-        message: contactMsg,
-      });
-      sound.playChime();
-      setSentSuccess(true);
-      confetti({
-        particleCount: 50,
-        spread: 70,
-        origin: { y: 0.7 },
-        colors: ['#ea580c', '#f59e0b', '#38bdf8', '#fb7185'],
-      });
-      setTimeout(() => {
-        setContactName('');
-        setContactEmail('');
-        setContactSubject('');
-        setContactMsg('');
-        setSentSuccess(false);
-      }, 4000);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Failed to send message';
-      setContactErr(msg);
-    } finally {
-      setIsSending(false);
-    }
   };
 
   return (
@@ -198,13 +151,16 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 <span>↓</span>
               </a>
 
-              <a
-                href="#contact"
+              <button
+                onClick={() => {
+                  sound.playClick();
+                  onOpenContact();
+                }}
                 className="px-6 py-3 bg-white hover:bg-amber-50 text-slate-800 rounded-2xl text-xs sm:text-sm font-bold transition-all border border-amber-200 shadow-xs hover:-translate-y-0.5 flex items-center gap-2 cursor-pointer"
               >
                 <span>Get in Touch</span>
                 <span>✉</span>
-              </a>
+              </button>
 
               <button
                 onClick={handleCopyEmail}
@@ -656,132 +612,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             </section>
           )}
 
-          {/* Doodled Separator */}
-          <ScissorsDoodle />
 
-          {/* ----------------------------------------------------
-              SECTION 8: CONTACT FORM & SOCIALS
-             ---------------------------------------------------- */}
-          <section id="contact" className="space-y-8 scroll-mt-24 pt-4">
-            <div className="text-center max-w-xl mx-auto space-y-2">
-              <span className="font-handwriting text-2xl text-amber-600 font-bold block">
-                Say Hello!
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                Let's Build Something Memorable
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                Have an ambitious creative project, WebGL concept, or just want to chat about 3D worlds? Send a message directly.
-              </p>
-            </div>
-
-            <div className="max-w-2xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-amber-100 shadow-md">
-              {sentSuccess ? (
-                <div className="py-8 text-center space-y-2">
-                  <div className="text-4xl">🎉</div>
-                  <h3 className="text-lg font-bold text-emerald-800">Message Received!</h3>
-                  <p className="text-xs text-slate-600">
-                    Thank you for reaching out. Deva will get back to you shortly at {contactEmail}.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSendContact} className="space-y-4">
-                  {contactErr && (
-                    <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">
-                      {contactErr}
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-700">Your Name *</label>
-                      <input
-                        type="text"
-                        required
-                        value={contactName}
-                        onChange={(e) => setContactName(e.target.value)}
-                        placeholder="e.g. Alex Morgan"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-slate-700">Your Email *</label>
-                      <input
-                        type="email"
-                        required
-                        value={contactEmail}
-                        onChange={(e) => setContactEmail(e.target.value)}
-                        placeholder="alex@domain.com"
-                        className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-700">Subject / Inquiry</label>
-                    <input
-                      type="text"
-                      value={contactSubject}
-                      onChange={(e) => setContactSubject(e.target.value)}
-                      placeholder="e.g. 3D WebGL Portfolio or Creative Project"
-                      className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-slate-700">Message *</label>
-                    <textarea
-                      required
-                      rows={4}
-                      value={contactMsg}
-                      onChange={(e) => setContactMsg(e.target.value)}
-                      placeholder="Tell me about your idea, timeline, or requirements..."
-                      className="w-full px-3.5 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 focus:outline-hidden focus:border-amber-500 focus:bg-white transition-all resize-none"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSending}
-                    className="w-full sm:w-auto px-7 py-3 bg-[#1e293b] hover:bg-[#0f172a] disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    {isSending ? (
-                      <>
-                        <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Sending message...</span>
-                      </>
-                    ) : (
-                      <span>Send Message 🚀</span>
-                    )}
-                  </button>
-                </form>
-              )}
-            </div>
-
-            {/* Social Links & Quick Contact */}
-            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-4">
-              <button
-                onClick={handleCopyEmail}
-                className="px-4 py-2 bg-white hover:bg-amber-50 text-slate-800 text-xs font-bold rounded-xl transition-all border border-amber-200 shadow-xs flex items-center gap-1.5 cursor-pointer"
-              >
-                <span>✉</span>
-                <span>{copiedEmail ? 'Copied to Clipboard!' : 'roopadeva48@gmail.com'}</span>
-              </button>
-
-              {profile.socials?.map((s, i) => (
-                <a
-                  key={i}
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3.5 py-2 bg-white hover:bg-amber-50 text-slate-800 text-xs font-semibold rounded-xl transition-colors border border-amber-200 shadow-xs"
-                >
-                  {s.platform}
-                </a>
-              ))}
-            </div>
-          </section>
 
           {/* Footer note */}
           <footer className="pt-10 pb-6 text-center border-t border-amber-200/50 text-xs text-slate-400 font-mono">
