@@ -575,35 +575,52 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               {displayCertificates.map((cert, cIdx) => (
                 <div
                   key={cert.id || cIdx}
-                  className="bg-white rounded-2xl p-5 border border-amber-100 shadow-xs hover:shadow-md transition-all flex flex-col justify-between space-y-3"
+                  className="bg-white rounded-2xl p-4 sm:p-5 border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-3"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-3">
+                    {/* Certificate Image Thumbnail */}
+                    {cert.imageUrl && (
+                      <div className="relative rounded-xl overflow-hidden border border-slate-900 bg-stone-100 aspect-[16/11] group/thumb shadow-xs">
+                        <img
+                          src={cert.imageUrl}
+                          alt={cert.title}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute top-2 left-2 bg-slate-950/85 backdrop-blur-xs text-amber-400 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20">
+                          Door #{cert.doorNumber || (101 + cIdx)}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex items-center justify-between">
                       <span className="text-2xl">{cert.badgeIcon || '📜'}</span>
-                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-bold">
+                      <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-300 font-bold">
                         {cert.gradeScore || 'Verified'}
                       </span>
                     </div>
 
-                    <h4 className="text-sm font-bold text-slate-900 leading-snug">
+                    <h4 className="text-sm font-black text-slate-900 leading-snug">
                       {cert.title}
                     </h4>
-                    <p className="text-xs text-amber-700 font-semibold">{cert.issuer}</p>
-                    <p className="text-xs text-slate-500 line-clamp-2">{cert.description}</p>
+                    <p className="text-xs text-amber-800 font-bold">{cert.issuer}</p>
+                    <p className="text-xs text-slate-600 line-clamp-2">{cert.description}</p>
                   </div>
 
-                  <div className="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] font-mono text-slate-400">
+                  <div className="border-t border-slate-200 pt-3 flex items-center justify-between text-[11px] font-mono text-slate-500">
                     <span>{cert.issueDate}</span>
-                    {cert.verificationUrl && (
-                      <a
-                        href={cert.verificationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1 cursor-pointer"
-                      >
-                        Verify ↗
-                      </a>
-                    )}
+                    <a
+                      href={`/certificates/${cert.id}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onClose();
+                        window.history.pushState({ path: `/certificates/${cert.id}` }, '', `/certificates/${cert.id}`);
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                      }}
+                      className="text-slate-950 hover:text-amber-600 font-black flex items-center gap-1 cursor-pointer bg-amber-400 hover:bg-amber-300 px-2.5 py-1 rounded-lg border border-slate-900 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-all"
+                    >
+                      Door #{cert.doorNumber || (101 + cIdx)} 🚪
+                    </a>
                   </div>
                 </div>
               ))}

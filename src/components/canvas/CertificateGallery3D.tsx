@@ -142,7 +142,8 @@ function createSketchPlaqueTexture(text: string): THREE.CanvasTexture {
 }
 
 // Procedural colorful badges texture on door panel (Instagram / YouTube / TikTok / WebGL style)
-function createDoorBadgesTexture(category: string, doorNum: number): THREE.CanvasTexture {
+// Procedural colorful badges texture on door panel (Instagram / YouTube / TikTok / WebGL style)
+function createDoorBadgesTexture(cert: CertificateItem, doorNum: number): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
   canvas.width = 512;
   canvas.height = 1024;
@@ -153,7 +154,7 @@ function createDoorBadgesTexture(category: string, doorNum: number): THREE.Canva
   ctx.fillRect(0, 0, 512, 1024);
 
   // Wood grain strokes
-  ctx.strokeStyle = 'rgba(100, 45, 10, 0.25)';
+  ctx.strokeStyle = 'rgba(100, 45, 10, 0.22)';
   ctx.lineWidth = 3;
   for (let y = 0; y < 1024; y += 40) {
     ctx.beginPath();
@@ -168,50 +169,55 @@ function createDoorBadgesTexture(category: string, doorNum: number): THREE.Canva
   ctx.strokeRect(30, 40, 452, 430);
   ctx.strokeRect(30, 510, 452, 460);
 
-  // Top badge: Instagram/Gradient pink badge
-  const g1 = ctx.createLinearGradient(180, 100, 330, 250);
-  g1.addColorStop(0, '#f58529');
-  g1.addColorStop(0.5, '#dd2a7b');
-  g1.addColorStop(1, '#8134af');
-  ctx.fillStyle = g1;
+  // Top badge: Door Number Badge
+  ctx.fillStyle = '#18181b';
   ctx.beginPath();
-  ctx.roundRect(196, 120, 120, 120, [26]);
+  ctx.roundRect(146, 90, 220, 95, [24]);
   ctx.fill();
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 7;
-  ctx.strokeRect(226, 150, 60, 60);
-  ctx.beginPath();
-  ctx.arc(256, 180, 15, 0, Math.PI * 2);
-  ctx.stroke();
 
-  // Middle badge: TikTok / Spatial badge
-  ctx.fillStyle = '#0f172a';
-  ctx.beginPath();
-  ctx.roundRect(196, 270, 120, 120, [26]);
-  ctx.fill();
-  ctx.fillStyle = '#00f2fe';
-  ctx.font = 'bold 65px sans-serif';
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 44px monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText('⚡', 256, 330);
+  ctx.fillText(`#${doorNum}`, 256, 138);
 
-  // Bottom badge: YouTube red / Certification play badge
-  ctx.fillStyle = '#ef4444';
-  ctx.beginPath();
-  ctx.roundRect(166, 620, 180, 120, [28]);
-  ctx.fill();
+  // Middle badge: Icon Circle
+  const icon = cert.badgeIcon || '📜';
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.moveTo(240, 655);
-  ctx.lineTo(285, 680);
-  ctx.lineTo(240, 705);
-  ctx.closePath();
+  ctx.arc(256, 290, 65, 0, Math.PI * 2);
   ctx.fill();
+  ctx.strokeStyle = '#18181b';
+  ctx.lineWidth = 6;
+  ctx.stroke();
 
-  // Category Tag badge
-  ctx.fillStyle = '#18181b';
-  ctx.font = 'bold 30px sans-serif';
-  ctx.fillText(category.slice(0, 18), 256, 820);
+  ctx.font = '65px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(icon, 256, 295);
+
+  // Bottom section: Category Ribbon / Name
+  ctx.fillStyle = '#0f172a';
+  ctx.beginPath();
+  ctx.roundRect(46, 620, 420, 130, [22]);
+  ctx.fill();
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 4;
+  ctx.stroke();
+
+  ctx.fillStyle = '#38bdf8';
+  ctx.font = 'bold 22px monospace';
+  ctx.fillText('EXHIBITION ROOM', 256, 658);
+
+  ctx.fillStyle = '#ffffff';
+  const cat = cert?.category || 'Certificate';
+  const catShort = cat.length > 22 ? cat.slice(0, 20) + '..' : cat;
+  ctx.fillText(catShort.toUpperCase(), 256, 705);
+
+  // Gold Star Stamp
+  ctx.fillStyle = '#f59e0b';
+  ctx.font = '32px sans-serif';
+  ctx.fillText('★ ★ ★', 256, 820);
 
   const texture = new THREE.CanvasTexture(canvas);
   return texture;
@@ -318,6 +324,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   const [activeRoomIndex, setActiveRoomIndex] = useState<number | null>(null);
   const [galleryMode, setGalleryMode] = useState<'hallway' | 'entering' | 'inside_room'>('hallway');
   const [hoveredCert, setHoveredCert] = useState<CertificateItem | null>(null);
+  const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false);
 
   const galleryModeRef = useRef(galleryMode);
   galleryModeRef.current = galleryMode;
@@ -748,7 +755,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       doorRoot.add(doorPanelGroup);
 
       // Door Badge Canvas Texture (social & skill icons like in user reference image)
-      const doorBadgeTex = createDoorBadgesTexture(cert.category, cert.doorNumber || (101 + idx));
+      const doorBadgeTex = createDoorBadgesTexture(cert, cert.doorNumber || (101 + idx));
       const coloredDoorMat = new THREE.MeshStandardMaterial({
         map: doorBadgeTex,
         color: doorColorPalette[idx % doorColorPalette.length],
@@ -785,8 +792,8 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       handleMesh.position.set(1.05, 1.1, 0.08);
       doorPanelGroup.add(handleMesh);
 
-      // Sketched Plaque above door ("THE STUDIO" / "ROOM 101")
-      const plaqueTitle = idx === 0 ? 'THE STUDIO' : `ROOM ${cert.doorNumber || (101 + idx)}`;
+      // Sketched Plaque above door ("DOOR 101" / "DOOR 102")
+      const plaqueTitle = `DOOR ${cert.doorNumber || (101 + idx)}`;
       const plaqueTexture = createSketchPlaqueTexture(plaqueTitle);
       const plaqueMat = new THREE.MeshBasicMaterial({
         map: plaqueTexture,
@@ -862,19 +869,42 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       roomGroup.add(frameGroup);
 
       const frameMesh = new THREE.Mesh(
-        new THREE.BoxGeometry(2.3, 1.6, 0.08),
+        new THREE.BoxGeometry(2.36, 1.68, 0.08),
         blackTrimMat
       );
       frameGroup.add(frameMesh);
 
-      const certWallTex = createCertificateWallTexture(cert);
+      // Backing mat for paper look
+      const matMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(2.26, 1.58),
+        new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.9 })
+      );
+      matMesh.position.z = 0.045;
+      frameGroup.add(matMesh);
+
+      const certMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.25,
+        metalness: 0.02,
+      });
+
+      if (cert.imageUrl) {
+        const loader = new THREE.TextureLoader();
+        loader.load(cert.imageUrl, (loadedTex) => {
+          loadedTex.colorSpace = THREE.SRGBColorSpace;
+          loadedTex.minFilter = THREE.LinearFilter;
+          loadedTex.magFilter = THREE.LinearFilter;
+          certMat.map = loadedTex;
+          certMat.needsUpdate = true;
+        });
+      } else {
+        const certWallTex = createCertificateWallTexture(cert);
+        certMat.map = certWallTex;
+      }
+
       const certWallMesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(2.15, 1.45),
-        new THREE.MeshStandardMaterial({
-          map: certWallTex,
-          roughness: 0.3,
-          metalness: 0.05,
-        })
+        new THREE.PlaneGeometry(2.18, 1.5),
+        certMat
       );
       certWallMesh.position.z = 0.05;
       frameGroup.add(certWallMesh);
@@ -1206,13 +1236,27 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
             </button>
 
             {galleryMode === 'inside_room' && (
-              <button
-                onClick={exitRoom}
-                className="flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
-              >
-                <span>🚪</span>
-                <span>Back to Hallway</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={exitRoom}
+                  className="flex items-center gap-2 px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
+                >
+                  <span>🚪</span>
+                  <span>Back to Hallway</span>
+                </button>
+                {!selectedCert && activeRoomIndex !== null && (
+                  <button
+                    onClick={() => {
+                      sound.playClick();
+                      setSelectedCert(certificates[activeRoomIndex]);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-stone-50 text-slate-950 text-xs font-black rounded-xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer"
+                  >
+                    <span>📜</span>
+                    <span>View Certificate</span>
+                  </button>
+                )}
+              </div>
             )}
           </div>
         </header>
@@ -1251,73 +1295,202 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-40 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4 sm:p-8"
+              className="fixed inset-0 z-40 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
               onClick={exitRoom}
             >
               <motion.div
-                initial={{ scale: 0.8, opacity: 0, y: 25 }}
+                initial={{ scale: 0.85, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
                 exit={{ scale: 0.85, opacity: 0, y: 15 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
+                transition={{ type: 'spring', damping: 25, stiffness: 220, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-xl bg-white text-slate-950 rounded-2xl shadow-2xl p-8 sm:p-10 border-2 border-slate-900 space-y-6"
+                className="relative w-full max-w-2xl bg-white text-slate-950 rounded-2xl shadow-2xl p-5 sm:p-7 border-2 border-slate-900 space-y-4 my-auto max-h-[92vh] overflow-y-auto"
               >
-                {/* Close Button */}
-                <button
-                  onClick={exitRoom}
-                  className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-950 transition-colors text-lg font-bold cursor-pointer"
-                >
-                  ✕
-                </button>
-
-                {/* Header */}
-                <div className="text-center space-y-2">
-                  <div className="text-[11px] font-mono font-bold tracking-widest text-amber-700 uppercase">
-                    OFFICIAL CERTIFICATE OF MASTERY
+                {/* Header Bar */}
+                <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-amber-400 text-slate-950 font-mono font-black text-xs rounded-lg border border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                      DOOR #{selectedCert.doorNumber || 101}
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
+                      {selectedCert.category}
+                    </span>
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-950 leading-tight">
-                    {selectedCert.title}
-                  </h2>
-                  <p className="text-xs text-slate-600 font-mono">
-                    Presented to <strong className="text-slate-950 font-bold">devaroopa</strong> for verified technical execution
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setSelectedCert(null)}
+                      title="View framed certificate on 3D room wall"
+                      className="text-xs font-bold text-slate-700 hover:text-slate-950 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-lg border border-slate-300 transition-colors cursor-pointer"
+                    >
+                      🏛️ View 3D Room
+                    </button>
+                    <button
+                      onClick={exitRoom}
+                      title="Back to hallway"
+                      className="p-1.5 text-slate-400 hover:text-slate-950 transition-colors text-lg font-black cursor-pointer leading-none"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
 
-                {/* Top Divider */}
-                <div className="border-t border-slate-900/90" />
+                {/* Real Certificate Image Preview Container */}
+                {selectedCert.imageUrl && (
+                  <div className="relative group rounded-xl overflow-hidden border-2 border-slate-900 bg-stone-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                    <img
+                      src={selectedCert.imageUrl}
+                      alt={selectedCert.title}
+                      className="w-full h-auto max-h-[46vh] sm:max-h-[50vh] object-contain mx-auto transition-transform duration-300 group-hover:scale-[1.01] cursor-zoom-in"
+                      onClick={() => setIsImageZoomed(true)}
+                    />
+                    <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsImageZoomed(true)}
+                        className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-bold rounded-lg backdrop-blur-xs border border-white/20 shadow-md cursor-pointer transition-all hover:scale-105"
+                      >
+                        <span>🔍</span>
+                        <span>Expand View</span>
+                      </button>
+                      <a
+                        href={selectedCert.imageUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 shadow-md cursor-pointer transition-all hover:scale-105"
+                        title="Open full-resolution file in new tab"
+                      >
+                        <span>↗</span>
+                        <span>Raw Image</span>
+                      </a>
+                    </div>
+                  </div>
+                )}
 
-                {/* Description & Skill Badges */}
-                <div className="space-y-4 text-center">
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed max-w-md mx-auto">
+                {/* Certificate Information */}
+                <div className="space-y-3">
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-black text-slate-950 leading-snug">
+                      {selectedCert.title}
+                    </h2>
+                    <p className="text-xs text-slate-600 font-mono mt-0.5">
+                      Awarded to <strong className="text-slate-950 font-black">DEVAROOPA E</strong>
+                    </p>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-xs text-slate-700 leading-relaxed bg-stone-50 p-3 rounded-xl border border-slate-200">
                     {selectedCert.description}
                   </p>
 
-                  <div className="flex flex-wrap justify-center gap-1.5 pt-1">
-                    {selectedCert.skills.map((skill, sIdx) => (
-                      <span
-                        key={sIdx}
-                        className="px-3 py-1 bg-white text-slate-900 text-[11px] font-bold rounded-md border border-slate-800 shadow-xs"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                  {/* Skills tags */}
+                  {selectedCert.skills && selectedCert.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-0.5">
+                      {selectedCert.skills.map((skill, sIdx) => (
+                        <span
+                          key={sIdx}
+                          className="px-2.5 py-0.5 bg-white text-slate-900 text-[11px] font-bold rounded-md border border-slate-800 shadow-2xs"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Metadata Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1 text-xs border-t border-slate-200">
+                    <div>
+                      <div className="text-[10px] font-mono uppercase text-slate-500 font-bold">Issuer</div>
+                      <div className="font-bold text-slate-900 truncate">{selectedCert.issuer}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono uppercase text-slate-500 font-bold">Issue Date</div>
+                      <div className="font-mono text-slate-700">{selectedCert.issueDate}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] font-mono uppercase text-slate-500 font-bold">Credential ID</div>
+                      <div className="font-mono text-emerald-700 font-bold truncate">{selectedCert.credentialId}</div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Bottom Divider */}
-                <div className="border-t border-slate-900/90" />
+                {/* Bottom Navigation Toolbar */}
+                <div className="pt-2 border-t-2 border-slate-900 flex items-center justify-between text-xs">
+                  <button
+                    disabled={activeRoomIndex === null || activeRoomIndex <= 0}
+                    onClick={() => navigateRoom('prev')}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-stone-50 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer transition-all"
+                  >
+                    <span>←</span>
+                    <span>Prev Door</span>
+                  </button>
 
-                {/* Footer: Issuer & Verification */}
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <div>
-                    <div className="font-black text-slate-950">{selectedCert.issuer}</div>
-                    <div className="text-slate-600 text-[11px] font-mono">{selectedCert.issueDate}</div>
+                  <div className="font-mono text-slate-600 font-bold text-center">
+                    Door {(activeRoomIndex ?? 0) + 1} of {certificates.length}
                   </div>
-                  <div className="text-right">
-                    <div className="text-emerald-700 font-bold text-xs tracking-wider">VERIFIED</div>
-                    <div className="text-slate-600 text-[11px] font-mono">{selectedCert.credentialId}</div>
-                  </div>
+
+                  <button
+                    disabled={activeRoomIndex === null || activeRoomIndex >= certificates.length - 1}
+                    onClick={() => navigateRoom('next')}
+                    className="flex items-center gap-1 px-3 py-1.5 bg-amber-400 hover:bg-amber-300 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-black rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer transition-all"
+                  >
+                    <span>Next Door</span>
+                    <span>→</span>
+                  </button>
                 </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Fullscreen Lightbox for In-Depth Certificate Inspection */}
+        <AnimatePresence>
+          {isImageZoomed && selectedCert && selectedCert.imageUrl && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6"
+              onClick={() => setIsImageZoomed(false)}
+            >
+              <div className="w-full max-w-5xl flex items-center justify-between text-white pb-3 pointer-events-auto">
+                <div className="flex items-center gap-2 truncate">
+                  <span className="px-2.5 py-0.5 bg-amber-400 text-slate-950 font-mono font-black text-xs rounded-md">
+                    DOOR #{selectedCert.doorNumber || 101}
+                  </span>
+                  <h3 className="font-bold text-sm sm:text-base truncate">
+                    {selectedCert.title}
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <a
+                    href={selectedCert.imageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-bold rounded-lg border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <span>Open Raw ↗</span>
+                  </a>
+                  <button
+                    onClick={() => setIsImageZoomed(false)}
+                    className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-lg transition-all cursor-pointer"
+                  >
+                    ✕ Close
+                  </button>
+                </div>
+              </div>
+              <motion.div
+                initial={{ scale: 0.95 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0.95 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative max-h-[85vh] max-w-full flex items-center justify-center overflow-auto"
+              >
+                <img
+                  src={selectedCert.imageUrl}
+                  alt={selectedCert.title}
+                  className="max-h-[82vh] max-w-full object-contain rounded-lg shadow-2xl border border-white/20"
+                />
               </motion.div>
             </motion.div>
           )}
