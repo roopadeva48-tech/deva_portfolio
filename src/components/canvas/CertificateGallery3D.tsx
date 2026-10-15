@@ -1318,13 +1318,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
-                      onClick={() => setSelectedCert(null)}
-                      title="View framed certificate on 3D room wall"
-                      className="text-xs font-bold text-slate-700 hover:text-slate-950 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-lg border border-slate-300 transition-colors cursor-pointer"
-                    >
-                      🏛️ View 3D Room
-                    </button>
-                    <button
                       onClick={exitRoom}
                       title="Back to hallway"
                       className="p-1.5 text-slate-400 hover:text-slate-950 transition-colors text-lg font-black cursor-pointer leading-none"
