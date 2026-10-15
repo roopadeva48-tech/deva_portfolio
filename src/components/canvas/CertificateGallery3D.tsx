@@ -1299,24 +1299,24 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
               onClick={exitRoom}
             >
               <motion.div
-                initial={{ scale: 0.85, opacity: 0, y: 20 }}
+                initial={{ scale: 0.88, opacity: 0, y: 15 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.85, opacity: 0, y: 15 }}
+                exit={{ scale: 0.88, opacity: 0, y: 15 }}
                 transition={{ type: 'spring', damping: 25, stiffness: 220, mass: 0.8 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative w-full max-w-2xl bg-white text-slate-950 rounded-2xl shadow-2xl p-5 sm:p-7 border-2 border-slate-900 space-y-4 my-auto max-h-[92vh] overflow-y-auto"
+                className="relative w-full max-w-4xl bg-white text-slate-950 rounded-2xl shadow-2xl p-4 sm:p-6 border-2 border-slate-900 space-y-3.5 my-auto max-h-[94vh] flex flex-col justify-between"
               >
                 {/* Header Bar */}
-                <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-amber-400 text-slate-950 font-mono font-black text-xs rounded-lg border border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex items-center justify-between border-b-2 border-slate-900 pb-2.5">
+                  <div className="flex items-center gap-2 truncate pr-2">
+                    <span className="px-3 py-1 bg-amber-400 text-slate-950 font-mono font-black text-xs rounded-lg border border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] shrink-0">
                       DOOR #{selectedCert.doorNumber || 101}
                     </span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-600">
-                      {selectedCert.category}
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-600 truncate">
+                      {selectedCert.title}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => setSelectedCert(null)}
                       title="View framed certificate on 3D room wall"
@@ -1336,18 +1336,18 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
                 {/* Real Certificate Image Preview Container */}
                 {selectedCert.imageUrl && (
-                  <div className="relative group rounded-xl overflow-hidden border-2 border-slate-900 bg-stone-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]">
+                  <div className="relative group rounded-xl overflow-hidden border-2 border-slate-900 bg-stone-100 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] flex-1 flex items-center justify-center min-h-0">
                     <img
                       src={selectedCert.imageUrl}
                       alt={selectedCert.title}
-                      className="w-full h-auto max-h-[46vh] sm:max-h-[50vh] object-contain mx-auto transition-transform duration-300 group-hover:scale-[1.01] cursor-zoom-in"
+                      className="w-full h-auto max-h-[68vh] sm:max-h-[72vh] object-contain mx-auto transition-transform duration-300 group-hover:scale-[1.01] cursor-zoom-in"
                       onClick={() => setIsImageZoomed(true)}
                     />
                     <div className="absolute bottom-2.5 right-2.5 flex items-center gap-2">
                       <button
                         type="button"
                         onClick={() => setIsImageZoomed(true)}
-                        className="flex items-center gap-1.5 px-3 py-1 bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-bold rounded-lg backdrop-blur-xs border border-white/20 shadow-md cursor-pointer transition-all hover:scale-105"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900/90 hover:bg-slate-900 text-white text-xs font-bold rounded-lg backdrop-blur-xs border border-white/20 shadow-md cursor-pointer transition-all hover:scale-105"
                       >
                         <span>🔍</span>
                         <span>Expand View</span>
@@ -1356,7 +1356,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                         href={selectedCert.imageUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 shadow-md cursor-pointer transition-all hover:scale-105"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 shadow-md cursor-pointer transition-all hover:scale-105"
                         title="Open full-resolution file in new tab"
                       >
                         <span>↗</span>
@@ -1365,53 +1365,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                     </div>
                   </div>
                 )}
-
-                {/* Certificate Information */}
-                <div className="space-y-3">
-                  <div>
-                    <h2 className="text-lg sm:text-xl font-black text-slate-950 leading-snug">
-                      {selectedCert.title}
-                    </h2>
-                    <p className="text-xs text-slate-600 font-mono mt-0.5">
-                      Awarded to <strong className="text-slate-950 font-black">DEVAROOPA E</strong>
-                    </p>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-xs text-slate-700 leading-relaxed bg-stone-50 p-3 rounded-xl border border-slate-200">
-                    {selectedCert.description}
-                  </p>
-
-                  {/* Skills tags */}
-                  {selectedCert.skills && selectedCert.skills.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 pt-0.5">
-                      {selectedCert.skills.map((skill, sIdx) => (
-                        <span
-                          key={sIdx}
-                          className="px-2.5 py-0.5 bg-white text-slate-900 text-[11px] font-bold rounded-md border border-slate-800 shadow-2xs"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Metadata Grid */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1 text-xs border-t border-slate-200">
-                    <div>
-                      <div className="text-[10px] font-mono uppercase text-slate-500 font-bold">Issuer</div>
-                      <div className="font-bold text-slate-900 truncate">{selectedCert.issuer}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-mono uppercase text-slate-500 font-bold">Issue Date</div>
-                      <div className="font-mono text-slate-700">{selectedCert.issueDate}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-mono uppercase text-slate-500 font-bold">Credential ID</div>
-                      <div className="font-mono text-emerald-700 font-bold truncate">{selectedCert.credentialId}</div>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Bottom Navigation Toolbar */}
                 <div className="pt-2 border-t-2 border-slate-900 flex items-center justify-between text-xs">
