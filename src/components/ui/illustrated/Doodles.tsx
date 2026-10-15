@@ -181,10 +181,10 @@ export const ArtisticDevaTitle: React.FC<{
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative"
       >
-        <h1 className="font-script text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-wide text-[#1e293b] leading-none drop-shadow-xs flex items-baseline">
+        <h1 className="font-doodle-heading text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-wide text-[#141414] leading-none drop-shadow-xs flex items-baseline">
           <span>Deva</span>
           {suffix && (
-            <span className="font-script text-4xl sm:text-5xl md:text-6xl text-[#ea580c] -ml-1">
+            <span className="font-doodle-heading text-4xl sm:text-5xl md:text-6xl text-[#F26A1F] -ml-1">
               {suffix}
             </span>
           )}
@@ -202,7 +202,7 @@ export const ArtisticDevaTitle: React.FC<{
         >
           <path
             d="M5 16 Q80 24 160 14 T270 20"
-            stroke="#ea580c"
+            stroke="#F26A1F"
             strokeWidth="3.5"
             strokeLinecap="round"
             fill="none"
@@ -210,10 +210,286 @@ export const ArtisticDevaTitle: React.FC<{
           {/* Cute heart at the end of the stroke */}
           <path
             d="M266 18 C266 14 271 12 274 15 C277 12 282 14 282 18 C282 23 274 27 274 27 C274 27 266 23 266 18 Z"
-            fill="#ea580c"
+            fill="#F26A1F"
           />
         </motion.svg>
       </motion.div>
     </div>
   );
 };
+
+// Hand-Drawn Animated Squiggle Underline (Draws itself when scrolled into view)
+export const SquiggleUnderline: React.FC<{
+  color?: string;
+  width?: number | string;
+  className?: string;
+}> = ({ color = '#F26A1F', className = '' }) => {
+  return (
+    <motion.svg
+      viewBox="0 0 200 20"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`w-full max-w-[220px] h-3 sm:h-4 overflow-visible ${className}`}
+      initial={{ pathLength: 0, opacity: 0.2 }}
+      whileInView={{ pathLength: 1, opacity: 1 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 1.1, ease: 'easeInOut' }}
+    >
+      <motion.path
+        d="M3 10 Q 25 3, 50 10 T 100 10 T 150 10 T 195 10"
+        stroke={color}
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </motion.svg>
+  );
+};
+
+// Curving Dashed Line with Flat Paper Plane (Flies along the curve between sections)
+export const SectionCurvedPlaneDivider: React.FC<{
+  className?: string;
+  flip?: boolean;
+}> = ({ className = '', flip = false }) => {
+  return (
+    <div className={`relative w-full py-6 sm:py-8 overflow-hidden select-none pointer-events-none ${className}`}>
+      <div className={`max-w-4xl mx-auto px-4 ${flip ? 'scale-x-[-1]' : ''}`}>
+        <svg
+          viewBox="0 0 800 90"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-auto overflow-visible"
+        >
+          {/* Dashed flight track */}
+          <path
+            d="M 20 45 C 200 85, 350 10, 520 60 S 740 25, 780 40"
+            stroke="#141414"
+            strokeWidth="2"
+            strokeDasharray="6 8"
+            strokeLinecap="round"
+            opacity="0.35"
+          />
+
+          {/* Animated Paper Plane following track */}
+          <motion.g
+            initial={{ offsetDistance: '0%', opacity: 0 }}
+            whileInView={{ offsetDistance: '100%', opacity: 1 }}
+            viewport={{ once: true }}
+            animate={{
+              x: [120, 480, 720],
+              y: [40, 25, 38],
+              rotate: [12, -8, 10],
+            }}
+            transition={{
+              duration: 7,
+              repeat: Infinity,
+              ease: 'easeInOut',
+            }}
+          >
+            {/* Flat 2D Paper Plane */}
+            <polygon points="0,14 36,0 16,22" fill="#FFFFFF" stroke="#141414" strokeWidth="2.5" strokeLinejoin="round" />
+            <polygon points="36,0 16,22 12,30 18,24" fill="#F26A1F" stroke="#141414" strokeWidth="2" strokeLinejoin="round" />
+            <polygon points="36,0 0,14 16,18" fill="#FFE9DC" stroke="#141414" strokeWidth="2" strokeLinejoin="round" />
+          </motion.g>
+        </svg>
+      </div>
+    </div>
+  );
+};
+
+// Small Flat Line-Art Doodle: Pencil
+export const PencilDoodle: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 40 40"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-7 h-7 ${className}`}
+  >
+    <g transform="rotate(45 20 20)">
+      {/* Eraser */}
+      <rect x="14" y="2" width="12" height="6" rx="2" fill="#F26A1F" stroke="#141414" strokeWidth="2" />
+      {/* Ferrule */}
+      <rect x="14" y="8" width="12" height="4" fill="#FFE9DC" stroke="#141414" strokeWidth="2" />
+      {/* Body */}
+      <rect x="14" y="12" width="12" height="18" fill="#F26A1F" stroke="#141414" strokeWidth="2" />
+      <line x1="18" y1="12" x2="18" y2="30" stroke="#141414" strokeWidth="1.5" />
+      <line x1="22" y1="12" x2="22" y2="30" stroke="#141414" strokeWidth="1.5" />
+      {/* Wood point */}
+      <polygon points="14,30 26,30 20,38" fill="#FFFFFF" stroke="#141414" strokeWidth="2" strokeLinejoin="round" />
+      {/* Graphite */}
+      <polygon points="18,35 22,35 20,38" fill="#141414" />
+    </g>
+  </svg>
+);
+
+// Small Flat Line-Art Doodle: Paintbrush
+export const BrushDoodle: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 40 40"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-7 h-7 ${className}`}
+  >
+    <g transform="rotate(-30 20 20)">
+      {/* Handle */}
+      <path d="M18 4 L22 4 L21 22 L19 22 Z" fill="#FFE9DC" stroke="#141414" strokeWidth="2" />
+      {/* Ferrule */}
+      <rect x="17" y="22" width="6" height="5" rx="1" fill="#FFFFFF" stroke="#141414" strokeWidth="2" />
+      {/* Bristles */}
+      <path d="M17 27 C17 35 20 37 20 37 C20 37 23 35 23 27 Z" fill="#F26A1F" stroke="#141414" strokeWidth="2" />
+    </g>
+  </svg>
+);
+
+// Small Flat Line-Art Doodle: Palette
+export const PaletteDoodle: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 44 44"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-8 h-8 ${className}`}
+  >
+    <path
+      d="M22 6 C12 6 6 12 6 22 C6 30 11 36 19 36 C22 36 24 33 24 31 C24 29 25 28 27 28 C30 28 32 30 35 30 C37 30 38 28 38 26 C38 15 31 6 22 6 Z"
+      fill="#FFFFFF"
+      stroke="#141414"
+      strokeWidth="2.5"
+    />
+    <circle cx="14" cy="16" r="3" fill="#F26A1F" />
+    <circle cx="22" cy="13" r="3" fill="#141414" />
+    <circle cx="30" cy="17" r="3" fill="#FFE9DC" stroke="#141414" strokeWidth="1.5" />
+    <circle cx="29" cy="24" r="2.5" fill="#F26A1F" />
+    {/* Thumb hole */}
+    <circle cx="16" cy="27" r="3" fill="#FDFBF7" stroke="#141414" strokeWidth="2" />
+  </svg>
+);
+
+// Small Flat Line-Art Doodle: Crayon
+export const CrayonDoodle: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 36 36"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-7 h-7 ${className}`}
+  >
+    <g transform="rotate(25 18 18)">
+      <polygon points="14,8 22,8 18,2" fill="#F26A1F" stroke="#141414" strokeWidth="2" strokeLinejoin="round" />
+      <rect x="14" y="8" width="8" height="22" rx="1" fill="#FFFFFF" stroke="#141414" strokeWidth="2" />
+      {/* Label band */}
+      <rect x="14" y="14" width="8" height="10" fill="#F26A1F" stroke="#141414" strokeWidth="1.5" />
+      <line x1="18" y1="15" x2="18" y2="23" stroke="#141414" strokeWidth="1" />
+    </g>
+  </svg>
+);
+
+// Small Flat Line-Art Doodle: Star
+export const StarDoodle: React.FC<{ className?: string; color?: string }> = ({
+  className = '',
+  color = '#F26A1F',
+}) => (
+  <svg
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-6 h-6 ${className}`}
+  >
+    <path
+      d="M16 2 L19.5 11.5 L29 12.5 L21.5 19 L24 28.5 L16 23.5 L8 28.5 L10.5 19 L3 12.5 L12.5 11.5 Z"
+      fill={color}
+      stroke="#141414"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Small Flat Line-Art Doodle: Swirl
+export const SwirlDoodle: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-6 h-6 ${className}`}
+  >
+    <path
+      d="M16 16 C14 16 13 14 14 13 C15 12 18 11 19 14 C20 17 17 21 13 20 C8 19 8 12 12 8 C17 4 25 6 26 13 C27 21 19 27 12 26"
+      stroke="#141414"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      fill="none"
+    />
+  </svg>
+);
+
+// Small Flat Line-Art Doodle: Heart
+export const HeartDoodle: React.FC<{ className?: string; fill?: string }> = ({
+  className = '',
+  fill = '#F26A1F',
+}) => (
+  <svg
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-6 h-6 ${className}`}
+  >
+    <path
+      d="M16 28 C16 28 4 20 4 11 C4 6 8 3 12.5 3 C14.5 3 16 4.5 16 4.5 C16 4.5 17.5 3 19.5 3 C24 3 28 6 28 11 C28 20 16 28 16 28 Z"
+      fill={fill}
+      stroke="#141414"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+// Small Flat Line-Art Doodle: Paint Drop
+export const PaintDropDoodle: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg
+    viewBox="0 0 30 36"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={`w-5 h-6 ${className}`}
+  >
+    <path
+      d="M15 3 C15 3 6 15 6 22 C6 28 10 32 15 32 C20 32 24 28 24 22 C24 15 15 3 15 3 Z"
+      fill="#F26A1F"
+      stroke="#141414"
+      strokeWidth="2"
+      strokeLinejoin="round"
+    />
+    <ellipse cx="12" cy="22" rx="2" ry="4" fill="#FFFFFF" opacity="0.75" />
+  </svg>
+);
+
+// Sparkle ✦
+export const SparkleDoodle: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <div className={`select-none pointer-events-none text-xl sm:text-2xl text-[#F26A1F] font-bold ${className}`}>
+    ✦
+  </div>
+);
+
+// Top Thin Scroll Progress Bar with Riding Pencil
+export const ScrollProgressPencil: React.FC<{ progress: number }> = ({ progress }) => {
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50 h-1 bg-transparent pointer-events-none">
+      {/* Orange line */}
+      <div
+        className="h-full bg-[#F26A1F] transition-all duration-75 ease-out relative"
+        style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+      >
+        {/* Tiny Pencil Riding the Tip */}
+        <div
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 pointer-events-none"
+          style={{ transform: 'translate(4px, -50%) rotate(45deg)' }}
+        >
+          <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 drop-shadow-sm">
+            <polygon points="12,2 16,8 8,8" fill="#F26A1F" stroke="#141414" strokeWidth="1.5" />
+            <rect x="8" y="8" width="8" height="12" fill="#FFE9DC" stroke="#141414" strokeWidth="1.5" />
+            <polygon points="8,20 16,20 12,24" fill="#141414" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  );
+};
+
