@@ -1352,16 +1352,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                         <span>🔍</span>
                         <span>Expand View</span>
                       </button>
-                      <a
-                        href={selectedCert.imageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-white/95 hover:bg-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 shadow-md cursor-pointer transition-all hover:scale-105"
-                        title="Open full-resolution file in new tab"
-                      >
-                        <span>↗</span>
-                        <span>Raw Image</span>
-                      </a>
                     </div>
                   </div>
                 )}
@@ -1415,15 +1405,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
                   </h3>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  <a
-                    href={selectedCert.imageUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white text-xs font-bold rounded-lg border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <span>Open Raw ↗</span>
-                  </a>
                   <button
                     onClick={() => setIsImageZoomed(false)}
                     className="px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-lg transition-all cursor-pointer"
