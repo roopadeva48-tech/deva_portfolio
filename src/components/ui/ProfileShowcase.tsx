@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProfileData, ProjectItem, CertificateItem } from '../../types';
 import { sound } from '../../utils/audio';
-import { fallbackProjects, fallbackCertificates } from '../../services/api';
+import { fallbackProjects } from '../../services/api';
 import {
   BeanbagGirlIllustration,
   JugglingGirlIllustration,
@@ -96,7 +96,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   if (!isOpen || !profile) return null;
 
   const displayProjects = projects.length > 0 ? projects : fallbackProjects;
-  const displayCertificates = certificates.length > 0 ? certificates : fallbackCertificates;
 
   // Track scroll position for top orange pencil progress bar
   const handleContainerScroll = () => {
@@ -176,7 +175,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             1. NAVBAR
             - Far-Left: "← Back to 3D Globe 🌍" (matches exact user instruction)
             - Script logo: Deva.
-            - Links: About / Skills / Tools / Experience / Certificates / Contact
+            - Links: About / Skills / Tools / Experience / Contact
             - "Let's talk" Button
            ======================================================== */}
         <header className="sticky top-0 inset-x-0 z-50 bg-[#FDFBF7]/95 backdrop-blur-xs border-b-2 border-[#141414] transition-all px-4 sm:px-8 py-3.5 flex items-center justify-between w-full">
@@ -232,12 +231,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             >
               Experience
             </button>
-            <button
-              onClick={() => scrollToSection('certificates')}
-              className="hover:text-[#F26A1F] transition-colors cursor-pointer"
-            >
-              Certificates
-            </button>
+
             <button
               onClick={() => scrollToSection('contact')}
               className="hover:text-[#F26A1F] transition-colors cursor-pointer"
@@ -294,12 +288,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             >
               💼 Where My Pencil Has Been
             </button>
-            <button
-              onClick={() => scrollToSection('certificates')}
-              className="text-left py-1.5 hover:text-[#F26A1F]"
-            >
-              🏆 Verified Honors
-            </button>
+
             <button
               onClick={() => scrollToSection('contact')}
               className="text-left py-1.5 hover:text-[#F26A1F]"
@@ -847,94 +836,11 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               ))}
             </div>
           </section>
-
           {/* Section Curving Paper Plane Divider (Flipped) */}
           <SectionCurvedPlaneDivider flip />
 
           {/* ----------------------------------------------------
-              SECTION 7: CERTIFICATES & ACHIEVEMENTS
-              - 5 verified real certificates with Door links
-             ---------------------------------------------------- */}
-          <section id="certificates" className="space-y-8 scroll-mt-24">
-            <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-[#F26A1F] font-bold">
-                Credentials
-              </span>
-              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-[#141414] tracking-tight">
-                Verified <span className="text-[#F26A1F]">Honors</span> & Hallway Doors
-              </h2>
-              <SquiggleUnderline color="#F26A1F" className="mt-1" />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {displayCertificates.map((cert, cIdx) => (
-                <div
-                  key={cert.id || cIdx}
-                  className="doodle-card bg-white rounded-2xl p-4 sm:p-5 border-2 border-[#141414] shadow-[4px_4px_0px_0px_#141414] hover:-translate-y-1 transition-all flex flex-col justify-between space-y-3"
-                >
-                  <div className="space-y-3">
-                    {/* Certificate Thumbnail */}
-                    {cert.imageUrl && (
-                      <div className="relative rounded-xl overflow-hidden border-2 border-[#141414] bg-stone-100 aspect-[16/11] group/thumb shadow-xs">
-                        <img
-                          src={cert.imageUrl}
-                          alt={cert.title}
-                          className="w-full h-full object-cover transition-transform duration-300 group-hover/thumb:scale-105"
-                          loading="lazy"
-                        />
-                        <div className="absolute top-2 left-2 bg-[#141414] text-[#F26A1F] font-mono text-[10px] font-bold px-2 py-0.5 rounded-md border border-white/20">
-                          Door #{cert.doorNumber || 101 + cIdx}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-2xl">{cert.badgeIcon || '📜'}</span>
-                      <span className="font-doodle-body text-xs text-emerald-800 bg-emerald-100 px-2.5 py-0.5 rounded-full border border-emerald-400 font-bold">
-                        {cert.gradeScore || 'Verified'}
-                      </span>
-                    </div>
-
-                    <h4 className="font-doodle-heading text-xl font-black text-[#141414] leading-snug">
-                      {cert.title}
-                    </h4>
-                    <p className="font-doodle-label text-sm text-[#F26A1F] font-bold">
-                      {cert.issuer}
-                    </p>
-                    <p className="font-doodle-body text-sm text-stone-700 line-clamp-2">
-                      {cert.description}
-                    </p>
-                  </div>
-
-                  <div className="border-t-2 border-dashed border-stone-200 pt-3 flex items-center justify-between text-xs font-bold text-stone-500">
-                    <span>{cert.issueDate}</span>
-                    <a
-                      href={`/certificates/${cert.id}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onClose();
-                        window.history.pushState(
-                          { path: `/certificates/${cert.id}` },
-                          '',
-                          `/certificates/${cert.id}`
-                        );
-                        window.dispatchEvent(new PopStateEvent('popstate'));
-                      }}
-                      className="doodle-btn-orange text-[#141414] hover:text-white font-black flex items-center gap-1 cursor-pointer bg-[#F26A1F] px-2.5 py-1 rounded-xl border-2 border-[#141414] transition-all text-xs"
-                    >
-                      Door #{cert.doorNumber || 101 + cIdx} 🚪
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Section Curving Paper Plane Divider */}
-          <SectionCurvedPlaneDivider />
-
-          {/* ----------------------------------------------------
-              SECTION 8: CONTACT
+              SECTION 7: CONTACT
               - "Let's draw something together!"
               - 3 hand-drawn cards (Email, Availability, Location)
               - Action buttons: "Send an Email", "Copy Email"
