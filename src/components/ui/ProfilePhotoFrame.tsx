@@ -1,7 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { PushPinDoodle } from './illustrated/Doodles';
-import { sound } from '../../utils/audio';
 
 interface ProfilePhotoFrameProps {
   photoUrl?: string;
@@ -14,55 +13,19 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
   className = '',
   name = 'Devaroopa',
 }) => {
-  const [currentSrc, setCurrentSrc] = useState<string>(() => {
-    // Check if user uploaded a preview in localStorage
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('deva_profile_photo_preview');
-      if (saved) return saved;
-    }
-    return photoUrl;
-  });
   const [hasError, setHasError] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Reset error when photoUrl changes
-    setHasError(false);
+    // Clean up any legacy user-uploaded preview from localStorage
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('deva_profile_photo_preview');
-      if (saved) {
-        setCurrentSrc(saved);
-        return;
+      try {
+        localStorage.removeItem('deva_profile_photo_preview');
+      } catch {
+        // Storage disabled or quota error
       }
     }
-    setCurrentSrc(photoUrl);
+    setHasError(false);
   }, [photoUrl]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      sound.playClick();
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        if (result) {
-          setCurrentSrc(result);
-          setHasError(false);
-          try {
-            localStorage.setItem('deva_profile_photo_preview', result);
-          } catch {
-            // Storage quota exceeded or disabled
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const triggerUpload = () => {
-    sound.playClick();
-    fileInputRef.current?.click();
-  };
 
   return (
     <motion.div
@@ -96,71 +59,30 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
       <div className="relative bg-[#fefaf0] p-3 sm:p-4 pb-5 sm:pb-6 rounded-3xl shadow-[0_20px_45px_-10px_rgba(45,30,15,0.22),0_4px_12px_rgba(0,0,0,0.06)] border-2 border-amber-200/90 ring-1 ring-amber-300/40 w-56 sm:w-64 md:w-72 transition-shadow duration-300 group-hover:shadow-[0_28px_55px_-10px_rgba(45,30,15,0.28)]">
         {/* Inner Photo Window */}
         <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-amber-50/50 border border-amber-300/60 shadow-inner flex flex-col items-center justify-center">
-          {/* If Photo is loaded and valid */}
-          {!hasError && currentSrc ? (
-            <>
-              <img
-                src={currentSrc}
-                alt={name}
-                onError={() => setHasError(true)}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-
-              {/* Hover overlay with button to change/update photo */}
-              <div className="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                <button
-                  type="button"
-                  onClick={triggerUpload}
-                  className="px-3.5 py-1.5 bg-white/95 hover:bg-white text-slate-900 rounded-xl text-xs font-bold shadow-lg border border-amber-200 cursor-pointer flex items-center gap-1.5 transition-transform hover:scale-105"
-                >
-                  <span>📷</span>
-                  <span>Change Photo</span>
-                </button>
-              </div>
-            </>
+          {!hasError && photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={name}
+              onError={() => setHasError(true)}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
           ) : (
-            /* Aesthetic Placeholder State (Waiting for User's Photo) */
-            <div
-              onClick={triggerUpload}
-              className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center cursor-pointer hover:bg-amber-100/40 transition-colors group/placeholder"
-            >
-              {/* Dashed Inner Frame */}
+            /* Fallback Portrait State if photo fails to load */
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
               <div className="absolute inset-2.5 rounded-xl border-2 border-dashed border-amber-300/80 pointer-events-none" />
-
-              {/* Silhouette Avatar / Camera Badge */}
-              <div className="relative z-10 w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br from-amber-200 via-orange-200 to-amber-300 border-2 border-white shadow-md flex items-center justify-center text-2xl sm:text-3xl mb-3 group-hover/placeholder:scale-110 transition-transform">
-                <span>📸</span>
+              <div className="relative z-10 w-16 h-16 sm:w-18 sm:h-18 rounded-full bg-gradient-to-br from-amber-200 via-orange-200 to-amber-300 border-2 border-white shadow-md flex items-center justify-center text-2xl sm:text-3xl mb-3">
+                <span>✨</span>
               </div>
-
-              {/* Friendly Placeholder Caption */}
               <div className="relative z-10 space-y-1">
                 <span className="font-serif font-black text-xs sm:text-sm text-stone-800 tracking-wide block uppercase">
-                  Your Photo Frame
+                  {name}
                 </span>
                 <p className="text-[11px] font-mono text-amber-800 font-semibold leading-tight">
-                  Click to choose a photo
+                  Creative Technologist
                 </p>
-                <p className="text-[10px] text-stone-500 italic">
-                  or send your picture in chat
-                </p>
-              </div>
-
-              {/* Upload Badge */}
-              <div className="relative z-10 mt-3 inline-flex items-center gap-1 px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-full text-[10px] font-bold shadow-xs transition-transform group-hover/placeholder:scale-105">
-                <span>+</span>
-                <span>Select Image</span>
               </div>
             </div>
           )}
-
-          {/* Hidden File Input for Live Preview Upload */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
         </div>
 
         {/* Polaroid Bottom Caption (Handwritten Script) */}
