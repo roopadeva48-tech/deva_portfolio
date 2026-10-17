@@ -171,7 +171,9 @@ export const PushPinDoodle: React.FC<{ color?: string; className?: string }> = (
 export const ArtisticDevaTitle: React.FC<{
   suffix?: string;
   className?: string;
-}> = ({ suffix = "'s", className = '' }) => {
+  textColor?: string;
+  accentColor?: string;
+}> = ({ suffix = "'s", className = '', textColor = 'text-white', accentColor = '#38bdf8' }) => {
   return (
     <div className={`relative inline-flex items-baseline select-none ${className}`}>
       {/* Handwriting SVG or Large Script */}
@@ -181,10 +183,13 @@ export const ArtisticDevaTitle: React.FC<{
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="relative"
       >
-        <h1 className="font-doodle-heading text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-wide text-[#141414] leading-none drop-shadow-xs flex items-baseline">
+        <h1 className={`font-doodle-heading text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black tracking-wide ${textColor} leading-none drop-shadow-md flex items-baseline`}>
           <span>Deva</span>
           {suffix && (
-            <span className="font-doodle-heading text-4xl sm:text-5xl md:text-6xl text-[#F26A1F] -ml-1">
+            <span
+              className="font-doodle-heading text-4xl sm:text-5xl md:text-6xl -ml-1"
+              style={{ color: accentColor }}
+            >
               {suffix}
             </span>
           )}
@@ -202,7 +207,7 @@ export const ArtisticDevaTitle: React.FC<{
         >
           <path
             d="M5 16 Q80 24 160 14 T270 20"
-            stroke="#F26A1F"
+            stroke={accentColor}
             strokeWidth="3.5"
             strokeLinecap="round"
             fill="none"
@@ -210,7 +215,7 @@ export const ArtisticDevaTitle: React.FC<{
           {/* Cute heart at the end of the stroke */}
           <path
             d="M266 18 C266 14 271 12 274 15 C277 12 282 14 282 18 C282 23 274 27 274 27 C274 27 266 23 266 18 Z"
-            fill="#F26A1F"
+            fill={accentColor}
           />
         </motion.svg>
       </motion.div>

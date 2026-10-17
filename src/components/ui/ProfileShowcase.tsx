@@ -25,19 +25,19 @@ interface ProfileShowcaseProps {
 }
 
 // ========================================================
-// 1. TOP ORBITAL ROCKET PROGRESS BAR
+// 1. TOP ORBITAL ROCKET PROGRESS BAR (Cyan & Sky Blue Theme)
 // Rides across the top edge as the page is scrolled
 // ========================================================
 const ScrollProgressRocket: React.FC<{ progress: number }> = ({ progress }) => {
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-sky-950/40 backdrop-blur-xs pointer-events-none">
+    <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-sky-950/50 backdrop-blur-xs pointer-events-none">
       <div
-        className="h-full bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-400 shadow-[0_0_12px_rgba(56,189,248,0.9)] relative transition-all duration-75 ease-out"
+        className="h-full bg-gradient-to-r from-sky-400 via-cyan-300 to-white shadow-[0_0_14px_rgba(56,189,248,0.9)] relative transition-all duration-75 ease-out"
         style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
       >
         {/* Miniature Rocket Riding the Orbit Track */}
         <div
-          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 pointer-events-none drop-shadow-[0_2px_8px_rgba(245,158,11,0.7)]"
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 pointer-events-none drop-shadow-[0_2px_8px_rgba(56,189,248,0.8)]"
           style={{ transform: 'translate(6px, -50%) rotate(90deg)' }}
         >
           <span className="text-base select-none inline-block">🚀</span>
@@ -48,30 +48,30 @@ const ScrollProgressRocket: React.FC<{ progress: number }> = ({ progress }) => {
 };
 
 // ========================================================
-// 2. CELESTIAL SPACE BACKGROUND
+// 2. CELESTIAL SPACE BACKGROUND (Clean Space / Zero Yellow)
 // Atmospheric sky blue with floating fluffy clouds, orbital
 // trails, twinkling stars & space landmarks matching the 3D globe
 // ========================================================
 const CelestialSpaceAtmosphere: React.FC = () => {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
-      {/* Dynamic Starfield Sparkles */}
+      {/* Dynamic Starfield Sparkles in Cyan, White, and Sky-Blue */}
       <div className="absolute inset-0">
         {[
-          { top: '8%', left: '12%', size: 'text-sm', delay: '0s', char: '✦', color: 'text-amber-200' },
-          { top: '15%', left: '88%', size: 'text-lg', delay: '1s', char: '★', color: 'text-cyan-200' },
-          { top: '24%', left: '5%', size: 'text-xs', delay: '2s', char: '✧', color: 'text-white' },
-          { top: '32%', left: '92%', size: 'text-base', delay: '0.5s', char: '✦', color: 'text-amber-300' },
+          { top: '8%', left: '12%', size: 'text-sm', delay: '0s', char: '✦', color: 'text-cyan-200' },
+          { top: '15%', left: '88%', size: 'text-lg', delay: '1s', char: '★', color: 'text-white' },
+          { top: '24%', left: '5%', size: 'text-xs', delay: '2s', char: '✧', color: 'text-sky-200' },
+          { top: '32%', left: '92%', size: 'text-base', delay: '0.5s', char: '✦', color: 'text-cyan-300' },
           { top: '44%', left: '8%', size: 'text-sm', delay: '1.5s', char: '★', color: 'text-white' },
           { top: '56%', left: '94%', size: 'text-xs', delay: '2.5s', char: '✧', color: 'text-cyan-200' },
-          { top: '68%', left: '4%', size: 'text-base', delay: '0.8s', char: '✦', color: 'text-amber-200' },
+          { top: '68%', left: '4%', size: 'text-base', delay: '0.8s', char: '✦', color: 'text-sky-100' },
           { top: '78%', left: '90%', size: 'text-sm', delay: '1.8s', char: '★', color: 'text-white' },
           { top: '88%', left: '10%', size: 'text-xs', delay: '0.3s', char: '✧', color: 'text-cyan-300' },
-          { top: '94%', left: '85%', size: 'text-sm', delay: '2.2s', char: '✦', color: 'text-amber-300' },
+          { top: '94%', left: '85%', size: 'text-sm', delay: '2.2s', char: '✦', color: 'text-cyan-100' },
         ].map((star, idx) => (
           <span
             key={idx}
-            className={`absolute ${star.size} ${star.color} animate-pulse drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]`}
+            className={`absolute ${star.size} ${star.color} animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]`}
             style={{
               top: star.top,
               left: star.left,
@@ -150,7 +150,7 @@ const CelestialSpaceAtmosphere: React.FC = () => {
         />
       </svg>
 
-      {/* Margin Space Doodles (Hidden on tiny phone viewports) */}
+      {/* Margin Space Elements */}
       <div className="hidden sm:block">
         <motion.div
           animate={{ y: [0, -12, 0], rotate: [0, 5, 0] }}
@@ -186,8 +186,7 @@ const CelestialSpaceAtmosphere: React.FC = () => {
 };
 
 // ========================================================
-// 3. ORBITAL FLYBY DIVIDER
-// Seamless cosmic divider between sections
+// 3. ORBITAL FLYBY DIVIDER (Cyan & Star Trails)
 // ========================================================
 const OrbitalFlybyDivider: React.FC<{ flip?: boolean }> = ({ flip = false }) => {
   return (
@@ -208,19 +207,19 @@ const OrbitalFlybyDivider: React.FC<{ flip?: boolean }> = ({ flip = false }) => 
         <motion.div
           animate={{ x: [-24, 24, -24], y: [-3, 3, -3] }}
           transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute text-xl drop-shadow-[0_2px_8px_rgba(245,158,11,0.8)]"
+          className="absolute text-xl drop-shadow-[0_2px_8px_rgba(56,189,248,0.8)]"
         >
           🚀
         </motion.div>
-        <div className="absolute left-1/4 -top-1 text-amber-300 text-xs animate-pulse">✦</div>
-        <div className="absolute right-1/4 -bottom-1 text-cyan-200 text-xs animate-pulse">✧</div>
+        <div className="absolute left-1/4 -top-1 text-cyan-200 text-xs animate-pulse">✦</div>
+        <div className="absolute right-1/4 -bottom-1 text-white text-xs animate-pulse">✧</div>
       </div>
     </div>
   );
 };
 
 // ========================================================
-// MAIN COMPONENT: ProfileShowcase (Space Theme + Auto-Scroll)
+// MAIN COMPONENT: ProfileShowcase (Cyan Space Theme + Auto-Scroll)
 // ========================================================
 export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   isOpen,
@@ -235,7 +234,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
 
   // Auto-scroll state
   const [isAutoScrolling, setIsAutoScrolling] = useState(false);
-  const [scrollSpeed, setScrollSpeed] = useState<number>(1.3); // 1.3px per frame standard cruise
+  const [scrollSpeed, setScrollSpeed] = useState<number>(1.3); // 1.3px per frame cruise
   const [userPausedNotice, setUserPausedNotice] = useState(false);
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -368,7 +367,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-40 text-slate-900 overflow-y-auto flex flex-col font-doodle-body selection:bg-amber-400 selection:text-slate-950"
+        className="fixed inset-0 z-40 text-slate-900 overflow-y-auto flex flex-col font-doodle-body selection:bg-cyan-400 selection:text-slate-950"
         style={{
           background: 'linear-gradient(180deg, #38bdf8 0%, #0ea5e9 18%, #0284c7 42%, #0369a1 72%, #082f49 100%)',
           backgroundAttachment: 'fixed',
@@ -395,7 +394,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 initial={{ opacity: 0, y: 10, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                className="bg-sky-950/90 text-sky-200 text-xs px-3 py-1.5 rounded-full border border-sky-400/50 backdrop-blur-md shadow-lg"
+                className="bg-sky-950/90 text-cyan-200 text-xs px-3 py-1.5 rounded-full border border-cyan-400/50 backdrop-blur-md shadow-lg"
               >
                 Orbit tour paused ⏸
               </motion.div>
@@ -407,7 +406,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             <motion.div
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-1 bg-sky-950/90 backdrop-blur-md px-2 py-1.5 rounded-full border-2 border-sky-400/40 text-xs text-sky-200 shadow-[0_4px_16px_rgba(2,132,199,0.4)]"
+              className="flex items-center gap-1 bg-sky-950/90 backdrop-blur-md px-2 py-1.5 rounded-full border-2 border-cyan-400/40 text-xs text-sky-200 shadow-[0_4px_16px_rgba(2,132,199,0.4)]"
             >
               {[
                 { label: '0.8x', val: 0.8 },
@@ -419,7 +418,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   onClick={() => setScrollSpeed(s.val)}
                   className={`px-2 py-0.5 rounded-full transition-colors cursor-pointer ${
                     scrollSpeed === s.val
-                      ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
+                      ? 'bg-cyan-400 text-slate-950 font-black shadow-xs'
                       : 'hover:text-white'
                   }`}
                 >
@@ -434,7 +433,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             onClick={toggleAutoScroll}
             className={`px-4 sm:px-5 py-2.5 rounded-full font-doodle-heading text-base sm:text-lg font-black flex items-center gap-2 cursor-pointer transition-all border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] ${
               isAutoScrolling
-                ? 'bg-amber-400 text-slate-950 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse'
+                ? 'bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(34,211,238,0.7)] animate-pulse'
                 : 'bg-white text-slate-900 hover:bg-sky-50 hover:-translate-y-0.5'
             }`}
           >
@@ -459,7 +458,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 sound.playClick();
                 onClose();
               }}
-              className="flex items-center gap-2 px-3.5 py-1.5 bg-white text-slate-950 hover:bg-amber-300 text-xs font-bold rounded-2xl cursor-pointer border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] transition-all hover:-translate-y-0.5"
+              className="flex items-center gap-2 px-3.5 py-1.5 bg-white text-slate-950 hover:bg-cyan-100 text-xs font-bold rounded-2xl cursor-pointer border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] transition-all hover:-translate-y-0.5"
             >
               <span>←</span>
               <span>Back to 3D Globe</span>
@@ -467,14 +466,14 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             </button>
           </div>
 
-          {/* Center Brand Logo: Script "Deva." with Glowing Amber Dot */}
+          {/* Center Brand Logo: Script "Deva." with Glowing Cyan Dot */}
           <div className="flex items-center">
             <button
               onClick={() => scrollToSection('hero')}
-              className="font-doodle-heading text-3xl font-black text-white hover:text-amber-300 transition-colors cursor-pointer flex items-baseline tracking-wide drop-shadow-sm"
+              className="font-doodle-heading text-3xl font-black text-white hover:text-cyan-300 transition-colors cursor-pointer flex items-baseline tracking-wide drop-shadow-sm"
             >
               <span>Deva</span>
-              <span className="text-amber-400 text-4xl leading-none">.</span>
+              <span className="text-cyan-400 text-4xl leading-none">.</span>
             </button>
           </div>
 
@@ -482,37 +481,37 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
           <nav className="hidden lg:flex items-center gap-6 text-base font-bold text-sky-100">
             <button
               onClick={() => scrollToSection('about')}
-              className="hover:text-amber-300 transition-colors cursor-pointer"
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
               About
             </button>
             <button
               onClick={() => scrollToSection('skills')}
-              className="hover:text-amber-300 transition-colors cursor-pointer"
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
               Skills
             </button>
             <button
               onClick={() => scrollToSection('tools')}
-              className="hover:text-amber-300 transition-colors cursor-pointer"
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
               Tools
             </button>
             <button
               onClick={() => scrollToSection('experience')}
-              className="hover:text-amber-300 transition-colors cursor-pointer"
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
               Experience
             </button>
             <button
               onClick={() => scrollToSection('projects')}
-              className="hover:text-amber-300 transition-colors cursor-pointer"
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
               Projects
             </button>
             <button
               onClick={() => scrollToSection('contact')}
-              className="hover:text-amber-300 transition-colors cursor-pointer"
+              className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
               Contact
             </button>
@@ -522,7 +521,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={toggleAutoScroll}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-sky-900/80 hover:bg-sky-800 text-sky-200 text-xs font-bold rounded-xl border border-sky-400/40 cursor-pointer"
+              className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-sky-900/80 hover:bg-sky-800 text-sky-200 text-xs font-bold rounded-xl border border-cyan-400/40 cursor-pointer"
               title="Toggle cinematic auto-scroll"
             >
               <span>{isAutoScrolling ? '⏸ Tour Active' : '🚀 Auto-Tour'}</span>
@@ -530,7 +529,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
 
             <button
               onClick={handleEmailClick}
-              className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black rounded-2xl cursor-pointer border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a] transition-all hover:-translate-y-0.5"
+              className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 text-xs sm:text-sm font-black rounded-2xl cursor-pointer border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a] transition-all hover:-translate-y-0.5"
             >
               <span>Let's talk</span>
               <span className="text-xs">🛰️</span>
@@ -550,22 +549,22 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
           <div className="lg:hidden fixed top-16 inset-x-4 z-50 bg-white/95 backdrop-blur-md border-2 border-slate-900 rounded-3xl p-5 shadow-[4px_4px_0px_0px_#0284c7] flex flex-col gap-3 font-doodle-heading text-xl">
-            <button onClick={() => scrollToSection('about')} className="text-left py-1.5 hover:text-sky-600">
+            <button onClick={() => scrollToSection('about')} className="text-left py-1.5 hover:text-cyan-600">
               📖 About Me
             </button>
-            <button onClick={() => scrollToSection('skills')} className="text-left py-1.5 hover:text-sky-600">
+            <button onClick={() => scrollToSection('skills')} className="text-left py-1.5 hover:text-cyan-600">
               ⚡ What I Do
             </button>
-            <button onClick={() => scrollToSection('tools')} className="text-left py-1.5 hover:text-sky-600">
+            <button onClick={() => scrollToSection('tools')} className="text-left py-1.5 hover:text-cyan-600">
               🛠 Technical Arsenal
             </button>
-            <button onClick={() => scrollToSection('experience')} className="text-left py-1.5 hover:text-sky-600">
+            <button onClick={() => scrollToSection('experience')} className="text-left py-1.5 hover:text-cyan-600">
               💼 Career Milestones
             </button>
-            <button onClick={() => scrollToSection('projects')} className="text-left py-1.5 hover:text-sky-600">
+            <button onClick={() => scrollToSection('projects')} className="text-left py-1.5 hover:text-cyan-600">
               🎨 Featured Projects
             </button>
-            <button onClick={() => scrollToSection('contact')} className="text-left py-1.5 hover:text-sky-600">
+            <button onClick={() => scrollToSection('contact')} className="text-left py-1.5 hover:text-cyan-600">
               ✉️ Contact Transmission
             </button>
             <button
@@ -597,12 +596,12 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             <div className="relative w-full max-w-3xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 my-auto">
               {/* Handwritten Script Title "Deva's" with Space Tag */}
               <div className="order-2 md:order-1 flex flex-col items-center md:items-end z-10">
-                <ArtisticDevaTitle suffix="'s" />
-                <span className="font-doodle-label text-2xl sm:text-3xl font-bold text-amber-300 drop-shadow-md -rotate-1 mt-1 tracking-wide">
+                <ArtisticDevaTitle suffix="'s" textColor="text-white" accentColor="#38bdf8" />
+                <span className="font-doodle-label text-2xl sm:text-3xl font-extrabold text-white drop-shadow-[0_2px_6px_rgba(2,6,23,0.7)] -rotate-1 mt-1 tracking-wide">
                   Creative Technologist & 3D Engineer
                 </span>
-                <span className="text-xs font-mono font-bold uppercase tracking-widest text-sky-100 bg-sky-950/60 px-3 py-1 rounded-full border border-sky-400/40 mt-2 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                <span className="text-xs font-mono font-bold uppercase tracking-widest text-sky-100 bg-sky-950/60 px-3 py-1 rounded-full border border-cyan-400/40 mt-2 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                   <span>Stationed atop the Globe 🪐</span>
                 </span>
               </div>
@@ -616,18 +615,18 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons in Hero: Launch Auto-Tour or Explore */}
+            {/* Action Buttons in Hero: Launch Auto-Tour (Cyan) or Explore (White) */}
             <div className="pt-4 pb-2 flex flex-col items-center gap-3 select-none z-10">
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={startTourFromHero}
-                  className="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-2xl text-base font-black cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-1"
+                  className="px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-2xl text-base font-black cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-1"
                 >
                   <span>🚀 Launch Auto-Scroll Tour</span>
                 </button>
                 <button
                   onClick={() => scrollToSection('intro-statement')}
-                  className="px-5 py-3 bg-white/90 hover:bg-white text-slate-900 rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] transition-all hover:-translate-y-1"
+                  className="px-5 py-3 bg-white/95 hover:bg-white text-slate-900 rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] transition-all hover:-translate-y-1"
                 >
                   <span>Explore on My Own</span>
                   <span>↓</span>
@@ -648,7 +647,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   <motion.div
                     animate={{ y: [0, 14, 0] }}
                     transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                    className="w-1.5 h-2.5 bg-amber-400 rounded-full"
+                    className="w-1.5 h-2.5 bg-cyan-400 rounded-full"
                   />
                 </div>
               </button>
@@ -699,7 +698,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
 
                 <button
                   onClick={handleEmailClick}
-                  className="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-0.5"
+                  className="px-6 py-3 bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-0.5"
                 >
                   <span>Get in touch</span>
                   <span>🛰️</span>
@@ -732,13 +731,13 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             className="space-y-8 scroll-mt-24"
           >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+              <span className="font-doodle-label text-xl text-cyan-300 font-bold drop-shadow-sm">
                 Orbit Transmission · Hello There!
               </span>
               <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
-                I'm <span className="text-amber-400">Devaroopa</span>, nice to meet you
+                I'm <span className="text-cyan-400">Devaroopa</span>, nice to meet you
               </h2>
-              <SquiggleUnderline color="#fbbf24" className="mt-1" />
+              <SquiggleUnderline color="#38bdf8" className="mt-1" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -769,7 +768,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               {/* Story & Cards RIGHT */}
               <div className="lg:col-span-7 space-y-6">
                 <div className="space-y-4 font-doodle-body text-lg text-white drop-shadow-sm leading-relaxed bg-sky-950/50 p-6 rounded-3xl border border-sky-400/30 backdrop-blur-xs">
-                  <p className="text-xl font-bold leading-snug text-amber-200">
+                  <p className="text-xl font-bold leading-snug text-cyan-100">
                     {profile.bio}
                   </p>
                   {profile.extendedBio.map((paragraph, idx) => (
@@ -787,7 +786,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                     <div className="font-doodle-body text-xs text-slate-600">Spatial & Full-Stack</div>
                   </div>
 
-                  <div className="bg-amber-300 p-4 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] text-center space-y-1 -rotate-1 hover:rotate-0 transition-transform">
+                  <div className="bg-sky-100 p-4 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] text-center space-y-1 -rotate-1 hover:rotate-0 transition-transform">
                     <div className="font-doodle-heading text-3xl font-black text-slate-950">
                       Full-Stack
                     </div>
@@ -796,11 +795,11 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   </div>
 
                   <div className="bg-white/95 p-4 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] text-center space-y-1 rotate-2 hover:rotate-0 transition-transform">
-                    <div className="font-doodle-heading text-3xl font-black text-amber-500">
-                      100% Chai
+                    <div className="font-doodle-heading text-3xl font-black text-cyan-600">
+                      100% Passion
                     </div>
                     <div className="font-doodle-label text-sm font-bold text-slate-900">Playful Fuel</div>
-                    <div className="font-doodle-body text-xs text-slate-600">Curiosity & Tea ☕</div>
+                    <div className="font-doodle-body text-xs text-slate-600">Curiosity & Craft ⚡</div>
                   </div>
                 </div>
 
@@ -815,9 +814,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                     {profile.passions.map((p, idx) => (
                       <span
                         key={idx}
-                        className="px-3.5 py-1.5 bg-white/90 text-slate-950 text-sm font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] flex items-center gap-1.5 hover:bg-amber-200 transition-colors"
+                        className="px-3.5 py-1.5 bg-white/95 text-slate-950 text-sm font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] flex items-center gap-1.5 hover:bg-sky-100 transition-colors"
                       >
-                        <span className="text-amber-500">✦</span>
+                        <span className="text-cyan-500">✦</span>
                         <span>{p}</span>
                       </span>
                     ))}
@@ -842,13 +841,13 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             className="space-y-8 scroll-mt-24"
           >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+              <span className="font-doodle-label text-xl text-cyan-300 font-bold drop-shadow-sm">
                 Orbital Capabilities · Core Craft
               </span>
               <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
-                What I do & <span className="text-amber-400">love doing</span>
+                What I do & <span className="text-cyan-400">love doing</span>
               </h2>
-              <SquiggleUnderline color="#fbbf24" className="mt-1" />
+              <SquiggleUnderline color="#38bdf8" className="mt-1" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -882,7 +881,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">⚙️</span>
-                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-amber-100 text-amber-900 rounded-full border border-slate-900">
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-sky-100 text-sky-900 rounded-full border border-slate-900">
                     Architecture
                   </span>
                 </div>
@@ -908,7 +907,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">🎨</span>
-                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-pink-100 text-pink-900 rounded-full border border-slate-900">
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-sky-100 text-sky-900 rounded-full border border-slate-900">
                     Aesthetics
                   </span>
                 </div>
@@ -973,13 +972,13 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             className="space-y-8 scroll-mt-24"
           >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+              <span className="font-doodle-label text-xl text-cyan-300 font-bold drop-shadow-sm">
                 Equipment Deck · Technical Arsenal
               </span>
               <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
-                Tools I'm <span className="text-amber-400">fluent in</span>
+                Tools I'm <span className="text-cyan-400">fluent in</span>
               </h2>
-              <SquiggleUnderline color="#fbbf24" className="mt-1" />
+              <SquiggleUnderline color="#38bdf8" className="mt-1" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white/95 p-6 sm:p-10 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7]">
@@ -990,7 +989,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
 
-              {/* Round Space Badges RIGHT */}
+              {/* Round Space Badges RIGHT (Cyan Accents, Zero Yellow) */}
               <div className="lg:col-span-7">
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 sm:gap-5">
                   {[
@@ -1011,10 +1010,10 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                       key={idx}
                       className="flex flex-col items-center text-center space-y-1.5 group cursor-default"
                     >
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-amber-400 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] group-hover:shadow-[4px_4px_0px_0px_#fbbf24] group-hover:-translate-y-1 transition-all flex items-center justify-center font-doodle-heading text-2xl font-black select-none">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-cyan-400 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] group-hover:shadow-[4px_4px_0px_0px_#38bdf8] group-hover:-translate-y-1 transition-all flex items-center justify-center font-doodle-heading text-2xl font-black select-none">
                         {tool.initial}
                       </div>
-                      <span className="font-doodle-body text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors">
+                      <span className="font-doodle-body text-sm font-bold text-slate-900 group-hover:text-cyan-600 transition-colors">
                         {tool.name}
                       </span>
                     </div>
@@ -1039,13 +1038,13 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             className="space-y-8 scroll-mt-24"
           >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+              <span className="font-doodle-label text-xl text-cyan-300 font-bold drop-shadow-sm">
                 Flight Log · Career Milestones
               </span>
               <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
-                Where my <span className="text-amber-400">journey has traveled</span>
+                Where my <span className="text-cyan-400">journey has traveled</span>
               </h2>
-              <SquiggleUnderline color="#fbbf24" className="mt-1" />
+              <SquiggleUnderline color="#38bdf8" className="mt-1" />
             </div>
 
             <div className="space-y-8">
@@ -1055,7 +1054,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   className="relative bg-white/95 rounded-3xl p-6 sm:p-8 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] space-y-4 pt-9"
                 >
                   <div className="absolute -top-3.5 left-8">
-                    <PushPinDoodle color={eIdx % 2 === 0 ? '#f59e0b' : '#38bdf8'} />
+                    <PushPinDoodle color={eIdx % 2 === 0 ? '#0284c7' : '#38bdf8'} />
                   </div>
 
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-5 bg-sky-100 border border-slate-900 rounded-xs rotate-[-1deg] flex items-center justify-center pointer-events-none">
@@ -1073,7 +1072,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                         {exp.company}
                       </p>
                     </div>
-                    <span className="font-doodle-body text-sm font-bold text-slate-900 bg-amber-100 px-3.5 py-1 rounded-full border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] w-fit">
+                    <span className="font-doodle-body text-sm font-bold text-slate-900 bg-sky-100 px-3.5 py-1 rounded-full border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] w-fit">
                       {exp.period}
                     </span>
                   </div>
@@ -1085,7 +1084,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   <ul className="space-y-1.5 font-doodle-body text-sm text-slate-700">
                     {exp.highlights.map((h, hIdx) => (
                       <li key={hIdx} className="flex items-start gap-2">
-                        <span className="text-amber-500 font-black">✔</span>
+                        <span className="text-cyan-500 font-black">✔</span>
                         <span>{h}</span>
                       </li>
                     ))}
@@ -1110,13 +1109,13 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             className="space-y-8 scroll-mt-24"
           >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+              <span className="font-doodle-label text-xl text-cyan-300 font-bold drop-shadow-sm">
                 Payload Deployments · Featured Projects
               </span>
               <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
-                Featured <span className="text-amber-400">Projects</span>
+                Featured <span className="text-cyan-400">Projects</span>
               </h2>
-              <SquiggleUnderline color="#fbbf24" className="mt-1" />
+              <SquiggleUnderline color="#38bdf8" className="mt-1" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1174,7 +1173,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                           href={prj.links.live}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg font-bold text-xs border border-slate-900"
+                          className="px-3 py-1 bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-lg font-bold text-xs border border-slate-900"
                         >
                           Live Demo ↗
                         </a>
@@ -1201,13 +1200,13 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             className="space-y-8 scroll-mt-24 text-center"
           >
             <div className="flex flex-col items-center">
-              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+              <span className="font-doodle-label text-xl text-cyan-300 font-bold drop-shadow-sm">
                 Satellite Uplink · Get In Touch
               </span>
               <h2 className="font-doodle-heading text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-md">
-                Let's <span className="text-amber-400">build something</span> together!
+                Let's <span className="text-cyan-400">build something</span> together!
               </h2>
-              <SquiggleUnderline color="#fbbf24" className="mt-2" />
+              <SquiggleUnderline color="#38bdf8" className="mt-2" />
               <p className="font-doodle-body text-lg text-sky-100 max-w-xl mx-auto mt-4 drop-shadow-sm">
                 Have an ambitious idea, spatial computing project, or creative challenge? Let's connect and build something extraordinary.
               </p>
@@ -1222,7 +1221,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
 
-              <div className="bg-amber-300 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] space-y-1">
+              <div className="bg-sky-100 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] space-y-1">
                 <div className="text-2xl">🚀</div>
                 <div className="font-doodle-heading text-lg font-black text-slate-950">Status</div>
                 <div className="font-doodle-body text-sm font-bold text-slate-950">
@@ -1242,7 +1241,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <button
                 onClick={handleEmailClick}
-                className="px-8 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-2xl text-lg font-black cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-1"
+                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-2xl text-lg font-black cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-1"
               >
                 <span>Send a Transmission</span>
                 <span>🛰️</span>
@@ -1266,7 +1265,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="font-doodle-heading text-2xl font-black flex items-baseline">
               <span>Deva</span>
-              <span className="text-amber-400 text-3xl leading-none">.</span>
+              <span className="text-cyan-400 text-3xl leading-none">.</span>
             </div>
             <p className="font-doodle-body text-sm text-sky-200">
               Crafted with ♡ & 3D space wonder by Devaroopa · 3D Spatial & Creative Engineering Portfolio
@@ -1276,7 +1275,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 href="https://github.com/roopadeva48-tech"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sky-300 hover:text-amber-300 transition-colors text-sm font-bold"
+                className="text-sky-300 hover:text-cyan-300 transition-colors text-sm font-bold"
               >
                 GitHub ↗
               </a>
@@ -1286,7 +1285,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   sound.playClick();
                   onClose();
                 }}
-                className="text-sky-300 hover:text-amber-300 transition-colors text-sm font-bold cursor-pointer"
+                className="text-sky-300 hover:text-cyan-300 transition-colors text-sm font-bold cursor-pointer"
               >
                 3D Globe 🌍
               </button>
