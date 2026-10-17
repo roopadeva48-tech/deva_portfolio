@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProfileData, ProjectItem, CertificateItem } from '../../types';
 import { sound } from '../../utils/audio';
@@ -9,24 +9,9 @@ import {
 } from './illustrated/GirlIllustrations';
 import { ProfilePhotoFrame } from './ProfilePhotoFrame';
 import {
-  PaperPlaneDoodle,
-  ScissorsDoodle,
-  LightbulbDoodle,
-  SquigglyArrowDoodle,
   PushPinDoodle,
   ArtisticDevaTitle,
   SquiggleUnderline,
-  SectionCurvedPlaneDivider,
-  PencilDoodle,
-  BrushDoodle,
-  PaletteDoodle,
-  CrayonDoodle,
-  StarDoodle,
-  SwirlDoodle,
-  HeartDoodle,
-  PaintDropDoodle,
-  SparkleDoodle,
-  ScrollProgressPencil,
 } from './illustrated/Doodles';
 
 interface ProfileShowcaseProps {
@@ -39,72 +24,295 @@ interface ProfileShowcaseProps {
   onOpenContact: () => void;
 }
 
-// Flat 2D Margin Doodle Scatter (Left and Right page margins, hidden on phones <640px)
-const MarginDoodles: React.FC = () => {
+// ========================================================
+// 1. TOP ORBITAL ROCKET PROGRESS BAR
+// Rides across the top edge as the page is scrolled
+// ========================================================
+const ScrollProgressRocket: React.FC<{ progress: number }> = ({ progress }) => {
   return (
-    <div className="hidden sm:block pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
-      {/* Left Margin Doodles */}
-      <div className="absolute top-36 left-4 md:left-8 animate-wiggle">
-        <PencilDoodle className="w-8 h-8 opacity-75" />
-      </div>
-      <div className="absolute top-[28%] left-3 md:left-6 animate-spin-slow">
-        <StarDoodle className="w-7 h-7 opacity-70" color="#F26A1F" />
-      </div>
-      <div className="absolute top-[48%] left-4 md:left-7 animate-bob">
-        <PaintDropDoodle className="w-6 h-7 opacity-80" />
-      </div>
-      <div className="absolute top-[68%] left-3 md:left-6 animate-wiggle">
-        <BrushDoodle className="w-8 h-8 opacity-75" />
-      </div>
-      <div className="absolute top-[86%] left-4 md:left-8 animate-float">
-        <SwirlDoodle className="w-7 h-7 opacity-60" />
-      </div>
-
-      {/* Right Margin Doodles */}
-      <div className="absolute top-44 right-4 md:right-8 animate-bob">
-        <PaletteDoodle className="w-8 h-8 opacity-75" />
-      </div>
-      <div className="absolute top-[32%] right-3 md:right-6 animate-wiggle">
-        <CrayonDoodle className="w-8 h-8 opacity-75" />
-      </div>
-      <div className="absolute top-[52%] right-4 md:right-8 animate-float">
-        <HeartDoodle className="w-7 h-7 opacity-80" fill="#F26A1F" />
-      </div>
-      <div className="absolute top-[72%] right-3 md:right-6 animate-spin-slow">
-        <StarDoodle className="w-7 h-7 opacity-70" color="#FFE9DC" />
-      </div>
-      <div className="absolute top-[88%] right-4 md:right-8 animate-bob">
-        <LightbulbDoodle className="w-9 h-11 opacity-80" />
+    <div className="fixed top-0 left-0 right-0 z-50 h-1.5 bg-sky-950/40 backdrop-blur-xs pointer-events-none">
+      <div
+        className="h-full bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-400 shadow-[0_0_12px_rgba(56,189,248,0.9)] relative transition-all duration-75 ease-out"
+        style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+      >
+        {/* Miniature Rocket Riding the Orbit Track */}
+        <div
+          className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 pointer-events-none drop-shadow-[0_2px_8px_rgba(245,158,11,0.7)]"
+          style={{ transform: 'translate(6px, -50%) rotate(90deg)' }}
+        >
+          <span className="text-base select-none inline-block">🚀</span>
+        </div>
       </div>
     </div>
   );
 };
 
+// ========================================================
+// 2. CELESTIAL SPACE BACKGROUND
+// Atmospheric sky blue with floating fluffy clouds, orbital
+// trails, twinkling stars & space landmarks matching the 3D globe
+// ========================================================
+const CelestialSpaceAtmosphere: React.FC = () => {
+  return (
+    <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
+      {/* Dynamic Starfield Sparkles */}
+      <div className="absolute inset-0">
+        {[
+          { top: '8%', left: '12%', size: 'text-sm', delay: '0s', char: '✦', color: 'text-amber-200' },
+          { top: '15%', left: '88%', size: 'text-lg', delay: '1s', char: '★', color: 'text-cyan-200' },
+          { top: '24%', left: '5%', size: 'text-xs', delay: '2s', char: '✧', color: 'text-white' },
+          { top: '32%', left: '92%', size: 'text-base', delay: '0.5s', char: '✦', color: 'text-amber-300' },
+          { top: '44%', left: '8%', size: 'text-sm', delay: '1.5s', char: '★', color: 'text-white' },
+          { top: '56%', left: '94%', size: 'text-xs', delay: '2.5s', char: '✧', color: 'text-cyan-200' },
+          { top: '68%', left: '4%', size: 'text-base', delay: '0.8s', char: '✦', color: 'text-amber-200' },
+          { top: '78%', left: '90%', size: 'text-sm', delay: '1.8s', char: '★', color: 'text-white' },
+          { top: '88%', left: '10%', size: 'text-xs', delay: '0.3s', char: '✧', color: 'text-cyan-300' },
+          { top: '94%', left: '85%', size: 'text-sm', delay: '2.2s', char: '✦', color: 'text-amber-300' },
+        ].map((star, idx) => (
+          <span
+            key={idx}
+            className={`absolute ${star.size} ${star.color} animate-pulse drop-shadow-[0_0_6px_rgba(255,255,255,0.8)]`}
+            style={{
+              top: star.top,
+              left: star.left,
+              animationDelay: star.delay,
+              animationDuration: '3s',
+            }}
+          >
+            {star.char}
+          </span>
+        ))}
+      </div>
+
+      {/* Floating 3D-Styled Puffy White Clouds (Matching the 3D globe scene) */}
+      <motion.div
+        animate={{ x: [-15, 15, -15], y: [-6, 6, -6] }}
+        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-28 -left-12 w-48 opacity-85"
+      >
+        <svg viewBox="0 0 140 70" fill="none" className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.3)]">
+          <path
+            d="M30 55 C15 55 5 45 5 32 C5 20 18 10 32 12 C38 4 52 0 65 5 C75 0 95 2 105 12 C118 10 130 20 130 32 C130 45 120 55 105 55 Z"
+            fill="#ffffff"
+          />
+        </svg>
+      </motion.div>
+
+      <motion.div
+        animate={{ x: [20, -20, 20], y: [6, -6, 6] }}
+        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute top-[40%] -right-10 w-56 opacity-85"
+      >
+        <svg viewBox="0 0 140 70" fill="none" className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.3)]">
+          <path
+            d="M30 55 C15 55 5 45 5 32 C5 20 18 10 32 12 C38 4 52 0 65 5 C75 0 95 2 105 12 C118 10 130 20 130 32 C130 45 120 55 105 55 Z"
+            fill="#ffffff"
+          />
+        </svg>
+      </motion.div>
+
+      <motion.div
+        animate={{ x: [-10, 10, -10], y: [-4, 4, -4] }}
+        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute bottom-36 -left-8 w-44 opacity-80"
+      >
+        <svg viewBox="0 0 140 70" fill="none" className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.3)]">
+          <path
+            d="M30 55 C15 55 5 45 5 32 C5 20 18 10 32 12 C38 4 52 0 65 5 C75 0 95 2 105 12 C118 10 130 20 130 32 C130 45 120 55 105 55 Z"
+            fill="#ffffff"
+          />
+        </svg>
+      </motion.div>
+
+      {/* Orbital Path Trails (Like the globe's elliptical trajectory rings) */}
+      <svg className="absolute inset-0 w-full h-full opacity-35" preserveAspectRatio="none">
+        <ellipse
+          cx="50%"
+          cy="30%"
+          rx="52%"
+          ry="28%"
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="1.5"
+          strokeDasharray="8 12"
+          transform="rotate(-8 500 300)"
+        />
+        <ellipse
+          cx="48%"
+          cy="65%"
+          rx="56%"
+          ry="32%"
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth="1.5"
+          strokeDasharray="6 10"
+          transform="rotate(6 500 650)"
+        />
+      </svg>
+
+      {/* Margin Space Doodles (Hidden on tiny phone viewports) */}
+      <div className="hidden sm:block">
+        <motion.div
+          animate={{ y: [0, -12, 0], rotate: [0, 5, 0] }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-48 left-6 text-3xl"
+        >
+          🚀
+        </motion.div>
+        <motion.div
+          animate={{ y: [0, 14, 0], rotate: [0, -6, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-[35%] right-8 text-3xl"
+        >
+          🎈
+        </motion.div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+          className="absolute top-[60%] left-6 text-2xl opacity-75"
+        >
+          🪐
+        </motion.div>
+        <motion.div
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute top-[82%] right-7 text-2xl opacity-80"
+        >
+          🛰️
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+// ========================================================
+// 3. ORBITAL FLYBY DIVIDER
+// Seamless cosmic divider between sections
+// ========================================================
+const OrbitalFlybyDivider: React.FC<{ flip?: boolean }> = ({ flip = false }) => {
+  return (
+    <div
+      className={`relative w-full my-6 sm:my-8 flex items-center justify-center select-none pointer-events-none ${
+        flip ? '-scale-x-100' : ''
+      }`}
+    >
+      <div className="relative w-full max-w-2xl h-10 flex items-center justify-center">
+        <svg viewBox="0 0 600 50" fill="none" className="w-full h-full overflow-visible">
+          <path
+            d="M10 25 Q 160 5 300 25 T 590 25"
+            stroke="rgba(255, 255, 255, 0.45)"
+            strokeWidth="2"
+            strokeDasharray="6 8"
+          />
+        </svg>
+        <motion.div
+          animate={{ x: [-24, 24, -24], y: [-3, 3, -3] }}
+          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute text-xl drop-shadow-[0_2px_8px_rgba(245,158,11,0.8)]"
+        >
+          🚀
+        </motion.div>
+        <div className="absolute left-1/4 -top-1 text-amber-300 text-xs animate-pulse">✦</div>
+        <div className="absolute right-1/4 -bottom-1 text-cyan-200 text-xs animate-pulse">✧</div>
+      </div>
+    </div>
+  );
+};
+
+// ========================================================
+// MAIN COMPONENT: ProfileShowcase (Space Theme + Auto-Scroll)
+// ========================================================
 export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   isOpen,
   onClose,
   profile,
   projects = [],
-  certificates = [],
   onOpenContact,
 }) => {
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  if (!isOpen || !profile) return null;
+  // Auto-scroll state
+  const [isAutoScrolling, setIsAutoScrolling] = useState(false);
+  const [scrollSpeed, setScrollSpeed] = useState<number>(1.3); // 1.3px per frame standard cruise
+  const [userPausedNotice, setUserPausedNotice] = useState(false);
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const autoScrollAnimRef = useRef<number | null>(null);
+  const isAutoScrollingRef = useRef(isAutoScrolling);
+  isAutoScrollingRef.current = isAutoScrolling;
 
   const displayProjects = projects.length > 0 ? projects : fallbackProjects;
 
-  // Track scroll position for top orange pencil progress bar
-  const handleContainerScroll = () => {
+  // Track scroll position for top orbital rocket progress bar
+  const handleContainerScroll = useCallback(() => {
     if (!scrollContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
     const maxScroll = scrollHeight - clientHeight;
     if (maxScroll > 0) {
       setScrollProgress((scrollTop / maxScroll) * 100);
     }
+  }, []);
+
+  // Smooth frame-based auto-scrolling engine
+  useEffect(() => {
+    if (!isAutoScrolling) {
+      if (autoScrollAnimRef.current) cancelAnimationFrame(autoScrollAnimRef.current);
+      return;
+    }
+
+    let lastTime = performance.now();
+
+    const autoScrollStep = (now: number) => {
+      const delta = Math.min(32, now - lastTime);
+      lastTime = now;
+
+      if (scrollContainerRef.current) {
+        const container = scrollContainerRef.current;
+        const maxScroll = container.scrollHeight - container.clientHeight;
+
+        if (container.scrollTop >= maxScroll - 2) {
+          // Reached bottom: stop gracefully
+          setIsAutoScrolling(false);
+          return;
+        }
+
+        // Sub-pixel continuous momentum
+        const increment = (scrollSpeed * 60 * delta) / 1000;
+        container.scrollTop += increment;
+      }
+
+      autoScrollAnimRef.current = requestAnimationFrame(autoScrollStep);
+    };
+
+    autoScrollAnimRef.current = requestAnimationFrame(autoScrollStep);
+
+    return () => {
+      if (autoScrollAnimRef.current) cancelAnimationFrame(autoScrollAnimRef.current);
+    };
+  }, [isAutoScrolling, scrollSpeed]);
+
+  // Pause auto-scroll when user manually scrolls or touches
+  const handleManualUserScroll = () => {
+    if (isAutoScrollingRef.current) {
+      setIsAutoScrolling(false);
+      setUserPausedNotice(true);
+      setTimeout(() => setUserPausedNotice(false), 2400);
+    }
+  };
+
+  const toggleAutoScroll = () => {
+    sound.playClick();
+    setIsAutoScrolling((prev) => !prev);
+    setUserPausedNotice(false);
+  };
+
+  const startTourFromHero = () => {
+    sound.playClick();
+    setIsAutoScrolling(true);
+    setUserPausedNotice(false);
+    scrollToSection('intro-statement');
   };
 
   const handleCopyEmail = () => {
@@ -119,7 +327,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const email = 'roopadeva48@gmail.com';
     const subject = encodeURIComponent('Hello Deva — Creative Project Inquiry');
-    const body = encodeURIComponent('Hi Deva,\n\nI came across your portfolio and would love to chat about...');
+    const body = encodeURIComponent(
+      'Hi Deva,\n\nI came across your 3D spatial portfolio and would love to chat about...'
+    );
 
     if (isMobile) {
       window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
@@ -137,7 +347,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
     setMobileMenuOpen(false);
     const element = document.getElementById(id);
     if (element && scrollContainerRef.current) {
-      const topOffset = element.offsetTop - 72;
+      const topOffset = element.offsetTop - 76;
       scrollContainerRef.current.scrollTo({
         top: topOffset,
         behavior: 'smooth',
@@ -145,48 +355,111 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
     }
   };
 
+  if (!isOpen || !profile) return null;
+
   return (
     <AnimatePresence>
       <motion.div
         ref={scrollContainerRef}
         onScroll={handleContainerScroll}
+        onWheel={handleManualUserScroll}
+        onTouchMove={handleManualUserScroll}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-40 bg-[#FDFBF7] text-[#141414] overflow-y-auto flex flex-col font-doodle-body selection:bg-[#F26A1F] selection:text-white"
+        className="fixed inset-0 z-40 text-slate-900 overflow-y-auto flex flex-col font-doodle-body selection:bg-amber-400 selection:text-slate-950"
         style={{
-          backgroundImage:
-            'radial-gradient(circle at 1px 1px, rgba(20, 20, 20, 0.04) 1px, transparent 0)',
-          backgroundSize: '24px 24px',
+          background: 'linear-gradient(180deg, #38bdf8 0%, #0ea5e9 18%, #0284c7 42%, #0369a1 72%, #082f49 100%)',
+          backgroundAttachment: 'fixed',
         }}
       >
         {/* ========================================================
-            TOP SCROLL-PROGRESS BAR (Thin Orange line + Riding Pencil)
+            TOP ROCKET ORBIT PROGRESS BAR
            ======================================================== */}
-        <ScrollProgressPencil progress={scrollProgress} />
+        <ScrollProgressRocket progress={scrollProgress} />
 
         {/* ========================================================
-            MARGIN LINE-ART DOODLES (Wiggling, floating, spinning)
+            CELESTIAL SPACE ATMOSPHERE (Clouds, Stars, Orbits)
            ======================================================== */}
-        <MarginDoodles />
+        <CelestialSpaceAtmosphere />
 
         {/* ========================================================
-            1. NAVBAR
-            - Far-Left: "← Back to 3D Globe 🌍" (matches exact user instruction)
-            - Script logo: Deva.
-            - Links: About / Skills / Tools / Experience / Contact
-            - "Let's talk" Button
+            FLOATING COSMIC AUTO-SCROLL CONTROLLER (Bottom-Right)
            ======================================================== */}
-        <header className="sticky top-0 inset-x-0 z-50 bg-[#FDFBF7]/95 backdrop-blur-xs border-b-2 border-[#141414] transition-all px-4 sm:px-8 py-3.5 flex items-center justify-between w-full">
-          {/* Far-Left: Back to 3D Globe Navigation */}
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 select-none">
+          {/* User pause feedback pill */}
+          <AnimatePresence>
+            {userPausedNotice && (
+              <motion.div
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                className="bg-sky-950/90 text-sky-200 text-xs px-3 py-1.5 rounded-full border border-sky-400/50 backdrop-blur-md shadow-lg"
+              >
+                Orbit tour paused ⏸
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Speed Pills (Visible when auto-scrolling is active) */}
+          {isAutoScrolling && (
+            <motion.div
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="flex items-center gap-1 bg-sky-950/90 backdrop-blur-md px-2 py-1.5 rounded-full border-2 border-sky-400/40 text-xs text-sky-200 shadow-[0_4px_16px_rgba(2,132,199,0.4)]"
+            >
+              {[
+                { label: '0.8x', val: 0.8 },
+                { label: '1.3x', val: 1.3 },
+                { label: '2.2x', val: 2.2 },
+              ].map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => setScrollSpeed(s.val)}
+                  className={`px-2 py-0.5 rounded-full transition-colors cursor-pointer ${
+                    scrollSpeed === s.val
+                      ? 'bg-amber-400 text-slate-950 font-black shadow-xs'
+                      : 'hover:text-white'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Master Auto-Scroll Toggle Button */}
+          <button
+            onClick={toggleAutoScroll}
+            className={`px-4 sm:px-5 py-2.5 rounded-full font-doodle-heading text-base sm:text-lg font-black flex items-center gap-2 cursor-pointer transition-all border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] ${
+              isAutoScrolling
+                ? 'bg-amber-400 text-slate-950 shadow-[0_0_20px_rgba(251,191,36,0.6)] animate-pulse'
+                : 'bg-white text-slate-900 hover:bg-sky-50 hover:-translate-y-0.5'
+            }`}
+          >
+            <span>{isAutoScrolling ? '⏸ Pause Orbit Tour' : '🚀 Auto-Scroll Orbit'}</span>
+            {isAutoScrolling && (
+              <span className="flex h-2.5 w-2.5 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-900 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-slate-900"></span>
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* ========================================================
+            NAVBAR (Glassmorphic Aerospace Navigation)
+           ======================================================== */}
+        <header className="sticky top-0 inset-x-0 z-40 bg-sky-950/75 backdrop-blur-md border-b-2 border-white/20 transition-all px-4 sm:px-8 py-3.5 flex items-center justify-between w-full text-white shadow-md">
+          {/* Far-Left: Back to 3D Globe */}
           <div className="flex items-center gap-2">
             <button
               onClick={() => {
                 sound.playClick();
                 onClose();
               }}
-              className="doodle-btn-black flex items-center gap-2 px-3.5 py-1.5 bg-[#FFFFFF] hover:bg-[#FFE9DC] text-[#141414] text-xs font-bold rounded-2xl cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-1.5 bg-white text-slate-950 hover:bg-amber-300 text-xs font-bold rounded-2xl cursor-pointer border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] transition-all hover:-translate-y-0.5"
             >
               <span>←</span>
               <span>Back to 3D Globe</span>
@@ -194,66 +467,79 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             </button>
           </div>
 
-          {/* Center / Brand Logo: Script "Deva." with orange dot */}
+          {/* Center Brand Logo: Script "Deva." with Glowing Amber Dot */}
           <div className="flex items-center">
             <button
               onClick={() => scrollToSection('hero')}
-              className="font-doodle-heading text-3xl font-black text-[#141414] hover:text-[#F26A1F] transition-colors cursor-pointer flex items-baseline tracking-wide"
+              className="font-doodle-heading text-3xl font-black text-white hover:text-amber-300 transition-colors cursor-pointer flex items-baseline tracking-wide drop-shadow-sm"
             >
               <span>Deva</span>
-              <span className="text-[#F26A1F] text-4xl leading-none">.</span>
+              <span className="text-amber-400 text-4xl leading-none">.</span>
             </button>
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 text-base font-bold text-[#141414]">
+          <nav className="hidden lg:flex items-center gap-6 text-base font-bold text-sky-100">
             <button
               onClick={() => scrollToSection('about')}
-              className="hover:text-[#F26A1F] transition-colors cursor-pointer"
+              className="hover:text-amber-300 transition-colors cursor-pointer"
             >
               About
             </button>
             <button
               onClick={() => scrollToSection('skills')}
-              className="hover:text-[#F26A1F] transition-colors cursor-pointer"
+              className="hover:text-amber-300 transition-colors cursor-pointer"
             >
               Skills
             </button>
             <button
               onClick={() => scrollToSection('tools')}
-              className="hover:text-[#F26A1F] transition-colors cursor-pointer"
+              className="hover:text-amber-300 transition-colors cursor-pointer"
             >
               Tools
             </button>
             <button
               onClick={() => scrollToSection('experience')}
-              className="hover:text-[#F26A1F] transition-colors cursor-pointer"
+              className="hover:text-amber-300 transition-colors cursor-pointer"
             >
               Experience
             </button>
-
+            <button
+              onClick={() => scrollToSection('projects')}
+              className="hover:text-amber-300 transition-colors cursor-pointer"
+            >
+              Projects
+            </button>
             <button
               onClick={() => scrollToSection('contact')}
-              className="hover:text-[#F26A1F] transition-colors cursor-pointer"
+              className="hover:text-amber-300 transition-colors cursor-pointer"
             >
               Contact
             </button>
           </nav>
 
-          {/* Right Action: "Let's talk" Button & Mobile Menu Toggle */}
+          {/* Right Action: Auto-Tour Pill & "Let's talk" Button */}
           <div className="flex items-center gap-2">
             <button
+              onClick={toggleAutoScroll}
+              className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-sky-900/80 hover:bg-sky-800 text-sky-200 text-xs font-bold rounded-xl border border-sky-400/40 cursor-pointer"
+              title="Toggle cinematic auto-scroll"
+            >
+              <span>{isAutoScrolling ? '⏸ Tour Active' : '🚀 Auto-Tour'}</span>
+            </button>
+
+            <button
               onClick={handleEmailClick}
-              className="hidden sm:flex doodle-btn-orange items-center gap-1.5 px-4 py-1.5 bg-[#F26A1F] hover:bg-[#ff7a2f] text-white text-xs sm:text-sm font-black rounded-2xl cursor-pointer"
+              className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-black rounded-2xl cursor-pointer border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0f172a] transition-all hover:-translate-y-0.5"
             >
               <span>Let's talk</span>
-              <span className="text-xs">✏️</span>
+              <span className="text-xs">🛰️</span>
             </button>
 
             {/* Mobile Hamburger Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden doodle-btn-black p-2 bg-white text-[#141414] rounded-xl cursor-pointer text-sm"
+              className="lg:hidden p-2 bg-white text-slate-950 rounded-xl cursor-pointer text-sm font-bold border-2 border-slate-900"
               aria-label="Toggle Menu"
             >
               {mobileMenuOpen ? '✕' : '☰'}
@@ -263,43 +549,30 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed top-16 inset-x-4 z-50 bg-white border-2 border-[#141414] rounded-3xl p-5 shadow-[4px_4px_0px_0px_#141414] flex flex-col gap-3 font-doodle-heading text-xl">
-            <button
-              onClick={() => scrollToSection('about')}
-              className="text-left py-1.5 hover:text-[#F26A1F]"
-            >
+          <div className="lg:hidden fixed top-16 inset-x-4 z-50 bg-white/95 backdrop-blur-md border-2 border-slate-900 rounded-3xl p-5 shadow-[4px_4px_0px_0px_#0284c7] flex flex-col gap-3 font-doodle-heading text-xl">
+            <button onClick={() => scrollToSection('about')} className="text-left py-1.5 hover:text-sky-600">
               📖 About Me
             </button>
-            <button
-              onClick={() => scrollToSection('skills')}
-              className="text-left py-1.5 hover:text-[#F26A1F]"
-            >
+            <button onClick={() => scrollToSection('skills')} className="text-left py-1.5 hover:text-sky-600">
               ⚡ What I Do
             </button>
-            <button
-              onClick={() => scrollToSection('tools')}
-              className="text-left py-1.5 hover:text-[#F26A1F]"
-            >
-              🛠 Tools I'm Fluent In
+            <button onClick={() => scrollToSection('tools')} className="text-left py-1.5 hover:text-sky-600">
+              🛠 Technical Arsenal
+            </button>
+            <button onClick={() => scrollToSection('experience')} className="text-left py-1.5 hover:text-sky-600">
+              💼 Career Milestones
+            </button>
+            <button onClick={() => scrollToSection('projects')} className="text-left py-1.5 hover:text-sky-600">
+              🎨 Featured Projects
+            </button>
+            <button onClick={() => scrollToSection('contact')} className="text-left py-1.5 hover:text-sky-600">
+              ✉️ Contact Transmission
             </button>
             <button
-              onClick={() => scrollToSection('experience')}
-              className="text-left py-1.5 hover:text-[#F26A1F]"
+              onClick={toggleAutoScroll}
+              className="py-2 bg-sky-100 text-sky-950 text-center text-lg font-black rounded-2xl border-2 border-slate-900"
             >
-              💼 Where My Pencil Has Been
-            </button>
-
-            <button
-              onClick={() => scrollToSection('contact')}
-              className="text-left py-1.5 hover:text-[#F26A1F]"
-            >
-              ✉️ Let's Draw Something Together
-            </button>
-            <button
-              onClick={handleEmailClick}
-              className="doodle-btn-orange mt-2 py-2.5 bg-[#F26A1F] text-white text-center text-lg font-black rounded-2xl"
-            >
-              Let's talk ✏️
+              {isAutoScrolling ? '⏸ Pause Auto-Scroll' : '🚀 Launch Auto-Scroll Orbit'}
             </button>
           </div>
         )}
@@ -311,20 +584,26 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
           {/* ----------------------------------------------------
               SECTION 1: HERO
               - Script name "Deva's" + Polaroid Character Illustration
-              - Orange one-line tagline & narrative description
-              - Action buttons: "View my work", "Resume", "Copy Email"
+              - Fits initial screen without cutting off content
+              - Start Auto-Scroll Orbit button + scroll down cue
              ---------------------------------------------------- */}
           <section
             id="hero"
-            className="relative pt-6 sm:pt-10 pb-8 flex flex-col items-center text-center scroll-mt-24"
+            className="relative min-h-[calc(100vh-84px)] flex flex-col justify-between items-center text-center scroll-mt-24 pt-4 sm:pt-8 pb-4"
           >
-            {/* Composition: Character Frame + Handwritten Script Title */}
-            <div className="relative w-full max-w-3xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 my-4">
-              {/* Handwritten Script Title "Deva's" */}
+            <div className="opacity-0 pointer-events-none select-none h-1" />
+
+            {/* Central Composition: Polaroid Frame + Artistic Deva's Title */}
+            <div className="relative w-full max-w-3xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 my-auto">
+              {/* Handwritten Script Title "Deva's" with Space Tag */}
               <div className="order-2 md:order-1 flex flex-col items-center md:items-end z-10">
                 <ArtisticDevaTitle suffix="'s" />
-                <span className="font-doodle-label text-2xl sm:text-3xl font-bold text-[#F26A1F] -rotate-1 mt-1 tracking-wide">
+                <span className="font-doodle-label text-2xl sm:text-3xl font-bold text-amber-300 drop-shadow-md -rotate-1 mt-1 tracking-wide">
                   Creative Technologist & 3D Engineer
+                </span>
+                <span className="text-xs font-mono font-bold uppercase tracking-widest text-sky-100 bg-sky-950/60 px-3 py-1 rounded-full border border-sky-400/40 mt-2 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>Stationed atop the Globe 🪐</span>
                 </span>
               </div>
 
@@ -337,106 +616,160 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               </div>
             </div>
 
-            {/* Description & Narrative */}
-            <div className="max-w-2xl mx-auto mt-6 space-y-4">
-              <p className="font-doodle-body text-lg sm:text-xl text-[#141414] leading-relaxed">
-                Bridging the boundaries between spatial computing, 3D interactive graphics, and full-stack software architecture to craft digital experiences that amaze.
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-3 text-sm font-bold">
-                <span className="px-3.5 py-1 bg-[#FFE9DC] text-[#141414] rounded-full border-2 border-[#141414] shadow-[2px_2px_0px_0px_#141414]">
-                  📍 {profile.location || 'Bengaluru, India'}
-                </span>
-                <span className="px-3.5 py-1 bg-white text-[#141414] rounded-full border-2 border-[#141414] shadow-[2px_2px_0px_0px_#141414]">
-                  ● Available for Select Projects
-                </span>
+            {/* Action Buttons in Hero: Launch Auto-Tour or Explore */}
+            <div className="pt-4 pb-2 flex flex-col items-center gap-3 select-none z-10">
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <button
+                  onClick={startTourFromHero}
+                  className="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-2xl text-base font-black cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-1"
+                >
+                  <span>🚀 Launch Auto-Scroll Tour</span>
+                </button>
+                <button
+                  onClick={() => scrollToSection('intro-statement')}
+                  className="px-5 py-3 bg-white/90 hover:bg-white text-slate-900 rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] transition-all hover:-translate-y-1"
+                >
+                  <span>Explore on My Own</span>
+                  <span>↓</span>
+                </button>
               </div>
-            </div>
 
-            {/* Hero Action Buttons */}
-            <div className="relative mt-8 flex flex-wrap items-center justify-center gap-4">
+              {/* Bouncing scroll indicator */}
               <button
-                onClick={() => scrollToSection('experience')}
-                className="doodle-btn-black px-6 py-3 bg-[#141414] hover:bg-[#2d2d2d] text-white rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2"
+                onClick={() => scrollToSection('intro-statement')}
+                className="group flex flex-col items-center gap-1.5 cursor-pointer mt-1"
+                aria-label="Scroll down to explore"
               >
-                <span>View my work</span>
-                <span>↓</span>
+                <span className="font-doodle-label text-xs sm:text-sm font-bold text-white tracking-wide flex items-center gap-1 drop-shadow-sm">
+                  <span>scroll down to explore</span>
+                  <span className="text-sm">👇</span>
+                </span>
+                <div className="w-6 h-10 sm:w-7 sm:h-11 rounded-full border-2 border-white/80 p-1 flex justify-center bg-sky-950/40 backdrop-blur-xs shadow-md">
+                  <motion.div
+                    animate={{ y: [0, 14, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    className="w-1.5 h-2.5 bg-amber-400 rounded-full"
+                  />
+                </div>
               </button>
-
-              <button
-                onClick={handleEmailClick}
-                className="doodle-btn-orange px-6 py-3 bg-[#FFFFFF] hover:bg-[#FFE9DC] text-[#141414] rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2"
-              >
-                <span>Get in touch</span>
-                <span>✏️</span>
-              </button>
-
-              <button
-                onClick={handleCopyEmail}
-                className="doodle-btn-black px-5 py-3 bg-[#FFE9DC] hover:bg-[#ffd9c2] text-[#141414] rounded-2xl text-sm font-bold cursor-pointer flex items-center gap-1.5"
-              >
-                <span>{copiedEmail ? 'Copied to Clipboard!' : 'Copy Email'}</span>
-                <span>📋</span>
-              </button>
-
-              {/* Doodled curly arrow pointing down */}
-              <div className="hidden sm:block absolute -right-20 top-2">
-                <SquigglyArrowDoodle label="scroll down!" direction="down" />
-              </div>
             </div>
           </section>
 
-          {/* Section Curving Paper Plane Divider */}
-          <SectionCurvedPlaneDivider />
+          {/* ----------------------------------------------------
+              SECTION 1.5: INTRO STATEMENT & ACTIONS (Reached After Scrolling)
+              - Highlights the core mission statement
+              - Location & Availability badges
+              - Action buttons: "View my work", "Get in touch", "Copy Email"
+             ---------------------------------------------------- */}
+          <motion.section
+            id="intro-statement"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-40px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="relative flex flex-col items-center text-center scroll-mt-28 pt-2 pb-6"
+          >
+            <div className="relative max-w-3xl w-full mx-auto bg-white/95 backdrop-blur-md p-6 sm:p-10 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] space-y-6">
+              {/* Mission Statement */}
+              <p className="font-doodle-body text-xl sm:text-2xl text-slate-900 font-medium leading-relaxed">
+                Bridging the boundaries between spatial computing, 3D interactive graphics, and full-stack software architecture to craft digital experiences that amaze.
+              </p>
+
+              {/* Status Badges */}
+              <div className="flex flex-wrap items-center justify-center gap-3 text-sm font-bold">
+                <span className="px-4 py-1.5 bg-sky-100 text-sky-950 rounded-full border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] flex items-center gap-1.5">
+                  <span>📍</span>
+                  <span>{profile.location || 'Bengaluru, India'}</span>
+                </span>
+                <span className="px-4 py-1.5 bg-emerald-100 text-emerald-900 rounded-full border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
+                  <span>Available for Select Projects</span>
+                </span>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="relative pt-2 flex flex-wrap items-center justify-center gap-4">
+                <button
+                  onClick={() => scrollToSection('experience')}
+                  className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] transition-all hover:-translate-y-0.5"
+                >
+                  <span>View my work</span>
+                  <span>↓</span>
+                </button>
+
+                <button
+                  onClick={handleEmailClick}
+                  className="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-0.5"
+                >
+                  <span>Get in touch</span>
+                  <span>🛰️</span>
+                </button>
+
+                <button
+                  onClick={handleCopyEmail}
+                  className="px-5 py-3 bg-white hover:bg-sky-50 text-slate-900 rounded-2xl text-sm font-bold cursor-pointer flex items-center gap-1.5 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] transition-all hover:-translate-y-0.5"
+                >
+                  <span>{copiedEmail ? 'Copied to Clipboard!' : 'Copy Email'}</span>
+                  <span>📋</span>
+                </button>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* Orbital Divider */}
+          <OrbitalFlybyDivider />
 
           {/* ----------------------------------------------------
               SECTION 2: ABOUT
-              - Two columns: illustration LEFT, text RIGHT
-              - Pale orange morphing blob behind character
-              - Story, 3 tilted fact cards, hobbies as dashed pills
+              - Illustration LEFT, Story & Tilted Fact Cards RIGHT
              ---------------------------------------------------- */}
-          <section id="about" className="space-y-8 scroll-mt-24">
+          <motion.section
+            id="about"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="space-y-8 scroll-mt-24"
+          >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-[#F26A1F] font-bold">
-                Hello there!
+              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+                Orbit Transmission · Hello There!
               </span>
-              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-[#141414] tracking-tight">
-                I'm <span className="text-[#F26A1F]">Devaroopa</span>, nice to meet you
+              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
+                I'm <span className="text-amber-400">Devaroopa</span>, nice to meet you
               </h2>
-              <SquiggleUnderline color="#F26A1F" className="mt-1" />
+              <SquiggleUnderline color="#fbbf24" className="mt-1" />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-              {/* Illustration LEFT with Morphing Pale Orange Blob (#FFE9DC) */}
+              {/* Illustration LEFT */}
               <div className="lg:col-span-5 flex flex-col items-center relative">
-                {/* Morphing Pale Orange Blob behind the character */}
-                <div className="absolute inset-0 -m-6 bg-[#FFE9DC] animate-blob-morph opacity-90 z-0 pointer-events-none" />
-
                 <div className="relative z-10 w-full max-w-sm">
                   <BeanbagGirlIllustration />
                 </div>
 
-                {/* Tilted Polaroid Sticker */}
-                <div className="relative z-10 mt-3 rotate-2 bg-white p-3 rounded-2xl border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] flex items-center gap-3 max-w-xs">
+                {/* Tilted Space Badge */}
+                <div className="relative z-10 mt-3 rotate-2 bg-white/95 p-3 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] flex items-center gap-3 max-w-xs">
                   <img
-                    src={profile.avatar}
-                    alt={profile.name}
-                    className="w-12 h-12 rounded-xl object-cover border border-[#141414] shrink-0"
+                    src={profile.avatar || '/assets/profile/deva_photo.jpg'}
+                    alt={profile.name || 'Devaroopa'}
+                    className="w-12 h-12 rounded-xl object-cover border border-slate-900 shrink-0"
                   />
                   <div>
-                    <div className="font-doodle-heading text-lg font-black text-[#141414] leading-tight">
+                    <div className="font-doodle-heading text-lg font-black text-slate-900 leading-tight">
                       devaroopa
                     </div>
-                    <div className="font-doodle-body text-xs text-[#F26A1F] font-bold">
-                      spatial engineer & artist
+                    <div className="font-doodle-body text-xs text-sky-600 font-bold">
+                      spatial engineer & artist 🚀
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Narrative Story & Tilted Fact Cards RIGHT */}
+              {/* Story & Cards RIGHT */}
               <div className="lg:col-span-7 space-y-6">
-                <div className="space-y-4 font-doodle-body text-lg text-[#141414] leading-relaxed">
-                  <p className="text-xl font-bold leading-snug">
+                <div className="space-y-4 font-doodle-body text-lg text-white drop-shadow-sm leading-relaxed bg-sky-950/50 p-6 rounded-3xl border border-sky-400/30 backdrop-blur-xs">
+                  <p className="text-xl font-bold leading-snug text-amber-200">
                     {profile.bio}
                   </p>
                   {profile.extendedBio.map((paragraph, idx) => (
@@ -444,37 +777,37 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   ))}
                 </div>
 
-                {/* Three Tilted Fact Cards with Hard Drop Shadows */}
+                {/* Three Tilted Fact Cards */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-                  <div className="bg-white p-4 rounded-2xl border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] text-center space-y-1 rotate-1 hover:rotate-0 transition-transform">
-                    <div className="font-doodle-heading text-3xl font-black text-[#F26A1F]">
+                  <div className="bg-white/95 p-4 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] text-center space-y-1 rotate-1 hover:rotate-0 transition-transform">
+                    <div className="font-doodle-heading text-3xl font-black text-sky-600">
                       3+ Years
                     </div>
-                    <div className="font-doodle-label text-sm font-bold text-[#141414]">Experience</div>
-                    <div className="font-doodle-body text-xs text-stone-600">Spatial & Full-Stack</div>
+                    <div className="font-doodle-label text-sm font-bold text-slate-900">Experience</div>
+                    <div className="font-doodle-body text-xs text-slate-600">Spatial & Full-Stack</div>
                   </div>
 
-                  <div className="bg-[#FFE9DC] p-4 rounded-2xl border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] text-center space-y-1 -rotate-1 hover:rotate-0 transition-transform">
-                    <div className="font-doodle-heading text-3xl font-black text-[#141414]">
+                  <div className="bg-amber-300 p-4 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] text-center space-y-1 -rotate-1 hover:rotate-0 transition-transform">
+                    <div className="font-doodle-heading text-3xl font-black text-slate-950">
                       Full-Stack
                     </div>
-                    <div className="font-doodle-label text-sm font-bold text-[#141414]">Domain</div>
-                    <div className="font-doodle-body text-xs text-stone-700">WebGL, React & APIs</div>
+                    <div className="font-doodle-label text-sm font-bold text-slate-900">Domain</div>
+                    <div className="font-doodle-body text-xs text-slate-800">WebGL, React & APIs</div>
                   </div>
 
-                  <div className="bg-white p-4 rounded-2xl border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] text-center space-y-1 rotate-2 hover:rotate-0 transition-transform">
-                    <div className="font-doodle-heading text-3xl font-black text-[#F26A1F]">
+                  <div className="bg-white/95 p-4 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] text-center space-y-1 rotate-2 hover:rotate-0 transition-transform">
+                    <div className="font-doodle-heading text-3xl font-black text-amber-500">
                       100% Chai
                     </div>
-                    <div className="font-doodle-label text-sm font-bold text-[#141414]">Playful Fuel</div>
-                    <div className="font-doodle-body text-xs text-stone-600">Curiosity & Tea</div>
+                    <div className="font-doodle-label text-sm font-bold text-slate-900">Playful Fuel</div>
+                    <div className="font-doodle-body text-xs text-slate-600">Curiosity & Tea ☕</div>
                   </div>
                 </div>
 
-                {/* Hobbies as Dashed Pill Chips */}
-                <div className="space-y-2.5 pt-3">
+                {/* Passions as Pills */}
+                <div className="space-y-2.5 pt-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-doodle-label text-xl text-[#141414] font-bold">
+                    <span className="font-doodle-label text-xl text-white font-bold drop-shadow-sm">
                       Off the clock, you'll find me:
                     </span>
                   </div>
@@ -482,9 +815,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                     {profile.passions.map((p, idx) => (
                       <span
                         key={idx}
-                        className="px-3.5 py-1.5 bg-white text-[#141414] text-sm font-bold rounded-xl border-2 border-dashed border-[#141414] shadow-[2px_2px_0px_0px_#F26A1F] flex items-center gap-1.5 hover:bg-[#FFE9DC] transition-colors"
+                        className="px-3.5 py-1.5 bg-white/90 text-slate-950 text-sm font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] flex items-center gap-1.5 hover:bg-amber-200 transition-colors"
                       >
-                        <span className="text-[#F26A1F]">✦</span>
+                        <span className="text-amber-500">✦</span>
                         <span>{p}</span>
                       </span>
                     ))}
@@ -492,47 +825,52 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
             </div>
-          </section>
+          </motion.section>
 
-          {/* Section Curving Paper Plane Divider (Flipped) */}
-          <SectionCurvedPlaneDivider flip />
+          {/* Orbital Divider */}
+          <OrbitalFlybyDivider flip />
 
           {/* ----------------------------------------------------
-              SECTION 3: SKILLS ("What I do & love doing")
-              - Text LEFT, 2-column grid of hand-drawn cards RIGHT
-              - Hand-drawn cards with matching flat line icons & tiny tilt
+              SECTION 3: SKILLS ("Core Craft")
              ---------------------------------------------------- */}
-          <section id="skills" className="space-y-8 scroll-mt-24">
+          <motion.section
+            id="skills"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="space-y-8 scroll-mt-24"
+          >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-[#F26A1F] font-bold">
-                Core Craft
+              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+                Orbital Capabilities · Core Craft
               </span>
-              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-[#141414] tracking-tight">
-                What I do & <span className="text-[#F26A1F]">love doing</span>
+              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
+                What I do & <span className="text-amber-400">love doing</span>
               </h2>
-              <SquiggleUnderline color="#F26A1F" className="mt-1" />
+              <SquiggleUnderline color="#fbbf24" className="mt-1" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Card 1: 3D Spatial */}
-              <div className="doodle-card bg-white p-6 rounded-2xl border-2 border-[#141414] shadow-[4px_4px_0px_0px_#141414] rotate-[0.5deg] hover:rotate-0 transition-transform space-y-3">
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">🌐</span>
-                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-[#FFE9DC] rounded-full border border-[#141414]">
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-sky-100 text-sky-900 rounded-full border border-slate-900">
                     Interactive 3D
                   </span>
                 </div>
-                <h3 className="font-doodle-heading text-2xl font-black text-[#141414]">
+                <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
                   3D Spatial & WebGL Worlds
                 </h3>
-                <p className="font-doodle-body text-base text-stone-700 leading-relaxed">
+                <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Crafting interactive diorama globes, virtual hallway galleries, custom GLSL shaders, lighting systems, and butter-smooth Three.js camera choreographies.
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {['Three.js', 'React Three Fiber', 'GLSL', 'WebGL', 'Canvas'].map((tech) => (
                     <span
                       key={tech}
-                      className="px-2.5 py-0.5 bg-[#FDFBF7] text-[#141414] text-xs font-bold rounded-md border border-[#141414]"
+                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
                     >
                       {tech}
                     </span>
@@ -541,24 +879,24 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               </div>
 
               {/* Card 2: Full-Stack Engineering */}
-              <div className="doodle-card bg-white p-6 rounded-2xl border-2 border-[#141414] shadow-[4px_4px_0px_0px_#141414] -rotate-[0.5deg] hover:rotate-0 transition-transform space-y-3">
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">⚙️</span>
-                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-[#FFE9DC] rounded-full border border-[#141414]">
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-amber-100 text-amber-900 rounded-full border border-slate-900">
                     Architecture
                   </span>
                 </div>
-                <h3 className="font-doodle-heading text-2xl font-black text-[#141414]">
+                <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
                   Full-Stack Web Engineering
                 </h3>
-                <p className="font-doodle-body text-base text-stone-700 leading-relaxed">
+                <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Building production-grade client & server architectures, RESTful backend APIs, state stores, secure authentication, and resilient full-stack systems.
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {['React 19', 'TypeScript', 'Node.js', 'Express', 'Postman'].map((tech) => (
                     <span
                       key={tech}
-                      className="px-2.5 py-0.5 bg-[#FDFBF7] text-[#141414] text-xs font-bold rounded-md border border-[#141414]"
+                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
                     >
                       {tech}
                     </span>
@@ -567,24 +905,24 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               </div>
 
               {/* Card 3: UI/UX & Motion Design */}
-              <div className="doodle-card bg-white p-6 rounded-2xl border-2 border-[#141414] shadow-[4px_4px_0px_0px_#141414] -rotate-[0.5deg] hover:rotate-0 transition-transform space-y-3">
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">🎨</span>
-                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-[#FFE9DC] rounded-full border border-[#141414]">
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-pink-100 text-pink-900 rounded-full border border-slate-900">
                     Aesthetics
                   </span>
                 </div>
-                <h3 className="font-doodle-heading text-2xl font-black text-[#141414]">
+                <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
                   Hand-Drawn & Motion UI/UX
                 </h3>
-                <p className="font-doodle-body text-base text-stone-700 leading-relaxed">
+                <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Sculpting high-delight interfaces, playful micro-interactions, custom SVGs, fluid layout transitions, and responsive hand-drawn design systems.
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {['TailwindCSS', 'Framer Motion', 'Figma', 'SVG Art', 'Design Systems'].map((tech) => (
                     <span
                       key={tech}
-                      className="px-2.5 py-0.5 bg-[#FDFBF7] text-[#141414] text-xs font-bold rounded-md border border-[#141414]"
+                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
                     >
                       {tech}
                     </span>
@@ -592,25 +930,25 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
 
-              {/* Card 4: Generative AI & Spatial UX */}
-              <div className="doodle-card bg-white p-6 rounded-2xl border-2 border-[#141414] shadow-[4px_4px_0px_0px_#141414] rotate-[0.5deg] hover:rotate-0 transition-transform space-y-3">
+              {/* Card 4: Generative AI & Next-Gen Systems */}
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-3xl">✨</span>
-                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-[#FFE9DC] rounded-full border border-[#141414]">
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-emerald-100 text-emerald-900 rounded-full border border-slate-900">
                     Next-Gen
                   </span>
                 </div>
-                <h3 className="font-doodle-heading text-2xl font-black text-[#141414]">
+                <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
                   AI & Agentic Workflows
                 </h3>
-                <p className="font-doodle-body text-base text-stone-700 leading-relaxed">
+                <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Integrating intelligent developer assistants, automated pipelines, conversational agents, and generative assets into delightful user journeys.
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-2">
                   {['Antigravity', 'Python', 'Prompt Craft', 'Automation', 'MCP'].map((tech) => (
                     <span
                       key={tech}
-                      className="px-2.5 py-0.5 bg-[#FDFBF7] text-[#141414] text-xs font-bold rounded-md border border-[#141414]"
+                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
                     >
                       {tech}
                     </span>
@@ -618,29 +956,33 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
             </div>
-          </section>
+          </motion.section>
 
-          {/* Section Curving Paper Plane Divider */}
-          <SectionCurvedPlaneDivider />
+          {/* Orbital Divider */}
+          <OrbitalFlybyDivider />
 
           {/* ----------------------------------------------------
-              SECTION 4: TOOLS ("Tools I'm fluent in")
-              - Doodle LEFT (Juggling girl), Tools badges RIGHT
-              - Round black badges with orange two-letter initials
-                (Ps, Ai, Ae, Id, Ts, Py, Re, Fm, 3D, Gl…) gently bobbing
+              SECTION 4: TOOLS ("Technical Arsenal")
              ---------------------------------------------------- */}
-          <section id="tools" className="space-y-8 scroll-mt-24">
+          <motion.section
+            id="tools"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="space-y-8 scroll-mt-24"
+          >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-[#F26A1F] font-bold">
-                Technical Arsenal
+              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+                Equipment Deck · Technical Arsenal
               </span>
-              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-[#141414] tracking-tight">
-                Tools I'm <span className="text-[#F26A1F]">fluent in</span>
+              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
+                Tools I'm <span className="text-amber-400">fluent in</span>
               </h2>
-              <SquiggleUnderline color="#F26A1F" className="mt-1" />
+              <SquiggleUnderline color="#fbbf24" className="mt-1" />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center bg-white/95 p-6 sm:p-10 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7]">
               {/* Illustrated Juggling Girl LEFT */}
               <div className="lg:col-span-5 flex justify-center">
                 <div className="w-full max-w-xs">
@@ -648,33 +990,31 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
 
-              {/* Round Black Badges with Orange Two-Letter Initials RIGHT */}
+              {/* Round Space Badges RIGHT */}
               <div className="lg:col-span-7">
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 sm:gap-5">
                   {[
-                    { initial: 'Ts', name: 'TypeScript', delay: '0s' },
-                    { initial: 'Re', name: 'React', delay: '0.2s' },
-                    { initial: '3D', name: 'Three.js', delay: '0.4s' },
-                    { initial: 'Py', name: 'Python', delay: '0.1s' },
-                    { initial: 'Fm', name: 'Motion', delay: '0.3s' },
-                    { initial: 'Gl', name: 'WebGL', delay: '0.5s' },
-                    { initial: 'Nd', name: 'Node.js', delay: '0.25s' },
-                    { initial: 'Tw', name: 'Tailwind', delay: '0.45s' },
-                    { initial: 'Fg', name: 'Figma', delay: '0.15s' },
-                    { initial: 'Ps', name: 'Photoshop', delay: '0.35s' },
-                    { initial: 'Ai', name: 'Illustrator', delay: '0.55s' },
-                    { initial: 'Git', name: 'GitHub', delay: '0.2s' },
+                    { initial: 'Ts', name: 'TypeScript' },
+                    { initial: 'Re', name: 'React' },
+                    { initial: '3D', name: 'Three.js' },
+                    { initial: 'Py', name: 'Python' },
+                    { initial: 'Fm', name: 'Motion' },
+                    { initial: 'Gl', name: 'WebGL' },
+                    { initial: 'Nd', name: 'Node.js' },
+                    { initial: 'Tw', name: 'Tailwind' },
+                    { initial: 'Fg', name: 'Figma' },
+                    { initial: 'Ps', name: 'Photoshop' },
+                    { initial: 'Ai', name: 'Illustrator' },
+                    { initial: 'Git', name: 'GitHub' },
                   ].map((tool, idx) => (
                     <div
                       key={idx}
                       className="flex flex-col items-center text-center space-y-1.5 group cursor-default"
-                      style={{ animationDelay: tool.delay }}
                     >
-                      {/* Round Black Badge with Orange Two-Letter Initials */}
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#141414] text-[#F26A1F] border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] group-hover:shadow-[4px_4px_0px_0px_#F26A1F] group-hover:-translate-y-1 transition-all flex items-center justify-center font-doodle-heading text-2xl font-black select-none">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-slate-900 text-amber-400 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] group-hover:shadow-[4px_4px_0px_0px_#fbbf24] group-hover:-translate-y-1 transition-all flex items-center justify-center font-doodle-heading text-2xl font-black select-none">
                         {tool.initial}
                       </div>
-                      <span className="font-doodle-body text-sm font-bold text-[#141414] group-hover:text-[#F26A1F] transition-colors">
+                      <span className="font-doodle-body text-sm font-bold text-slate-900 group-hover:text-sky-600 transition-colors">
                         {tool.name}
                       </span>
                     </div>
@@ -682,68 +1022,70 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
             </div>
-          </section>
+          </motion.section>
 
-          {/* Section Curving Paper Plane Divider (Flipped) */}
-          <SectionCurvedPlaneDivider flip />
+          {/* Orbital Divider */}
+          <OrbitalFlybyDivider flip />
 
           {/* ----------------------------------------------------
-              SECTION 5: EXPERIENCE ("Where my pencil has been")
-              - Intro text LEFT, timeline with squiggly dashed line
-              - Job cards with number badge, role, orange dates,
-                pushpins, and tilted polaroid style
+              SECTION 5: EXPERIENCE ("Career Milestones")
              ---------------------------------------------------- */}
-          <section id="experience" className="space-y-8 scroll-mt-24">
+          <motion.section
+            id="experience"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="space-y-8 scroll-mt-24"
+          >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-[#F26A1F] font-bold">
-                Career Milestones
+              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+                Flight Log · Career Milestones
               </span>
-              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-[#141414] tracking-tight">
-                Where my <span className="text-[#F26A1F]">pencil has been</span>
+              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
+                Where my <span className="text-amber-400">journey has traveled</span>
               </h2>
-              <SquiggleUnderline color="#F26A1F" className="mt-1" />
+              <SquiggleUnderline color="#fbbf24" className="mt-1" />
             </div>
 
             <div className="space-y-8">
               {profile.experience.map((exp, eIdx) => (
                 <div
                   key={eIdx}
-                  className="relative bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#141414] shadow-[4px_4px_0px_0px_#141414] space-y-4 pt-9"
+                  className="relative bg-white/95 rounded-3xl p-6 sm:p-8 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] space-y-4 pt-9"
                 >
-                  {/* Push Pin at Top Left */}
                   <div className="absolute -top-3.5 left-8">
-                    <PushPinDoodle color={eIdx % 2 === 0 ? '#F26A1F' : '#ef4444'} />
+                    <PushPinDoodle color={eIdx % 2 === 0 ? '#f59e0b' : '#38bdf8'} />
                   </div>
 
-                  {/* Washi Tape Accent at Top Center */}
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-28 h-5 bg-[#FFE9DC] border border-[#141414] rounded-xs rotate-[-1deg] flex items-center justify-center pointer-events-none">
-                    <span className="font-doodle-label text-[10px] font-bold text-[#141414]">
-                      MILESTONE #{eIdx + 1}
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-32 h-5 bg-sky-100 border border-slate-900 rounded-xs rotate-[-1deg] flex items-center justify-center pointer-events-none">
+                    <span className="font-doodle-label text-[10px] font-bold text-slate-900">
+                      ORBIT MILESTONE #{eIdx + 1}
                     </span>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-dashed border-stone-200 pb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-dashed border-slate-200 pb-3">
                     <div>
-                      <h3 className="font-doodle-heading text-2xl font-black text-[#141414]">
+                      <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
                         {exp.role}
                       </h3>
-                      <p className="font-doodle-label text-lg font-bold text-[#F26A1F]">
+                      <p className="font-doodle-label text-lg font-bold text-sky-600">
                         {exp.company}
                       </p>
                     </div>
-                    <span className="font-doodle-body text-sm font-bold text-[#141414] bg-[#FFE9DC] px-3.5 py-1 rounded-full border-2 border-[#141414] shadow-[2px_2px_0px_0px_#141414] w-fit">
+                    <span className="font-doodle-body text-sm font-bold text-slate-900 bg-amber-100 px-3.5 py-1 rounded-full border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] w-fit">
                       {exp.period}
                     </span>
                   </div>
 
-                  <p className="font-doodle-body text-base text-stone-700 leading-relaxed">
+                  <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                     {exp.description}
                   </p>
 
-                  <ul className="space-y-1.5 font-doodle-body text-sm text-stone-700">
+                  <ul className="space-y-1.5 font-doodle-body text-sm text-slate-700">
                     {exp.highlights.map((h, hIdx) => (
                       <li key={hIdx} className="flex items-start gap-2">
-                        <span className="text-[#F26A1F] font-black">✔</span>
+                        <span className="text-amber-500 font-black">✔</span>
                         <span>{h}</span>
                       </li>
                     ))}
@@ -751,45 +1093,52 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               ))}
             </div>
-          </section>
+          </motion.section>
 
-          {/* Section Curving Paper Plane Divider */}
-          <SectionCurvedPlaneDivider />
+          {/* Orbital Divider */}
+          <OrbitalFlybyDivider />
 
           {/* ----------------------------------------------------
               SECTION 6: FEATURED PROJECTS
              ---------------------------------------------------- */}
-          <section id="projects" className="space-y-8 scroll-mt-24">
+          <motion.section
+            id="projects"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="space-y-8 scroll-mt-24"
+          >
             <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-[#F26A1F] font-bold">
-                Portfolio
+              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+                Payload Deployments · Featured Projects
               </span>
-              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-[#141414] tracking-tight">
-                Featured <span className="text-[#F26A1F]">Projects</span>
+              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
+                Featured <span className="text-amber-400">Projects</span>
               </h2>
-              <SquiggleUnderline color="#F26A1F" className="mt-1" />
+              <SquiggleUnderline color="#fbbf24" className="mt-1" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {displayProjects.map((prj: ProjectItem, pIdx: number) => (
                 <div
                   key={prj.id || pIdx}
-                  className="doodle-card bg-white rounded-3xl p-6 border-2 border-[#141414] shadow-[4px_4px_0px_0px_#141414] flex flex-col justify-between space-y-4"
+                  className="bg-white/95 rounded-3xl p-6 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] flex flex-col justify-between space-y-4 transition-all"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="px-3 py-0.5 bg-[#FFE9DC] text-[#141414] text-xs font-bold rounded-lg border border-[#141414]">
+                      <span className="px-3 py-0.5 bg-sky-100 text-sky-900 text-xs font-bold rounded-lg border border-slate-900">
                         {prj.category}
                       </span>
-                      <span className="font-doodle-body text-xs font-bold text-stone-500">
+                      <span className="font-doodle-body text-xs font-bold text-slate-500">
                         {prj.year}
                       </span>
                     </div>
 
-                    <h3 className="font-doodle-heading text-2xl font-black text-[#141414]">
+                    <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
                       {prj.title}
                     </h3>
-                    <p className="font-doodle-body text-base text-stone-700 leading-relaxed">
+                    <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                       {prj.tagline || prj.description}
                     </p>
 
@@ -797,7 +1146,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                       {prj.technologies.map((tech: string, tIdx: number) => (
                         <span
                           key={tIdx}
-                          className="px-2.5 py-0.5 bg-[#FDFBF7] text-[#141414] text-xs font-bold rounded-md border border-[#141414]"
+                          className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
                         >
                           {tech}
                         </span>
@@ -805,8 +1154,8 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                     </div>
                   </div>
 
-                  <div className="border-t-2 border-dashed border-stone-200 pt-3 flex items-center justify-between text-xs">
-                    <span className="font-doodle-body text-sm font-bold text-[#F26A1F]">
+                  <div className="border-t-2 border-dashed border-slate-200 pt-3 flex items-center justify-between text-xs">
+                    <span className="font-doodle-body text-sm font-bold text-sky-600">
                       ⚡ {prj.metrics}
                     </span>
                     <div className="flex items-center gap-2">
@@ -815,7 +1164,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                           href={prj.links.github}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="doodle-btn-black px-3 py-1 bg-stone-100 hover:bg-stone-200 text-[#141414] rounded-lg font-bold text-xs"
+                          className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-bold text-xs border border-slate-900"
                         >
                           Code
                         </a>
@@ -825,7 +1174,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                           href={prj.links.live}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="doodle-btn-orange px-3 py-1 bg-[#F26A1F] hover:bg-[#ff7a2f] text-white rounded-lg font-bold text-xs"
+                          className="px-3 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-lg font-bold text-xs border border-slate-900"
                         >
                           Live Demo ↗
                         </a>
@@ -835,51 +1184,56 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               ))}
             </div>
-          </section>
-          {/* Section Curving Paper Plane Divider (Flipped) */}
-          <SectionCurvedPlaneDivider flip />
+          </motion.section>
+
+          {/* Orbital Divider */}
+          <OrbitalFlybyDivider flip />
 
           {/* ----------------------------------------------------
               SECTION 7: CONTACT
-              - "Let's draw something together!"
-              - 3 hand-drawn cards (Email, Availability, Location)
-              - Action buttons: "Send an Email", "Copy Email"
              ---------------------------------------------------- */}
-          <section id="contact" className="space-y-8 scroll-mt-24 text-center">
+          <motion.section
+            id="contact"
+            initial={{ opacity: 0, y: 32 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-60px' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="space-y-8 scroll-mt-24 text-center"
+          >
             <div className="flex flex-col items-center">
-              <span className="font-doodle-label text-xl text-[#F26A1F] font-bold">
-                Get In Touch
+              <span className="font-doodle-label text-xl text-amber-300 font-bold drop-shadow-sm">
+                Satellite Uplink · Get In Touch
               </span>
-              <h2 className="font-doodle-heading text-4xl sm:text-5xl md:text-6xl font-black text-[#141414] tracking-tight">
-                Let's <span className="text-[#F26A1F]">draw something</span> together!
+              <h2 className="font-doodle-heading text-4xl sm:text-5xl md:text-6xl font-black text-white tracking-tight drop-shadow-md">
+                Let's <span className="text-amber-400">build something</span> together!
               </h2>
-              <SquiggleUnderline color="#F26A1F" className="mt-2" />
-              <p className="font-doodle-body text-lg text-stone-700 max-w-xl mx-auto mt-4">
+              <SquiggleUnderline color="#fbbf24" className="mt-2" />
+              <p className="font-doodle-body text-lg text-sky-100 max-w-xl mx-auto mt-4 drop-shadow-sm">
                 Have an ambitious idea, spatial computing project, or creative challenge? Let's connect and build something extraordinary.
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-              <div className="bg-white p-5 rounded-2xl border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] space-y-1">
+              <div className="bg-white/95 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] space-y-1">
                 <div className="text-2xl">✉️</div>
-                <div className="font-doodle-heading text-lg font-black text-[#141414]">Email</div>
-                <div className="font-doodle-body text-sm font-bold text-[#F26A1F] break-all">
+                <div className="font-doodle-heading text-lg font-black text-slate-900">Email</div>
+                <div className="font-doodle-body text-sm font-bold text-sky-600 break-all">
                   roopadeva48@gmail.com
                 </div>
               </div>
 
-              <div className="bg-[#FFE9DC] p-5 rounded-2xl border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] space-y-1">
+              <div className="bg-amber-300 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] space-y-1">
                 <div className="text-2xl">🚀</div>
-                <div className="font-doodle-heading text-lg font-black text-[#141414]">Status</div>
-                <div className="font-doodle-body text-sm font-bold text-[#141414]">
+                <div className="font-doodle-heading text-lg font-black text-slate-950">Status</div>
+                <div className="font-doodle-body text-sm font-bold text-slate-950">
                   Open for Select Projects
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-2xl border-2 border-[#141414] shadow-[3px_3px_0px_0px_#141414] space-y-1">
+              <div className="bg-white/95 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] space-y-1">
                 <div className="text-2xl">📍</div>
-                <div className="font-doodle-heading text-lg font-black text-[#141414]">Location</div>
-                <div className="font-doodle-body text-sm font-bold text-stone-700">
+                <div className="font-doodle-heading text-lg font-black text-slate-900">Location</div>
+                <div className="font-doodle-body text-sm font-bold text-slate-700">
                   Bengaluru · Worldwide Remote
                 </div>
               </div>
@@ -888,52 +1242,51 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               <button
                 onClick={handleEmailClick}
-                className="doodle-btn-orange px-8 py-3.5 bg-[#F26A1F] hover:bg-[#ff7a2f] text-white rounded-2xl text-lg font-black cursor-pointer flex items-center gap-2"
+                className="px-8 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 rounded-2xl text-lg font-black cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0f172a] transition-all hover:-translate-y-1"
               >
-                <span>Send an Email</span>
-                <span>✏️</span>
+                <span>Send a Transmission</span>
+                <span>🛰️</span>
               </button>
 
               <button
                 onClick={handleCopyEmail}
-                className="doodle-btn-black px-6 py-3.5 bg-white hover:bg-[#FFE9DC] text-[#141414] rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2"
+                className="px-6 py-3.5 bg-white hover:bg-sky-50 text-slate-900 rounded-2xl text-base font-bold cursor-pointer flex items-center gap-2 border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] transition-all hover:-translate-y-1"
               >
                 <span>{copiedEmail ? 'Copied to Clipboard!' : 'Copy Email'}</span>
                 <span>📋</span>
               </button>
             </div>
-          </section>
+          </motion.section>
         </main>
 
         {/* ========================================================
-            9. FOOTER
-            - Black bar with logo and one-line credit
+            FOOTER (Cosmic Night Horizon)
            ======================================================== */}
-        <footer className="mt-20 bg-[#141414] text-white border-t-2 border-[#141414] py-8 px-4 text-center">
+        <footer className="mt-20 bg-sky-950 text-white border-t-2 border-sky-400/30 py-8 px-4 text-center">
           <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="font-doodle-heading text-2xl font-black flex items-baseline">
               <span>Deva</span>
-              <span className="text-[#F26A1F] text-3xl leading-none">.</span>
+              <span className="text-amber-400 text-3xl leading-none">.</span>
             </div>
-            <p className="font-doodle-body text-sm text-stone-300">
-              Crafted with ♡ & sketchbook ink by Devaroopa · Flat 2D Hand-Drawn Doodle Portfolio
+            <p className="font-doodle-body text-sm text-sky-200">
+              Crafted with ♡ & 3D space wonder by Devaroopa · 3D Spatial & Creative Engineering Portfolio
             </p>
             <div className="flex items-center gap-3">
               <a
                 href="https://github.com/roopadeva48-tech"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-stone-300 hover:text-[#F26A1F] transition-colors text-sm font-bold"
+                className="text-sky-300 hover:text-amber-300 transition-colors text-sm font-bold"
               >
                 GitHub ↗
               </a>
-              <span className="text-stone-600">·</span>
+              <span className="text-sky-600">·</span>
               <button
                 onClick={() => {
                   sound.playClick();
                   onClose();
                 }}
-                className="text-stone-300 hover:text-[#F26A1F] transition-colors text-sm font-bold cursor-pointer"
+                className="text-sky-300 hover:text-amber-300 transition-colors text-sm font-bold cursor-pointer"
               >
                 3D Globe 🌍
               </button>
