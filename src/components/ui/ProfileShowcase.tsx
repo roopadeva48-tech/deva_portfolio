@@ -615,8 +615,8 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               </div>
             </div>
 
-            {/* Action Buttons in Hero: Launch Auto-Tour (Cyan) or Explore (White) */}
-            <div className="pt-4 pb-2 flex flex-col items-center gap-3 select-none z-10">
+            {/* Action Buttons in Hero */}
+            <div className="pt-4 pb-2 flex flex-col items-center select-none z-10">
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={startTourFromHero}
@@ -632,25 +632,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   <span>↓</span>
                 </button>
               </div>
-
-              {/* Bouncing scroll indicator */}
-              <button
-                onClick={() => scrollToSection('intro-statement')}
-                className="group flex flex-col items-center gap-1.5 cursor-pointer mt-1"
-                aria-label="Scroll down to explore"
-              >
-                <span className="font-doodle-label text-xs sm:text-sm font-bold text-white tracking-wide flex items-center gap-1 drop-shadow-sm">
-                  <span>scroll down to explore</span>
-                  <span className="text-sm">👇</span>
-                </span>
-                <div className="w-6 h-10 sm:w-7 sm:h-11 rounded-full border-2 border-white/80 p-1 flex justify-center bg-sky-950/40 backdrop-blur-xs shadow-md">
-                  <motion.div
-                    animate={{ y: [0, 14, 0] }}
-                    transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                    className="w-1.5 h-2.5 bg-cyan-400 rounded-full"
-                  />
-                </div>
-              </button>
             </div>
           </section>
 
