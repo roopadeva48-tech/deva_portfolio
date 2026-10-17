@@ -723,26 +723,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
               {/* Illustration LEFT */}
-              <div className="lg:col-span-5 flex flex-col items-center relative">
-                <div className="relative z-10 w-full max-w-sm">
+              <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+                <div className="relative z-10 w-full max-w-sm flex justify-center">
                   <BeanbagGirlIllustration />
-                </div>
-
-                {/* Tilted Space Badge */}
-                <div className="relative z-10 mt-3 rotate-2 bg-white/95 p-3 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] flex items-center gap-3 max-w-xs">
-                  <img
-                    src={profile.avatar || '/assets/profile/deva_photo.jpg'}
-                    alt={profile.name || 'Devaroopa'}
-                    className="w-12 h-12 rounded-xl object-cover border border-slate-900 shrink-0"
-                  />
-                  <div>
-                    <div className="font-doodle-heading text-lg font-black text-slate-900 leading-tight">
-                      devaroopa
-                    </div>
-                    <div className="font-doodle-body text-xs text-sky-600 font-bold">
-                      spatial engineer & artist 🚀
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -781,26 +764,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                     </div>
                     <div className="font-doodle-label text-sm font-bold text-slate-900">Playful Fuel</div>
                     <div className="font-doodle-body text-xs text-slate-600">Curiosity & Craft ⚡</div>
-                  </div>
-                </div>
-
-                {/* Passions as Pills */}
-                <div className="space-y-2.5 pt-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-doodle-label text-xl text-white font-bold drop-shadow-sm">
-                      Off the clock, you'll find me:
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.passions.map((p, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3.5 py-1.5 bg-white/95 text-slate-950 text-sm font-bold rounded-xl border-2 border-slate-900 shadow-[2px_2px_0px_0px_#0284c7] flex items-center gap-1.5 hover:bg-sky-100 transition-colors"
-                      >
-                        <span className="text-cyan-500">✦</span>
-                        <span>{p}</span>
-                      </span>
-                    ))}
                   </div>
                 </div>
               </div>
