@@ -109,3 +109,15 @@ export interface CertificateItem {
   imageUrl?: string;
 }
 
+export interface ChatAction {
+  label: string;
+  path: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  sender: 'user' | 'assistant';
+  text: string;
+  timestamp: string;
+  actions?: ChatAction[];
+}

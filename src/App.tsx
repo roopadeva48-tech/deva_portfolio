@@ -7,6 +7,7 @@ import { ProfileShowcase } from './components/ui/ProfileShowcase';
 import { LandmarkModal } from './components/ui/LandmarkModal';
 import { ContactModal } from './components/ui/ContactModal';
 import { HUDControls } from './components/ui/HUDControls';
+import { AIChatbot } from './components/ui/AIChatbot';
 import {
   fetchProfile,
   fetchProjects,
@@ -467,6 +468,11 @@ export default function App() {
         onClose={navigateBack}
         onNavigate={navigateTo}
       />
+
+      {/* 9. Floating AI Chatbot on Right Side ("Need help? Ask Alby") */}
+      {introPhase !== 'loading' && (
+        <AIChatbot onNavigate={navigateTo} />
+      )}
     </div>
   );
 }

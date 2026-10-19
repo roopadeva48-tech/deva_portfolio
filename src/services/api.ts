@@ -433,3 +433,45 @@ export async function sendContactMessage(payload: {
   }
   return data;
 }
+
+export async function sendChatMessage(message: string, history: Array<{ sender: string; text: string }>) {
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, history })
+    });
+    if (!res.ok) throw new Error('API request failed');
+    return await res.json();
+  } catch (err) {
+    console.warn('Backend chat API unavailable, using local client fallback:', err);
+    // Instant client-side fallback
+    const lower = message.toLowerCase();
+    if (lower.includes('project') || lower.includes('work')) {
+      return {
+        reply: `Devaroopa has crafted groundbreaking spatial projects like **Aetheria (Anti-Gravity Engine)**, **Neural Nexus (Synaptic Visualizer)**, and **Quantum Canvas (Fluid Simulator)**. Check out Skyline Studios to explore!`,
+        actions: [{ label: '🚀 Explore Projects', path: '/projects' }]
+      };
+    }
+    if (lower.includes('certif') || lower.includes('hackathon') || lower.includes('award')) {
+      return {
+        reply: `Explore Devaroopa's hackathon wins and verified certifications in our **3D Certificate Hallway**! Featured: **YHACK '26 National Hackathon**, **Anthropic AI Fluency**, and **Touchmark Internship**.`,
+        actions: [{ label: '📜 3D Certificate Hallway', path: '/certificates' }]
+      };
+    }
+    if (lower.includes('contact') || lower.includes('hire') || lower.includes('email') || lower.includes('message')) {
+      return {
+        reply: `Devaroopa is available for select creative engineering contracts and senior spatial roles! Drop a message directly through the contact transmission portal.`,
+        actions: [{ label: '📬 Open Contact Portal', path: '/contact' }]
+      };
+    }
+    return {
+      reply: `Hi! I'm **Alby**, Devaroopa's portfolio AI guide. I can tell you about her WebGL projects, 3D certificates, technical skills, or help you navigate the 3D globe!`,
+      actions: [
+        { label: '🚀 Projects', path: '/projects' },
+        { label: '📜 Certificates', path: '/certificates' },
+        { label: '👩‍💻 Profile', path: '/profile' }
+      ]
+    };
+  }
+}

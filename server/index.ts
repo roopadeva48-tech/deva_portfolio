@@ -4,6 +4,7 @@ import { projectsRouter } from './routes/projects';
 import { landmarksRouter } from './routes/landmarks';
 import { contactRouter } from './routes/contact';
 import { certificatesRouter } from './routes/certificates';
+import { chatRouter } from './routes/chat';
 
 export function createApiApp(): Express {
   const app = express();
@@ -25,6 +26,7 @@ export function createApiApp(): Express {
   app.use('/api/landmarks', landmarksRouter);
   app.use('/api/contact', contactRouter);
   app.use('/api/certificates', certificatesRouter);
+  app.use('/api/chat', chatRouter);
 
   return app;
 }
