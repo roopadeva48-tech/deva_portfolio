@@ -343,18 +343,27 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   const doorsListRef = useRef<DoorObjectRef[]>([]);
   const clickableMeshesRef = useRef<{ mesh: THREE.Object3D; certId: string; index: number }[]>([]);
 
-  // Camera Animation Controller
-  const camAnimRef = useRef<{
+  // Camera Animation Controller (supports direct glides and cinematic hallway walks)
+  interface CameraAnimation {
     active: boolean;
+    type: 'direct' | 'walk';
     startPos: THREE.Vector3;
     endPos: THREE.Vector3;
     startTarget: THREE.Vector3;
     endTarget: THREE.Vector3;
+    fromDoorZ?: number;
+    toDoorZ?: number;
+    targetDoorIndex?: number;
+    doorOpenTriggered?: boolean;
+    walkDir?: number;
     progress: number;
     duration: number;
     onComplete?: () => void;
-  }>({
+  }
+
+  const camAnimRef = useRef<CameraAnimation>({
     active: false,
+    type: 'direct',
     startPos: new THREE.Vector3(0, 1.7, 7.2),
     endPos: new THREE.Vector3(0, 1.7, 7.2),
     startTarget: new THREE.Vector3(0, 1.7, -10),
@@ -371,12 +380,13 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   const isDraggingRef = useRef<boolean>(false);
   const lastMouseYRef = useRef<number>(0);
 
-  // Helper to animate camera
+  // Helper for simple direct camera glide (e.g. exiting room)
   const animateCameraTo = useCallback(
-    (pos: THREE.Vector3, target: THREE.Vector3, duration: number = 2.0, onComplete?: () => void) => {
+    (pos: THREE.Vector3, target: THREE.Vector3, duration: number = 1.0, onComplete?: () => void) => {
       if (!cameraRef.current) return;
       camAnimRef.current = {
         active: true,
+        type: 'direct',
         startPos: cameraRef.current.position.clone(),
         endPos: pos.clone(),
         startTarget: currentCamTarget.current.clone(),
@@ -389,14 +399,15 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     []
   );
 
-  // Enter a Door & Room (Glide camera into doorway, swing door open wide, then show certificate)
+  // Enter a Door & Room with realistic walking motion and sequential door opening
   const enterRoom = useCallback(
     (index: number) => {
       if (index < 0 || index >= certificates.length) return;
-      const doorObj = doorsListRef.current[index];
-      if (!doorObj) return;
+      const targetDoor = doorsListRef.current[index];
+      if (!targetDoor) return;
 
       const cert = certificates[index];
+      const prevIdx = activeRoomIndexRef.current;
       setActiveRoomIndex(index);
       activeRoomIndexRef.current = index;
       setGalleryMode('entering');
@@ -404,19 +415,47 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       sound.playClick();
       sound.playZoom();
 
-      // Swing door open wide immediately
-      doorObj.isOpenState = true;
+      // If moving from a previously open door, start closing it immediately as we leave
+      if (prevIdx !== null && prevIdx !== index && doorsListRef.current[prevIdx]) {
+        doorsListRef.current[prevIdx].isOpenState = false;
+      }
+
       onRoomChange?.(cert.id);
 
-      // Animate camera smoothly towards the room doorway (1.1s glide)
-      animateCameraTo(doorObj.hallCamPos, doorObj.hallCamTarget, 1.1, () => {
-        // Reached the room doorway: trigger certificate popup with chime
-        setSelectedCert(cert);
-        setGalleryMode('inside_room');
-        sound.playChime();
-      });
+      if (!cameraRef.current) return;
+
+      const prevDoor = prevIdx !== null && prevIdx !== index ? doorsListRef.current[prevIdx] : null;
+      const fromZ = prevDoor ? prevDoor.doorPos.z : cameraRef.current.position.z;
+      const toZ = targetDoor.doorPos.z;
+      const walkDir = toZ >= fromZ ? 1 : -1;
+
+      // Keep hallway scroll position updated with destination door
+      scrollZRef.current = targetDoor.doorPos.z + 1.6;
+      targetScrollZRef.current = targetDoor.doorPos.z + 1.6;
+
+      // Start realistic walking camera transition (1.35s cinematic hallway walk)
+      camAnimRef.current = {
+        active: true,
+        type: 'walk',
+        startPos: cameraRef.current.position.clone(),
+        endPos: targetDoor.hallCamPos.clone(),
+        startTarget: currentCamTarget.current.clone(),
+        endTarget: targetDoor.hallCamTarget.clone(),
+        fromDoorZ: fromZ,
+        toDoorZ: toZ,
+        walkDir: walkDir,
+        targetDoorIndex: index,
+        doorOpenTriggered: false,
+        progress: 0,
+        duration: 1.35,
+        onComplete: () => {
+          setSelectedCert(cert);
+          setGalleryMode('inside_room');
+          sound.playChime();
+        },
+      };
     },
-    [certificates, animateCameraTo, onRoomChange]
+    [certificates, onRoomChange]
   );
 
   // Exit Room back to Hallway (Close popup & door, reset camera)
@@ -435,11 +474,18 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     activeRoomIndexRef.current = null;
     setGalleryMode('hallway');
     onRoomChange?.(null);
+
     if (cameraRef.current) {
+      const hallZ = curIdx !== null && doorsListRef.current[curIdx]
+        ? doorsListRef.current[curIdx].doorPos.z + 1.6
+        : scrollZRef.current;
+      scrollZRef.current = hallZ;
+      targetScrollZRef.current = hallZ;
+
       animateCameraTo(
-        new THREE.Vector3(0, 1.7, scrollZRef.current),
-        new THREE.Vector3(0, 1.7, scrollZRef.current - 10),
-        0.8
+        new THREE.Vector3(0, 1.7, hallZ),
+        new THREE.Vector3(0, 1.7, hallZ - 10),
+        0.85
       );
     }
   }, [animateCameraTo, onRoomChange]);
@@ -451,10 +497,6 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       if (curIdx === null) return;
       const newIndex = direction === 'next' ? curIdx + 1 : curIdx - 1;
       if (newIndex >= 0 && newIndex < certificates.length) {
-        // Close previous door
-        const prevDoor = doorsListRef.current[curIdx];
-        if (prevDoor) prevDoor.isOpenState = false;
-
         enterRoom(newIndex);
       }
     },
@@ -1182,23 +1224,101 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
     const animate = () => {
       animId = requestAnimationFrame(animate);
 
-      // Smooth camera lerp animation during room transitions
+      // Smooth camera lerp / walk animation during room transitions
       const anim = camAnimRef.current;
       if (anim.active) {
         const frameStep = 1 / (Math.max(anim.duration, 0.4) * 60);
         anim.progress += frameStep;
         const t = Math.min(1, anim.progress);
-        const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 
-        camera.position.lerpVectors(anim.startPos, anim.endPos, ease);
-        currentCamTarget.current.lerpVectors(anim.startTarget, anim.endTarget, ease);
-        camera.lookAt(currentCamTarget.current);
+        if (anim.type === 'walk') {
+          // Cinematic 3-stage walking transition between doors
+          const fromZ = anim.fromDoorZ ?? anim.startPos.z;
+          const toZ = anim.toDoorZ ?? anim.endPos.z;
+          const isSameZ = Math.abs(toZ - fromZ) < 0.1;
+          const walkDir = anim.walkDir ?? (toZ >= fromZ ? 1 : -1);
+
+          // Sub-stage 1: Step out of current doorway into the hallway center (0 to 0.28)
+          if (t < 0.28) {
+            const s1 = t / 0.28;
+            const e1 = s1 * s1 * (3 - 2 * s1); // smoothstep
+            const midStepZ = fromZ + (isSameZ ? 1.4 : walkDir * 0.4);
+
+            camera.position.x = THREE.MathUtils.lerp(anim.startPos.x, 0, e1);
+            camera.position.y = 1.7;
+            camera.position.z = THREE.MathUtils.lerp(anim.startPos.z, midStepZ, e1);
+
+            // Turn look target from doorway to facing down the hallway towards target door
+            const hallLookZ = midStepZ + (isSameZ ? -8 : walkDir * 8);
+            currentCamTarget.current.lerpVectors(
+              anim.startTarget,
+              new THREE.Vector3(0, 1.7, hallLookZ),
+              e1
+            );
+          }
+          // Sub-stage 2: Walk down the center corridor with rhythmic head-bob (0.28 to 0.72)
+          else if (t < 0.72) {
+            const s2 = (t - 0.28) / 0.44;
+            const e2 = s2 < 0.5 ? 2 * s2 * s2 : 1 - Math.pow(-2 * s2 + 2, 2) / 2; // smooth easeInOut
+            const midStartZ = fromZ + (isSameZ ? 1.4 : walkDir * 0.4);
+
+            camera.position.x = 0;
+            // Rhythmic natural walking head-bob
+            camera.position.y = 1.7 + Math.sin(s2 * Math.PI * 4) * 0.038;
+            camera.position.z = THREE.MathUtils.lerp(midStartZ, toZ, e2);
+
+            // Look forward down the hallway
+            const hallLookZ = camera.position.z + (isSameZ ? (anim.endPos.x > 0 ? 3 : -3) : walkDir * 8);
+            currentCamTarget.current.set(0, 1.7, hallLookZ);
+
+            // Open destination door ahead as we approach!
+            if (s2 > 0.5 && !anim.doorOpenTriggered) {
+              anim.doorOpenTriggered = true;
+              if (anim.targetDoorIndex !== undefined && doorsListRef.current[anim.targetDoorIndex]) {
+                doorsListRef.current[anim.targetDoorIndex].isOpenState = true;
+                sound.playClick();
+              }
+            }
+          }
+          // Sub-stage 3: Turn and approach destination door (0.72 to 1.0)
+          else {
+            const s3 = (t - 0.72) / 0.28;
+            const e3 = s3 * s3 * (3 - 2 * s3);
+
+            camera.position.x = THREE.MathUtils.lerp(0, anim.endPos.x, e3);
+            camera.position.y = 1.7;
+            camera.position.z = THREE.MathUtils.lerp(toZ, anim.endPos.z, e3);
+
+            // Smoothly turn look target directly into the open room
+            const hallLookZ = toZ + (isSameZ ? (anim.endPos.x > 0 ? 3 : -3) : walkDir * 8);
+            currentCamTarget.current.lerpVectors(
+              new THREE.Vector3(0, 1.7, hallLookZ),
+              anim.endTarget,
+              e3
+            );
+
+            // Ensure destination door is open
+            if (anim.targetDoorIndex !== undefined && doorsListRef.current[anim.targetDoorIndex]) {
+              doorsListRef.current[anim.targetDoorIndex].isOpenState = true;
+            }
+          }
+
+          camera.lookAt(currentCamTarget.current);
+        } else {
+          // Direct linear ease transition (used for exitRoom)
+          const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+          camera.position.lerpVectors(anim.startPos, anim.endPos, ease);
+          currentCamTarget.current.lerpVectors(anim.startTarget, anim.endTarget, ease);
+          camera.lookAt(currentCamTarget.current);
+        }
 
         if (t >= 1) {
           anim.active = false;
           camera.position.copy(anim.endPos);
           currentCamTarget.current.copy(anim.endTarget);
           camera.lookAt(currentCamTarget.current);
+          scrollZRef.current = anim.endPos.z;
+          targetScrollZRef.current = anim.endPos.z;
           if (anim.onComplete) anim.onComplete();
         }
       } else if (galleryModeRef.current === 'hallway') {
@@ -1212,7 +1332,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       // Smooth door swing open/close animation (swings inward into exhibition room for both sides)
       doorsListRef.current.forEach((door) => {
         const targetAngle = door.isOpenState ? Math.PI * 0.48 : 0;
-        door.doorPanel.rotation.y = THREE.MathUtils.lerp(door.doorPanel.rotation.y, targetAngle, 0.085);
+        door.doorPanel.rotation.y = THREE.MathUtils.lerp(door.doorPanel.rotation.y, targetAngle, 0.095);
       });
 
       renderer.render(scene, camera);
@@ -1316,6 +1436,30 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
           </div>
         )}
 
+        {/* Walking Transition Badge */}
+        <AnimatePresence>
+          {galleryMode === 'entering' && activeRoomIndex !== null && certificates[activeRoomIndex] && (
+            <motion.div
+              initial={{ opacity: 0, y: 25, scale: 0.94 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 15, scale: 0.94 }}
+              transition={{ duration: 0.2 }}
+              className="absolute bottom-8 inset-x-0 flex justify-center pointer-events-none z-30"
+            >
+              <div className="bg-white/95 backdrop-blur-md px-5 py-2.5 rounded-2xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-xs font-black text-slate-950 flex items-center gap-3 pointer-events-auto">
+                <span className="text-base select-none animate-bounce">🚶</span>
+                <span className="px-2 py-0.5 bg-amber-400 text-slate-950 rounded-md font-mono text-[11px] border border-slate-900 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)]">
+                  DOOR #{certificates[activeRoomIndex].doorNumber || (101 + activeRoomIndex)}
+                </span>
+                <span className="truncate max-w-[260px] sm:max-w-[420px] text-slate-900 font-bold">
+                  {certificates[activeRoomIndex].title}
+                </span>
+                <span className="text-amber-500 font-mono text-sm animate-pulse">→</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Certificate Popup Modal (Opens with spring animation only after reaching the room doorway) */}
         <AnimatePresence>
           {selectedCert && (
@@ -1324,7 +1468,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-40 bg-stone-900/50 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
+              className="fixed inset-0 z-40 bg-black/35 backdrop-blur-[2px] flex items-center justify-center p-3 sm:p-6 overflow-y-auto"
               onClick={exitRoom}
             >
               <motion.div
