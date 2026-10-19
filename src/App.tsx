@@ -213,12 +213,18 @@ export default function App() {
   // Navigate back to the previous stage without leaving the website
   const navigateBack = useCallback(() => {
     sound.playClick();
-    if (window.location.pathname !== '/') {
+    if (window.location.pathname.startsWith('/certificates/')) {
+      const hallwayPath = '/certificates';
+      window.history.replaceState({ path: hallwayPath }, '', hallwayPath);
+      applyRoute(hallwayPath);
+    } else if (window.location.pathname === '/certificates') {
+      navigateTo('/');
+    } else if (window.location.pathname !== '/') {
       window.history.back();
     } else {
       applyRoute('/');
     }
-  }, [applyRoute]);
+  }, [applyRoute, navigateTo]);
 
   // URL routing synchronization and browser history stack protection
   useEffect(() => {
@@ -259,19 +265,21 @@ export default function App() {
       if (certId) {
         const newPath = `/certificates/${certId}`;
         if (window.location.pathname !== newPath) {
-          window.history.pushState({ path: newPath }, '', newPath);
+          // If already in certificates section, use replaceState so Next / Prev Door navigation
+          // does NOT push a new history entry for every certificate viewed.
+          if (window.location.pathname.startsWith('/certificates')) {
+            window.history.replaceState({ path: newPath }, '', newPath);
+          } else {
+            window.history.pushState({ path: newPath }, '', newPath);
+          }
           applyRoute(newPath);
         }
       } else {
-        // Exiting room back to hallway
-        if (window.location.pathname.startsWith('/certificates/')) {
-          window.history.back();
-        } else {
-          const hallwayPath = '/certificates';
-          if (window.location.pathname !== hallwayPath) {
-            window.history.pushState({ path: hallwayPath }, '', hallwayPath);
-            applyRoute(hallwayPath);
-          }
+        // Exiting room back to hallway: update URL to /certificates with replaceState directly
+        const hallwayPath = '/certificates';
+        if (window.location.pathname !== hallwayPath) {
+          window.history.replaceState({ path: hallwayPath }, '', hallwayPath);
+          applyRoute(hallwayPath);
         }
       }
     },
@@ -429,7 +437,7 @@ export default function App() {
       {/* 6. Interactive 3D Hallway Certificate Gallery */}
       <CertificateGallery3D
         isOpen={isCertGalleryOpen}
-        onClose={navigateBack}
+        onClose={() => navigateTo('/')}
         certificates={certificates}
         activeCertId={activeCertId}
         onRoomChange={handleCertRoomChange}

@@ -322,6 +322,8 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
   // Gallery Navigation State
   const [selectedCert, setSelectedCert] = useState<CertificateItem | null>(null);
   const [activeRoomIndex, setActiveRoomIndex] = useState<number | null>(null);
+  const activeRoomIndexRef = useRef<number | null>(null);
+  activeRoomIndexRef.current = activeRoomIndex;
   const [galleryMode, setGalleryMode] = useState<'hallway' | 'entering' | 'inside_room'>('hallway');
   const [hoveredCert, setHoveredCert] = useState<CertificateItem | null>(null);
   const [isImageZoomed, setIsImageZoomed] = useState<boolean>(false);
@@ -396,6 +398,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
 
       const cert = certificates[index];
       setActiveRoomIndex(index);
+      activeRoomIndexRef.current = index;
       setGalleryMode('entering');
       setSelectedCert(null);
       sound.playClick();
@@ -413,20 +416,23 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         sound.playChime();
       });
     },
-    [certificates, animateCameraTo]
+    [certificates, animateCameraTo, onRoomChange]
   );
 
   // Exit Room back to Hallway (Close popup & door, reset camera)
   const exitRoom = useCallback(() => {
-    if (activeRoomIndex !== null) {
-      const doorObj = doorsListRef.current[activeRoomIndex];
+    const curIdx = activeRoomIndexRef.current;
+    if (curIdx !== null) {
+      const doorObj = doorsListRef.current[curIdx];
       if (doorObj) {
         doorObj.isOpenState = false;
       }
     }
     sound.playClick();
     setSelectedCert(null);
+    setIsImageZoomed(false);
     setActiveRoomIndex(null);
+    activeRoomIndexRef.current = null;
     setGalleryMode('hallway');
     onRoomChange?.(null);
     if (cameraRef.current) {
@@ -436,22 +442,23 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
         0.8
       );
     }
-  }, [activeRoomIndex, animateCameraTo]);
+  }, [animateCameraTo, onRoomChange]);
 
   // Navigate to Next / Previous Room
   const navigateRoom = useCallback(
     (direction: 'next' | 'prev') => {
-      if (activeRoomIndex === null) return;
-      const newIndex = direction === 'next' ? activeRoomIndex + 1 : activeRoomIndex - 1;
+      const curIdx = activeRoomIndexRef.current;
+      if (curIdx === null) return;
+      const newIndex = direction === 'next' ? curIdx + 1 : curIdx - 1;
       if (newIndex >= 0 && newIndex < certificates.length) {
         // Close previous door
-        const prevDoor = doorsListRef.current[activeRoomIndex];
+        const prevDoor = doorsListRef.current[curIdx];
         if (prevDoor) prevDoor.isOpenState = false;
 
         enterRoom(newIndex);
       }
     },
-    [activeRoomIndex, certificates.length, enterRoom]
+    [certificates.length, enterRoom]
   );
 
   // Sync activeCertId from external URL prop
@@ -461,7 +468,7 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
       const idx = certificates.findIndex(
         (c) => c.id === activeCertId || String(c.doorNumber) === activeCertId
       );
-      if (idx !== -1 && idx !== activeRoomIndex) {
+      if (idx !== -1 && idx !== activeRoomIndexRef.current) {
         let attempts = 0;
         let timer: any = null;
         const checkAndEnter = () => {
@@ -477,10 +484,32 @@ export const CertificateGallery3D: React.FC<CertificateGallery3DProps> = ({
           if (timer) clearTimeout(timer);
         };
       }
-    } else if (!activeCertId && activeRoomIndex !== null) {
+    } else if (!activeCertId && activeRoomIndexRef.current !== null) {
       exitRoom();
     }
-  }, [activeCertId, isOpen, certificates, enterRoom, exitRoom, activeRoomIndex]);
+  }, [activeCertId, isOpen, certificates, enterRoom, exitRoom]);
+
+  // Keyboard navigation: Escape to close/back, Left/Right arrows to browse certificates
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isImageZoomed) {
+          setIsImageZoomed(false);
+        } else if (selectedCert || activeRoomIndexRef.current !== null) {
+          exitRoom();
+        } else {
+          onClose();
+        }
+      } else if (e.key === 'ArrowRight' && selectedCert) {
+        navigateRoom('next');
+      } else if (e.key === 'ArrowLeft' && selectedCert) {
+        navigateRoom('prev');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, isImageZoomed, selectedCert, exitRoom, onClose, navigateRoom]);
 
   const enterRoomRef = useRef(enterRoom);
   enterRoomRef.current = enterRoom;
