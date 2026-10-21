@@ -12,13 +12,13 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'welcome_1',
     sender: 'assistant',
-    text: "👋 Hi! I'm **Deva** (AI Guide).\n\nWelcome to my interactive 3D portfolio! I can answer questions about my **3D WebGL projects**, **hackathon awards**, **technical skills**, or guide you through the interactive globe. How can I help you today?",
+    text: "🌍 **Welcome to my 3D World!**\n\nI'm **Deva**, your spatial globe guide.\n\nI can navigate you to any landmark, showcase my **3D WebGL physics engines**, explore verified **hackathon certificates**, or take you through my career story. Where would you like to travel?",
     timestamp: 'Just now',
     actions: [
-      { label: '🚀 Explore Projects', path: '/projects' },
+      { label: '🏢 Explore Projects', path: '/projects' },
       { label: '📜 3D Certificate Hallway', path: '/certificates' },
       { label: '👩‍💻 Who is Devaroopa?', path: '/profile' },
-      { label: '📬 Get in Touch', path: '/contact' },
+      { label: '🎈 Send Transmission', path: '/contact' },
     ],
   },
 ];
@@ -214,7 +214,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
         )}
       </AnimatePresence>
 
-      {/* 2. CHATBOT WINDOW (Right-Side Drawer / Dialog) */}
+      {/* 2. CHATBOT WINDOW (Right-Side Drawer / Dialog) — GLOBE THEME */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -222,49 +222,54 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
             transition={{ type: 'spring', damping: 25, stiffness: 280 }}
-            className="fixed bottom-4 sm:bottom-6 right-4 sm:right-7 z-50 w-[360px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[580px] max-h-[85vh] bg-white rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border-2 border-slate-900 flex flex-col overflow-hidden select-none"
+            className="fixed bottom-4 sm:bottom-6 right-4 sm:right-7 z-50 w-[360px] sm:w-[420px] max-w-[calc(100vw-2rem)] h-[590px] max-h-[85vh] bg-white/92 backdrop-blur-2xl rounded-[32px] border border-white/80 ring-1 ring-sky-300/50 shadow-[0_24px_70px_rgba(2,132,199,0.32),0_6px_28px_rgba(56,189,248,0.22)] flex flex-col overflow-hidden select-none"
           >
-            {/* Header: Gradient Banner + Title & Controls */}
-            <div className="relative bg-white border-b-2 border-slate-900 shrink-0">
-              {/* Top Rainbow Accent Strip */}
-              <div className="h-1.5 w-full bg-gradient-to-r from-[#0052FF] via-[#00A3FF] to-[#FF6B00]" />
+            {/* Ambient Celestial Glow in Background */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-sky-200/40 via-transparent to-amber-100/30 -z-10" />
+
+            {/* Header: Orbital Gradient Strip + Spatial Title & Controls */}
+            <div className="relative bg-white/80 backdrop-blur-md border-b border-sky-100/80 shrink-0">
+              {/* Top Orbital Gradient Strip */}
+              <div className="h-1.5 w-full bg-gradient-to-r from-[#0052FF] via-[#00D2FF] to-[#FF8A00]" />
 
               <div className="p-3 sm:p-4 flex items-center justify-between">
-                {/* Left: Avatar + Identity */}
-                <div className="flex items-center gap-2.5">
+                {/* Left: 3D Deva Avatar + Orbital Identity */}
+                <div className="flex items-center gap-3">
                   <div className="relative">
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-sky-50">
+                    <div className="w-11 h-11 rounded-full overflow-hidden border-2 border-sky-300 shadow-[0_2px_12px_rgba(56,189,248,0.4)] bg-sky-50">
                       <img
                         src="/deva_avatar.jpg"
                         alt="Deva"
                         onError={(e) => {
                           e.currentTarget.src = '/alby_avatar.jpg';
                         }}
-                        className="w-full h-full object-cover object-top"
+                        className="w-full h-full object-cover object-top scale-105"
                       />
                     </div>
-                    <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-xs" />
+                    {/* Glowing Emerald Beacon */}
+                    <span className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-xs animate-pulse" />
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h3 className="text-sm font-black text-slate-950 tracking-tight">Deva</h3>
-                      <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-mono font-bold rounded-md">
-                        AI Guide
+                      <h3 className="text-sm font-black text-slate-900 tracking-tight">Deva</h3>
+                      <span className="px-2 py-0.5 bg-sky-50 text-sky-700 border border-sky-200/80 text-[10px] font-mono font-bold rounded-full flex items-center gap-1 shadow-2xs">
+                        <span>🌍</span>
+                        <span>Globe Guide</span>
                       </span>
                     </div>
-                    <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Online · Ready to help
+                    <p className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1.5 pt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                      Orbiting Earth · Ready to navigate
                     </p>
                   </div>
                 </div>
 
                 {/* Right: Controls */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5">
                   <button
                     onClick={handleClearChat}
-                    title="Clear Chat Conversation"
-                    className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer text-xs"
+                    title="Clear Conversation"
+                    className="p-2 text-slate-400 hover:text-sky-700 hover:bg-sky-50/80 rounded-xl transition-colors cursor-pointer text-xs"
                   >
                     🗑️
                   </button>
@@ -274,7 +279,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                       setIsOpen(false);
                     }}
                     title="Minimize Chat"
-                    className="p-1.5 text-slate-400 hover:text-slate-950 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer font-bold text-base leading-none"
+                    className="p-2 text-slate-400 hover:text-slate-900 hover:bg-sky-50/80 rounded-xl transition-colors cursor-pointer font-bold text-base leading-none"
                   >
                     ✕
                   </button>
@@ -283,7 +288,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
             </div>
 
             {/* Messages Scroll Area */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-stone-50/70">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-sky-50/40 via-white/40 to-slate-50/50">
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -293,33 +298,53 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                 >
                   {/* Message Bubble */}
                   <div
-                    className={`relative max-w-[85%] px-4 py-3 rounded-2xl text-xs shadow-xs leading-relaxed ${
+                    className={`relative max-w-[88%] px-4 py-3.5 text-xs leading-relaxed ${
                       msg.sender === 'user'
-                        ? 'bg-slate-950 text-white rounded-br-xs'
-                        : 'bg-white text-slate-900 border-2 border-slate-900 shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] rounded-tl-xs'
+                        ? 'bg-gradient-to-r from-blue-600 to-sky-600 text-white rounded-2xl rounded-br-xs shadow-[0_4px_16px_rgba(2,132,199,0.3)] font-medium'
+                        : 'bg-white/95 text-slate-800 border border-sky-100/90 shadow-[0_6px_20px_rgba(56,189,248,0.12)] rounded-2xl rounded-tl-xs'
                     }`}
                   >
+                    {/* Header Tag for Assistant */}
+                    {msg.sender === 'assistant' && (
+                      <div className="flex items-center gap-1 text-[10px] font-mono font-bold text-sky-600 uppercase tracking-wider pb-1.5 mb-1.5 border-b border-sky-100/60">
+                        <span>🛰️</span>
+                        <span>Orbital Transmission</span>
+                      </div>
+                    )}
+
                     {formatMessageText(msg.text)}
 
-                    {/* Interactive Navigation Action Pills */}
+                    {/* Interactive Spatial Waypoint Action Pills */}
                     {msg.actions && msg.actions.length > 0 && (
-                      <div className="mt-3 pt-2.5 border-t border-slate-200 flex flex-wrap gap-1.5">
-                        {msg.actions.map((act, aIdx) => (
-                          <button
-                            key={aIdx}
-                            onClick={() => handleActionClick(act)}
-                            className="px-2.5 py-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-[11px] rounded-lg border border-slate-900 shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1"
-                          >
-                            <span>{act.label}</span>
-                            <span className="text-[10px]">→</span>
-                          </button>
-                        ))}
+                      <div className="mt-3.5 pt-2.5 border-t border-sky-100 flex flex-wrap gap-2">
+                        {msg.actions.map((act, aIdx) => {
+                          // Dynamic Globe-themed gradients for each destination
+                          let gradClass = 'from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 shadow-[0_3px_12px_rgba(14,165,233,0.35)]';
+                          if (act.path.includes('certificate')) {
+                            gradClass = 'from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 shadow-[0_3px_12px_rgba(245,158,11,0.35)]';
+                          } else if (act.path.includes('profile')) {
+                            gradClass = 'from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 shadow-[0_3px_12px_rgba(20,184,166,0.35)]';
+                          } else if (act.path.includes('contact')) {
+                            gradClass = 'from-indigo-500 to-blue-600 hover:from-indigo-400 hover:to-blue-500 shadow-[0_3px_12px_rgba(99,102,241,0.35)]';
+                          }
+
+                          return (
+                            <button
+                              key={aIdx}
+                              onClick={() => handleActionClick(act)}
+                              className={`px-3 py-1.5 bg-gradient-to-r ${gradClass} text-white font-bold text-[11px] rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-1.5`}
+                            >
+                              <span>{act.label}</span>
+                              <span className="text-[10px] opacity-90">→</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
                   </div>
 
                   {/* Timestamp */}
-                  <span className="text-[10px] text-slate-400 mt-1 px-1">
+                  <span className="text-[10px] text-slate-400 mt-1 px-1 font-mono">
                     {msg.timestamp}
                   </span>
                 </div>
@@ -327,11 +352,11 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
 
               {/* Typing Animated Indicator */}
               {isLoading && (
-                <div className="flex items-center gap-2 p-3 bg-white border-2 border-slate-900 rounded-2xl rounded-tl-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-fit">
-                  <span className="text-xs font-bold text-slate-600">Deva is typing</span>
+                <div className="flex items-center gap-2 p-3 bg-white/95 border border-sky-200/80 rounded-2xl rounded-tl-xs shadow-[0_4px_14px_rgba(56,189,248,0.15)] w-fit">
+                  <span className="text-xs font-bold text-sky-700">Deva is navigating</span>
                   <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.3s]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.15s]" />
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" />
                   </div>
                 </div>
@@ -342,17 +367,17 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
 
             {/* Quick Starters Row (shown if only 1 message exists) */}
             {messages.length <= 2 && (
-              <div className="px-3 py-2 bg-white border-t border-slate-200 overflow-x-auto flex gap-1.5 shrink-0 scrollbar-none">
+              <div className="px-3 py-2 bg-white/80 border-t border-sky-100/80 overflow-x-auto flex gap-2 shrink-0 scrollbar-none">
                 {[
-                  { text: '👩‍💻 Tell me about Deva', send: 'Tell me about Devaroopa and her background' },
-                  { text: '🚀 Best 3D Projects', send: 'What are Devaroopa\'s top featured projects?' },
-                  { text: '📜 Certificates', send: 'Show me her certificates and hackathon awards' },
-                  { text: '📬 How to contact?', send: 'How can I contact Devaroopa?' },
+                  { text: '👩‍💻 About Deva', send: 'Tell me about Devaroopa and her background' },
+                  { text: '🏢 3D Projects', send: 'What are Devaroopa\'s top featured 3D WebGL projects?' },
+                  { text: '📜 3D Certificates', send: 'Show me her certificates and hackathon awards' },
+                  { text: '🎈 Contact Orbit', send: 'How can I contact Devaroopa to collaborate?' },
                 ].map((chip, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(chip.send)}
-                    className="whitespace-nowrap px-2.5 py-1 bg-stone-100 hover:bg-amber-100 text-slate-800 text-[11px] font-semibold rounded-lg border border-slate-200 transition-colors cursor-pointer"
+                    className="whitespace-nowrap px-3 py-1.5 bg-sky-50/90 hover:bg-sky-100 text-sky-950 text-[11px] font-semibold rounded-full border border-sky-200/70 shadow-2xs transition-all hover:scale-105 cursor-pointer"
                   >
                     {chip.text}
                   </button>
@@ -366,23 +391,23 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                 e.preventDefault();
                 handleSendMessage();
               }}
-              className="p-3 bg-white border-t-2 border-slate-900 flex items-center gap-2 shrink-0"
+              className="p-3 bg-white/90 backdrop-blur-md border-t border-sky-100/90 flex items-center gap-2 shrink-0"
             >
               <input
                 ref={inputRef}
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Ask Deva about projects, skills, or navigation..."
-                className="flex-1 bg-stone-100 focus:bg-white text-slate-900 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:outline-hidden transition-all placeholder:text-slate-400 font-medium"
+                placeholder="Ask Deva about 3D landmarks, projects, or skills..."
+                className="flex-1 bg-sky-50/60 focus:bg-white text-slate-900 text-xs px-3.5 py-2.5 rounded-2xl border border-sky-200/80 focus:border-sky-500 focus:ring-2 focus:ring-sky-400/20 focus:outline-hidden transition-all placeholder:text-slate-400 font-medium"
               />
               <button
                 type="submit"
                 disabled={!inputText.trim() || isLoading}
-                className="px-3.5 py-2.5 bg-slate-950 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all cursor-pointer shadow-xs text-xs flex items-center justify-center shrink-0"
+                className="px-4 py-2.5 bg-gradient-to-r from-[#0052FF] via-[#00A3FF] to-[#0284C7] hover:opacity-95 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all cursor-pointer shadow-[0_4px_14px_rgba(0,102,255,0.35)] text-xs flex items-center justify-center shrink-0 gap-1.5"
               >
                 <span>Send</span>
-                <span className="text-amber-400 ml-1">➤</span>
+                <span className="text-amber-300">🚀</span>
               </button>
             </form>
           </motion.div>
