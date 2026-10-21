@@ -176,37 +176,13 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                 </div>
 
                 {/* Text: Need help? Ask Deva */}
-                <div className="text-left leading-none flex flex-col justify-center">
+                <div className="text-left leading-none flex flex-col justify-center pr-1 sm:pr-2">
                   <span className="text-[11px] sm:text-xs font-semibold text-[#0066FF] tracking-tight block pb-1">
                     Need help?
                   </span>
                   <span className="text-xs sm:text-sm font-black text-[#0047FF] tracking-tight block group-hover:text-blue-700 transition-colors">
                     Ask Deva
                   </span>
-                </div>
-
-                {/* Gradient 4-Point Star Sparkle Matching Image */}
-                <div className="ml-1 shrink-0 animate-pulse">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="drop-shadow-xs"
-                  >
-                    <defs>
-                      <linearGradient id="sparkleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#fde047" />
-                        <stop offset="45%" stopColor="#fb923c" />
-                        <stop offset="100%" stopColor="#ea580c" />
-                      </linearGradient>
-                    </defs>
-                    <path
-                      d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z"
-                      fill="url(#sparkleGrad)"
-                    />
-                  </svg>
                 </div>
               </div>
             </button>
