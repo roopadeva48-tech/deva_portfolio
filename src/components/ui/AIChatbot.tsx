@@ -12,7 +12,7 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'welcome_1',
     sender: 'assistant',
-    text: "👋 Hi! I'm **Alby**, Devaroopa's AI guide.\n\nI can answer questions about her **3D WebGL projects**, **hackathon awards**, **technical skills**, or guide you through the interactive globe. How can I help you today?",
+    text: "👋 Hi! I'm **Deva** (AI Guide).\n\nWelcome to my interactive 3D portfolio! I can answer questions about my **3D WebGL projects**, **hackathon awards**, **technical skills**, or guide you through the interactive globe. How can I help you today?",
     timestamp: 'Just now',
     actions: [
       { label: '🚀 Explore Projects', path: '/projects' },
@@ -138,7 +138,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
 
   return (
     <>
-      {/* 1. FLOATING PILL BUTTON ON THE RIGHT SIDE (Matching the User's Image) */}
+      {/* 1. FLOATING PILL BUTTON ON THE RIGHT SIDE (Matching the Reference Image & Portfolio Theme) */}
       <AnimatePresence>
         {!isOpen && (
           <motion.div
@@ -154,17 +154,20 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                 sound.playClick();
                 setIsOpen(true);
               }}
-              title="Chat with Alby, Devaroopa's AI Assistant"
-              className="group relative p-[2.5px] rounded-full bg-gradient-to-r from-blue-600 via-sky-400 to-orange-500 shadow-[0_8px_24px_rgba(37,99,235,0.28)] hover:shadow-[0_12px_32px_rgba(249,115,22,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer block"
+              title="Chat with Deva, AI Portfolio Guide"
+              className="group relative p-[2.5px] rounded-full bg-gradient-to-r from-[#0052FF] via-[#00A3FF] to-[#FF6B00] shadow-[0_10px_28px_rgba(0,102,255,0.32),0_4px_16px_rgba(255,107,0,0.25)] hover:shadow-[0_14px_36px_rgba(0,102,255,0.42),0_6px_22px_rgba(255,107,0,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer block"
             >
               {/* Inner white pill container */}
               <div className="bg-white rounded-full py-1.5 pl-1.5 pr-4 sm:pr-5 flex items-center gap-2.5 sm:gap-3 transition-colors">
                 {/* 3D Character Avatar with Online Dot */}
                 <div className="relative shrink-0">
-                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-slate-200 bg-sky-50 shadow-inner">
+                  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden border border-slate-100 bg-sky-50 shadow-inner">
                     <img
-                      src="/alby_avatar.jpg"
-                      alt="Alby - AI Assistant"
+                      src="/deva_avatar.jpg"
+                      alt="Deva - AI Guide"
+                      onError={(e) => {
+                        e.currentTarget.src = '/alby_avatar.jpg';
+                      }}
                       className="w-full h-full object-cover object-top scale-105 group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
@@ -172,19 +175,38 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                   <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow-xs animate-pulse" />
                 </div>
 
-                {/* Text: Need help? Ask Alby */}
+                {/* Text: Need help? Ask Deva */}
                 <div className="text-left leading-none flex flex-col justify-center">
-                  <span className="text-[11px] sm:text-xs font-bold text-blue-600 tracking-tight block pb-1">
+                  <span className="text-[11px] sm:text-xs font-semibold text-[#0066FF] tracking-tight block pb-1">
                     Need help?
                   </span>
-                  <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight block group-hover:text-blue-700 transition-colors">
-                    Ask Alby
+                  <span className="text-xs sm:text-sm font-black text-[#0047FF] tracking-tight block group-hover:text-blue-700 transition-colors">
+                    Ask Deva
                   </span>
                 </div>
 
-                {/* Subtle Pulse Star Indicator */}
-                <div className="ml-0.5 text-amber-500 text-xs hidden sm:block animate-pulse">
-                  ✨
+                {/* Gradient 4-Point Star Sparkle Matching Image */}
+                <div className="ml-1 shrink-0 animate-pulse">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="drop-shadow-xs"
+                  >
+                    <defs>
+                      <linearGradient id="sparkleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fde047" />
+                        <stop offset="45%" stopColor="#fb923c" />
+                        <stop offset="100%" stopColor="#ea580c" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z"
+                      fill="url(#sparkleGrad)"
+                    />
+                  </svg>
                 </div>
               </div>
             </button>
@@ -205,7 +227,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
             {/* Header: Gradient Banner + Title & Controls */}
             <div className="relative bg-white border-b-2 border-slate-900 shrink-0">
               {/* Top Rainbow Accent Strip */}
-              <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-sky-400 to-orange-500" />
+              <div className="h-1.5 w-full bg-gradient-to-r from-[#0052FF] via-[#00A3FF] to-[#FF6B00]" />
 
               <div className="p-3 sm:p-4 flex items-center justify-between">
                 {/* Left: Avatar + Identity */}
@@ -213,8 +235,11 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                   <div className="relative">
                     <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] bg-sky-50">
                       <img
-                        src="/alby_avatar.jpg"
-                        alt="Alby"
+                        src="/deva_avatar.jpg"
+                        alt="Deva"
+                        onError={(e) => {
+                          e.currentTarget.src = '/alby_avatar.jpg';
+                        }}
                         className="w-full h-full object-cover object-top"
                       />
                     </div>
@@ -222,7 +247,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                   </div>
                   <div>
                     <div className="flex items-center gap-1.5">
-                      <h3 className="text-sm font-black text-slate-950 tracking-tight">Alby</h3>
+                      <h3 className="text-sm font-black text-slate-950 tracking-tight">Deva</h3>
                       <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-mono font-bold rounded-md">
                         AI Guide
                       </span>
@@ -303,7 +328,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
               {/* Typing Animated Indicator */}
               {isLoading && (
                 <div className="flex items-center gap-2 p-3 bg-white border-2 border-slate-900 rounded-2xl rounded-tl-xs shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] w-fit">
-                  <span className="text-xs font-bold text-slate-600">Alby is typing</span>
+                  <span className="text-xs font-bold text-slate-600">Deva is typing</span>
                   <div className="flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-bounce [animation-delay:-0.3s]" />
                     <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-bounce [animation-delay:-0.15s]" />
@@ -348,7 +373,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
                 type="text"
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
-                placeholder="Ask Alby about projects, skills, or navigation..."
+                placeholder="Ask Deva about projects, skills, or navigation..."
                 className="flex-1 bg-stone-100 focus:bg-white text-slate-900 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:border-slate-900 focus:outline-hidden transition-all placeholder:text-slate-400 font-medium"
               />
               <button

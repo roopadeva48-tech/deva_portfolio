@@ -466,7 +466,7 @@ export async function sendChatMessage(message: string, history: Array<{ sender: 
       };
     }
     return {
-      reply: `Hi! I'm **Alby**, Devaroopa's portfolio AI guide. I can tell you about her WebGL projects, 3D certificates, technical skills, or help you navigate the 3D globe!`,
+      reply: `Hi! I'm **Deva**, your 3D portfolio AI guide. I can tell you about my WebGL projects, 3D certificates, technical skills, or help you navigate the 3D globe!`,
       actions: [
         { label: '🚀 Projects', path: '/projects' },
         { label: '📜 Certificates', path: '/certificates' },

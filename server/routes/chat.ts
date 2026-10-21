@@ -4,7 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 export const chatRouter = Router();
 
 // Context about Devaroopa and the 3D portfolio
-const SYSTEM_PROMPT = `You are "Alby", the friendly, witty, and knowledgeable 3D AI assistant for Devaroopa's Creative Engineering & 3D WebGL Portfolio.
+const SYSTEM_PROMPT = `You are "Deva", the friendly, creative, and knowledgeable AI guide for Devaroopa's Creative Engineering & 3D WebGL Portfolio.
 Your goal is to guide visitors, answer questions about Devaroopa's projects, technical skills, certifications, and background, and help them navigate her interactive 3D world.
 
 About Devaroopa:
@@ -29,7 +29,7 @@ About Devaroopa:
 
 Tone & Persona:
 - Warm, enthusiastic, concise, and helpful.
-- Speak in first-person as Alby ("I'm Alby, Deva's virtual assistant!").
+- Speak in first-person as Deva ("Hi! I'm Deva, your interactive guide!").
 - Keep responses friendly, engaging, and under 3 paragraphs unless asked for extensive technical depth.
 - Suggest navigation destinations where appropriate (e.g. "Feel free to check out the 3D Certificate Hallway or Projects!").
 `;
@@ -41,7 +41,7 @@ function getLocalFallbackReply(userText: string): { reply: string; actions?: Arr
   // 1. Greetings
   if (/^(hi|hello|hey|greetings|what's up|howdy|sup|good morning|good evening)/i.test(query)) {
     return {
-      reply: `Hey there! 👋 I'm **Alby**, Devaroopa's AI guide for this 3D portfolio! \n\nI can show you her featured 3D WebGL projects, guide you through the **3D Certificate Hallway**, or help you get in touch. What would you like to explore first?`,
+      reply: `Hey there! 👋 I'm **Deva**, your AI guide for this 3D portfolio! \n\nI can show you my featured 3D WebGL projects, guide you through the **3D Certificate Hallway**, or help you get in touch. What would you like to explore first?`,
       actions: [
         { label: '🚀 Explore Projects', path: '/projects' },
         { label: '📜 3D Certificate Hallway', path: '/certificates' },
