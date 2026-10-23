@@ -1156,28 +1156,12 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <div className="max-w-md mx-auto">
               <div className="bg-white/95 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] space-y-1">
                 <div className="text-2xl">✉️</div>
                 <div className="font-doodle-heading text-lg font-black text-slate-900">Email</div>
                 <div className="font-doodle-body text-sm font-bold text-sky-600 break-all">
                   roopadeva48@gmail.com
-                </div>
-              </div>
-
-              <div className="bg-sky-100 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] space-y-1">
-                <div className="text-2xl">🚀</div>
-                <div className="font-doodle-heading text-lg font-black text-slate-950">Status</div>
-                <div className="font-doodle-body text-sm font-bold text-slate-950">
-                  Open for Select Projects
-                </div>
-              </div>
-
-              <div className="bg-white/95 p-5 rounded-2xl border-2 border-slate-900 shadow-[3px_3px_0px_0px_#0284c7] space-y-1">
-                <div className="text-2xl">📍</div>
-                <div className="font-doodle-heading text-lg font-black text-slate-900">Location</div>
-                <div className="font-doodle-body text-sm font-bold text-slate-700">
-                  Bengaluru · Worldwide Remote
                 </div>
               </div>
             </div>
