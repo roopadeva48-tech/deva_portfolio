@@ -13,7 +13,6 @@ import {
   Heart,
   Copy,
   Check,
-  Compass,
   ArrowRight,
   MessageCircle,
 } from 'lucide-react';
@@ -51,15 +50,6 @@ const CALLOUT_TIPS = [
   { icon: '✨', text: 'How to control this interactive globe?', prompt: 'How do I navigate and interact with this 3D globe?' },
 ];
 
-// Quick category exploration buttons
-const EXPLORATION_CHIPS = [
-  { icon: '🏢', label: '3D Projects', query: 'Show me your top 3D WebGL and interactive projects' },
-  { icon: '📜', label: 'Certificates', query: 'Tell me about your hackathon awards and certificates' },
-  { icon: '👩‍💻', label: 'Story & Skills', query: 'Who is Devaroopa? What is your tech stack and experience?' },
-  { icon: '🕹️', label: 'Globe Controls', query: 'How do I rotate, zoom, and navigate landmarks on the globe?' },
-  { icon: '📬', label: 'Get in Touch', query: 'How can I contact or collaborate with Devaroopa?' },
-  { icon: '🎲', label: 'Surprise Me', query: 'Tell me an interesting fun fact or secret about this portfolio!' },
-];
 
 export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -446,30 +436,6 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* Interactive Context Banner Strip */}
-            <div className="px-3.5 py-1.5 bg-[#47c7ac]/15 border-b border-[#141414]/15 flex items-center justify-between text-[11px] font-bold text-teal-950 shrink-0">
-              <span className="flex items-center gap-1.5">
-                <Compass className="w-3.5 h-3.5 text-[#0284c7] animate-spin-slow" />
-                <span>Navigating: 3D Spatial Globe</span>
-              </span>
-              <span className="font-mono text-[10px] text-teal-800">
-                WebGL 60 FPS
-              </span>
-            </div>
-
-            {/* ================= QUICK EXPLORATION CATEGORY PILLS ================= */}
-            <div className="px-3 py-2 bg-[#fffdf9] border-b-2 border-[#141414]/20 overflow-x-auto flex gap-1.5 shrink-0 scrollbar-none">
-              {EXPLORATION_CHIPS.map((chip, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSendMessage(chip.query)}
-                  className="whitespace-nowrap px-2.5 py-1 bg-white hover:bg-amber-50 active:bg-amber-100 text-[#141414] text-[11px] font-bold rounded-lg border-2 border-[#141414] shadow-[2px_2px_0px_#141414] hover:shadow-[2px_2px_0px_#F26A1F] hover:-translate-y-0.5 active:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1.5 shrink-0"
-                >
-                  <span>{chip.icon}</span>
-                  <span>{chip.label}</span>
-                </button>
-              ))}
-            </div>
 
             {/* ================= MESSAGES SCROLL AREA ================= */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] bg-[#fffdfa]/60">
