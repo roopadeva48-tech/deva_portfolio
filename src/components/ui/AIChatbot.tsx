@@ -559,15 +559,6 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
               }}
               className="p-3 bg-[#fffdfa] border-t-2 border-[#141414] flex items-center gap-2 shrink-0"
             >
-              {/* Quick Action Emoji / Idea Button */}
-              <button
-                type="button"
-                onClick={() => handleSendMessage('Give me a quick tour recommendation of your 3D world!')}
-                title="Quick recommendation"
-                className="p-2 bg-amber-100 hover:bg-amber-200 text-[#141414] border-2 border-[#141414] rounded-xl shadow-[2px_2px_0px_#141414] hover:shadow-[3px_3px_0px_#F26A1F] transition-all cursor-pointer shrink-0"
-              >
-                <Sparkles className="w-4 h-4 text-[#F26A1F]" />
-              </button>
 
               {/* Text Input */}
               <input
