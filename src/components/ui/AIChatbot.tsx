@@ -338,7 +338,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.88, y: 35 }}
             transition={{ type: 'spring', damping: 24, stiffness: 280 }}
-            className={`fixed bottom-4 sm:bottom-6 right-4 sm:right-7 z-50 bg-[#fffdfa] rounded-3xl border-[2.5px] border-[#141414] shadow-[6px_6px_0px_#141414] sm:shadow-[8px_8px_0px_#141414] flex flex-col overflow-hidden select-none transition-all duration-300 ${
+            className={`fixed bottom-4 sm:bottom-6 right-4 sm:right-7 z-50 bg-[#fffdfa] rounded-3xl border-[2.5px] border-[#141414] shadow-[6px_6px_0px_#141414] sm:shadow-[8px_8px_0px_#141414] flex flex-col overflow-hidden overscroll-contain select-none transition-all duration-300 ${
               isExpanded
                 ? 'w-[520px] max-w-[calc(100vw-2rem)] h-[720px] max-h-[92vh]'
                 : 'w-[380px] sm:w-[430px] max-w-[calc(100vw-2rem)] h-[600px] max-h-[86vh]'
@@ -438,7 +438,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({ onNavigate }) => {
 
 
             {/* ================= MESSAGES SCROLL AREA ================= */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] bg-[#fffdfa]/60">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4 bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:16px_16px] bg-[#fffdfa]/60">
               {messages.map((msg) => (
                 <div
                   key={msg.id}

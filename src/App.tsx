@@ -372,7 +372,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-sky-400">
+    <div className="fixed inset-0 w-full h-full overflow-hidden bg-sky-400">
       {/* 1. Animatic Hand-Drawn Loader */}
       {introPhase === 'loading' && (
         <AnimaticLoader onComplete={handleLoaderComplete} />
