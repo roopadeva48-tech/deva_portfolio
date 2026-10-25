@@ -809,16 +809,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Fusing tactile handmade creations, miniature models, and papercraft with modern interactive websites, responsive layouts, and delightful digital experiences.
                 </p>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {['Handmade Crafts', 'Miniature Art', 'Web Design', 'UI/UX', 'TailwindCSS', 'Interactive Web'].map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
               </div>
 
               {/* Card 2: Full-Stack Engineering */}
@@ -835,16 +825,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Building production-grade client & server architectures, RESTful backend APIs, state stores, secure authentication, and resilient full-stack systems.
                 </p>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {['React 19', 'TypeScript', 'Node.js', 'Express', 'Postman'].map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
               </div>
 
               {/* Card 3: UI/UX & Motion Design */}
@@ -861,16 +841,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Sculpting high-delight interfaces, playful micro-interactions, custom SVGs, fluid layout transitions, and responsive hand-drawn design systems.
                 </p>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {['TailwindCSS', 'Framer Motion', 'Figma', 'SVG Art', 'Design Systems'].map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
               </div>
 
               {/* Card 4: Poster Designing */}
@@ -887,16 +857,22 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Creating eye-catching event posters, typographic compositions, promotional artwork, and creative digital graphics with bold visual hierarchy and color harmony.
                 </p>
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {['Photoshop', 'Illustrator', 'Typography', 'Visual Hierarchy', 'Print & Digital'].map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
-                    >
-                      {tech}
-                    </span>
-                  ))}
+              </div>
+
+              {/* Card 5: Logo Designing */}
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">✒️</span>
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-amber-100 text-amber-900 rounded-full border border-slate-900">
+                    Brand Identity
+                  </span>
                 </div>
+                <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
+                  Logo Designing
+                </h3>
+                <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
+                  Crafting memorable brand marks, iconic emblems, minimalist vector symbols, and custom typographic identity systems that resonate across print and digital media.
+                </p>
               </div>
             </div>
           </motion.section>
