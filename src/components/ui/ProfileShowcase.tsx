@@ -47,139 +47,127 @@ const ScrollProgressRocket: React.FC<{ progress: number }> = ({ progress }) => {
 };
 
 // ========================================================
-// 2. CELESTIAL SPACE BACKGROUND (Clean Space / Zero Yellow)
-// Atmospheric sky blue with floating fluffy clouds, orbital
-// trails, twinkling stars & space landmarks matching the 3D globe
 // ========================================================
-const CelestialSpaceAtmosphere: React.FC = () => {
+// 2. SKY CLOUDS BACKGROUND (Matching User Cloud Reference)
+// Stylized cartoon clouds with white tops & light-blue shading,
+// drifting slowly across a vibrant sky blue gradient background
+// ========================================================
+
+// Shape 1: Wide Cloud (Middle-left in reference image)
+const CloudShapeWide: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg viewBox="0 0 460 120" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Soft light-blue shaded base */}
+    <path
+      d="M30 102 C12 102 0 92 0 78 C0 66 10 56 22 54 C26 38 42 26 62 26 C68 26 76 28 82 31 C94 12 118 0 146 0 C168 0 188 9 201 24 C214 13 232 6 252 6 C280 6 304 20 316 40 C322 38 330 36 338 36 C358 36 376 47 382 64 C388 62 396 60 404 60 C422 60 438 72 440 88 C448 90 454 96 454 102 Z"
+      fill="#c2e3f8"
+    />
+    {/* Crisp pure white billowy puffs */}
+    <path
+      d="M30 92 C12 92 0 82 0 70 C0 58 10 49 22 47 C26 32 42 21 62 21 C68 21 76 23 82 26 C94 8 118 0 146 0 C168 0 188 8 201 22 C214 12 232 5 252 5 C280 5 304 18 316 37 C322 35 330 33 338 33 C358 33 376 44 382 60 C388 58 396 56 404 56 C422 56 438 67 440 82 C430 92 50 92 30 92 Z"
+      fill="#ffffff"
+    />
+  </svg>
+);
+
+// Shape 2: Large Billowing Cumulus Cloud (Bottom-right in reference image)
+const CloudShapeCumulus: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg viewBox="0 0 520 170" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Soft light-blue shaded base */}
+    <path
+      d="M35 152 C15 152 0 138 0 120 C0 105 12 92 28 90 C33 66 54 48 80 48 C86 48 93 50 100 52 C114 24 142 6 176 6 C195 6 213 13 228 24 C244 8 268 0 296 0 C336 0 370 22 384 55 C390 53 397 51 405 51 C428 51 448 66 454 88 C461 86 468 84 476 84 C498 84 516 99 518 118 C520 132 510 146 492 150 C480 152 50 152 35 152 Z"
+      fill="#c2e3f8"
+    />
+    {/* Crisp pure white billowy puffs */}
+    <path
+      d="M35 136 C15 136 0 123 0 106 C0 92 12 80 28 78 C33 56 54 40 80 40 C86 40 93 42 100 44 C114 18 142 2 176 2 C195 2 213 8 228 19 C244 5 268 0 296 0 C336 0 370 20 384 50 C390 48 397 46 405 46 C428 46 448 60 454 81 C461 79 468 77 476 77 C498 77 516 91 518 109 C490 136 50 136 35 136 Z"
+      fill="#ffffff"
+    />
+  </svg>
+);
+
+// Shape 3: High Medium Cloud (Top-right in reference image)
+const CloudShapeMedium: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg viewBox="0 0 340 105" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Soft light-blue shaded base */}
+    <path
+      d="M20 92 C8 92 0 84 0 74 C0 65 7 57 16 55 C20 40 34 28 52 28 C58 28 65 30 71 33 C82 14 104 2 128 2 C148 2 165 11 176 26 C186 16 202 9 220 9 C244 9 266 22 276 41 C282 39 288 37 296 37 C314 37 329 48 334 64 C338 68 340 76 338 84 C334 90 324 92 312 92 Z"
+      fill="#c2e3f8"
+    />
+    {/* Crisp pure white billowy puffs */}
+    <path
+      d="M20 80 C8 80 0 73 0 63 C0 55 7 48 16 46 C20 33 34 22 52 22 C58 22 65 24 71 27 C82 10 104 0 128 0 C148 0 165 9 176 22 C186 13 202 7 220 7 C244 7 266 19 276 36 C282 34 288 32 296 32 C314 32 329 42 334 56 C320 80 30 80 20 80 Z"
+      fill="#ffffff"
+    />
+  </svg>
+);
+
+// Shape 4: Small Wispy Cloud (Top-left, mid-right, horizon in reference image)
+const CloudShapeWisp: React.FC<{ className?: string }> = ({ className = '' }) => (
+  <svg viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    {/* Soft light-blue shaded base */}
+    <path
+      d="M12 52 C5 52 0 47 0 41 C0 35 4 30 9 29 C12 20 22 13 34 13 C38 13 42 14 46 16 C53 7 64 1 76 1 C88 1 98 7 104 17 C109 13 116 10 124 10 C136 10 146 17 150 26 C155 27 162 32 162 40 C162 48 155 52 144 52 Z"
+      fill="#c2e3f8"
+    />
+    {/* Crisp pure white billowy puffs */}
+    <path
+      d="M12 44 C5 44 0 40 0 34 C0 29 4 25 9 24 C12 16 22 10 34 10 C38 10 42 11 46 13 C53 5 64 0 76 0 C88 0 98 5 104 14 C109 11 116 8 124 8 C136 8 146 14 150 22 C155 23 162 28 162 34 C150 44 20 44 12 44 Z"
+      fill="#ffffff"
+    />
+  </svg>
+);
+
+const CLOUD_LAYERS = [
+  // 1. High altitude small wisp (matches top-left in reference image)
+  { type: 'wisp', top: '7%', width: '150px', duration: '115s', delay: '-26s', floatDuration: '6.5s', opacity: 0.95 },
+  // 2. High altitude medium cloud (matches top-right in reference image)
+  { type: 'medium', top: '10%', width: '310px', duration: '90s', delay: '-66s', floatDuration: '8s', opacity: 0.98 },
+  // 3. Mid-high wide cloud (matches mid-left in reference image)
+  { type: 'wide', top: '24%', width: '430px', duration: '72s', delay: '-18s', floatDuration: '7s', opacity: 1 },
+  // 4. Mid altitude small wisp (matches mid-right in reference image)
+  { type: 'wisp', top: '30%', width: '170px', duration: '130s', delay: '-95s', floatDuration: '6s', opacity: 0.95 },
+  // 5. Grand billowing cumulus cloud (matches bottom-right in reference image)
+  { type: 'cumulus', top: '40%', width: '560px', duration: '78s', delay: '-42s', floatDuration: '9s', opacity: 1 },
+  // 6. Mid-low small wisp pair (matches mid-left lower in reference image)
+  { type: 'wisp', top: '46%', width: '140px', duration: '105s', delay: '-10s', floatDuration: '7.5s', opacity: 0.9 },
+  // 7. Ambient mid-low medium cloud
+  { type: 'medium', top: '62%', width: '330px', duration: '85s', delay: '-52s', floatDuration: '8s', opacity: 0.95 },
+  // 8. Lower horizon wide cloud
+  { type: 'wide', top: '76%', width: '450px', duration: '64s', delay: '-24s', floatDuration: '7s', opacity: 0.95 },
+  // 9. Lower horizon small wisp
+  { type: 'wisp', top: '88%', width: '160px', duration: '120s', delay: '-72s', floatDuration: '6.5s', opacity: 0.9 },
+];
+
+const SkyCloudsAtmosphere: React.FC = () => {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
-      {/* Dynamic Starfield Sparkles in Cyan, White, and Sky-Blue */}
-      <div className="absolute inset-0">
-        {[
-          { top: '8%', left: '12%', size: 'text-sm', delay: '0s', char: '✦', color: 'text-cyan-200' },
-          { top: '15%', left: '88%', size: 'text-lg', delay: '1s', char: '★', color: 'text-white' },
-          { top: '24%', left: '5%', size: 'text-xs', delay: '2s', char: '✧', color: 'text-sky-200' },
-          { top: '32%', left: '92%', size: 'text-base', delay: '0.5s', char: '✦', color: 'text-cyan-300' },
-          { top: '44%', left: '8%', size: 'text-sm', delay: '1.5s', char: '★', color: 'text-white' },
-          { top: '56%', left: '94%', size: 'text-xs', delay: '2.5s', char: '✧', color: 'text-cyan-200' },
-          { top: '68%', left: '4%', size: 'text-base', delay: '0.8s', char: '✦', color: 'text-sky-100' },
-          { top: '78%', left: '90%', size: 'text-sm', delay: '1.8s', char: '★', color: 'text-white' },
-          { top: '88%', left: '10%', size: 'text-xs', delay: '0.3s', char: '✧', color: 'text-cyan-300' },
-          { top: '94%', left: '85%', size: 'text-sm', delay: '2.2s', char: '✦', color: 'text-cyan-100' },
-        ].map((star, idx) => (
-          <span
-            key={idx}
-            className={`absolute ${star.size} ${star.color} animate-pulse drop-shadow-[0_0_8px_rgba(255,255,255,0.9)]`}
+      {CLOUD_LAYERS.map((cfg, idx) => (
+        <div
+          key={idx}
+          className="absolute animate-cloud-drift"
+          style={{
+            top: cfg.top,
+            left: 0,
+            animationDuration: cfg.duration,
+            animationDelay: cfg.delay,
+            willChange: 'transform',
+          }}
+        >
+          <div
+            className="animate-cloud-float"
             style={{
-              top: star.top,
-              left: star.left,
-              animationDelay: star.delay,
-              animationDuration: '3s',
+              width: cfg.width,
+              opacity: cfg.opacity,
+              animationDuration: cfg.floatDuration,
             }}
           >
-            {star.char}
-          </span>
-        ))}
-      </div>
-
-      {/* Floating 3D-Styled Puffy White Clouds (Matching the 3D globe scene) */}
-      <motion.div
-        animate={{ x: [-15, 15, -15], y: [-6, 6, -6] }}
-        transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-28 -left-12 w-48 opacity-85"
-      >
-        <svg viewBox="0 0 140 70" fill="none" className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.3)]">
-          <path
-            d="M30 55 C15 55 5 45 5 32 C5 20 18 10 32 12 C38 4 52 0 65 5 C75 0 95 2 105 12 C118 10 130 20 130 32 C130 45 120 55 105 55 Z"
-            fill="#ffffff"
-          />
-        </svg>
-      </motion.div>
-
-      <motion.div
-        animate={{ x: [20, -20, 20], y: [6, -6, 6] }}
-        transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute top-[40%] -right-10 w-56 opacity-85"
-      >
-        <svg viewBox="0 0 140 70" fill="none" className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.3)]">
-          <path
-            d="M30 55 C15 55 5 45 5 32 C5 20 18 10 32 12 C38 4 52 0 65 5 C75 0 95 2 105 12 C118 10 130 20 130 32 C130 45 120 55 105 55 Z"
-            fill="#ffffff"
-          />
-        </svg>
-      </motion.div>
-
-      <motion.div
-        animate={{ x: [-10, 10, -10], y: [-4, 4, -4] }}
-        transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
-        className="absolute bottom-36 -left-8 w-44 opacity-80"
-      >
-        <svg viewBox="0 0 140 70" fill="none" className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.3)]">
-          <path
-            d="M30 55 C15 55 5 45 5 32 C5 20 18 10 32 12 C38 4 52 0 65 5 C75 0 95 2 105 12 C118 10 130 20 130 32 C130 45 120 55 105 55 Z"
-            fill="#ffffff"
-          />
-        </svg>
-      </motion.div>
-
-      {/* Orbital Path Trails (Like the globe's elliptical trajectory rings) */}
-      <svg className="absolute inset-0 w-full h-full opacity-35" preserveAspectRatio="none">
-        <ellipse
-          cx="50%"
-          cy="30%"
-          rx="52%"
-          ry="28%"
-          fill="none"
-          stroke="#ffffff"
-          strokeWidth="1.5"
-          strokeDasharray="8 12"
-          transform="rotate(-8 500 300)"
-        />
-        <ellipse
-          cx="48%"
-          cy="65%"
-          rx="56%"
-          ry="32%"
-          fill="none"
-          stroke="#ffffff"
-          strokeWidth="1.5"
-          strokeDasharray="6 10"
-          transform="rotate(6 500 650)"
-        />
-      </svg>
-
-      {/* Margin Space Elements */}
-      <div className="hidden sm:block">
-        <motion.div
-          animate={{ y: [0, -12, 0], rotate: [0, 5, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-48 left-6 text-3xl"
-        >
-          🚀
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, 14, 0], rotate: [0, -6, 0] }}
-          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-[35%] right-8 text-3xl"
-        >
-          🎈
-        </motion.div>
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-[60%] left-6 text-2xl opacity-75"
-        >
-          🪐
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute top-[82%] right-7 text-2xl opacity-80"
-        >
-          🛰️
-        </motion.div>
-      </div>
+            {cfg.type === 'wide' && <CloudShapeWide className="w-full h-auto drop-shadow-[0_8px_16px_rgba(2,132,199,0.12)]" />}
+            {cfg.type === 'cumulus' && <CloudShapeCumulus className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.14)]" />}
+            {cfg.type === 'medium' && <CloudShapeMedium className="w-full h-auto drop-shadow-[0_8px_16px_rgba(2,132,199,0.12)]" />}
+            {cfg.type === 'wisp' && <CloudShapeWisp className="w-full h-auto drop-shadow-[0_6px_12px_rgba(2,132,199,0.1)]" />}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
@@ -366,7 +354,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
         className="fixed inset-0 z-40 text-slate-900 overflow-y-auto flex flex-col font-doodle-body selection:bg-cyan-400 selection:text-slate-950"
         style={{
-          background: 'linear-gradient(180deg, #38bdf8 0%, #0ea5e9 18%, #0284c7 42%, #0369a1 72%, #082f49 100%)',
+          background: 'linear-gradient(180deg, #4aa6eb 0%, #5cb3f2 28%, #7bc5f6 60%, #a4daf9 90%, #b8e4fb 100%)',
           backgroundAttachment: 'fixed',
         }}
       >
@@ -376,9 +364,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         <ScrollProgressRocket progress={scrollProgress} />
 
         {/* ========================================================
-            CELESTIAL SPACE ATMOSPHERE (Clouds, Stars, Orbits)
+            SKY CLOUDS ATMOSPHERE (Moving Cartoon Clouds)
            ======================================================== */}
-        <CelestialSpaceAtmosphere />
+        <SkyCloudsAtmosphere />
 
         {/* ========================================================
             FLOATING COSMIC AUTO-SCROLL CONTROLLER (Bottom-Right)

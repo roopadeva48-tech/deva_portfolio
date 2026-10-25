@@ -57,6 +57,36 @@
   animation: float-gentle 4s ease-in-out infinite;
 }
 
+/* Slowly moving background clouds matching sky reference */
+@keyframes cloud-drift-right {
+  0% {
+    transform: translate3d(-550px, 0, 0);
+  }
+  100% {
+    transform: translate3d(calc(100vw + 550px), 0, 0);
+  }
+}
+
+.animate-cloud-drift {
+  animation-name: cloud-drift-right;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+@keyframes cloud-float-gentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-cloud-float {
+  animation: cloud-float-gentle 8s ease-in-out infinite;
+}
+
 /* Custom scrollbars for modals */
 ::-webkit-scrollbar {
   width: 6px;
