@@ -56,7 +56,7 @@ export const ProfilePhotoFrame: React.FC<ProfilePhotoFrameProps> = ({
       </div>
 
       {/* Outer Polaroid / Gallery Frame */}
-      <div className="relative bg-[#fefaf0] p-3 sm:p-4 pb-5 sm:pb-6 rounded-3xl shadow-[0_20px_45px_-10px_rgba(45,30,15,0.22),0_4px_12px_rgba(0,0,0,0.06)] border-2 border-amber-200/90 ring-1 ring-amber-300/40 w-56 sm:w-64 md:w-72 transition-shadow duration-300 group-hover:shadow-[0_28px_55px_-10px_rgba(45,30,15,0.28)]">
+      <div className="relative bg-[#fefaf0] p-3.5 sm:p-5 pb-6 sm:pb-7 rounded-3xl shadow-[0_20px_45px_-10px_rgba(45,30,15,0.22),0_4px_12px_rgba(0,0,0,0.06)] border-2 border-amber-200/90 ring-1 ring-amber-300/40 w-64 sm:w-72 md:w-80 lg:w-88 transition-shadow duration-300 group-hover:shadow-[0_28px_55px_-10px_rgba(45,30,15,0.28)]">
         {/* Inner Photo Window */}
         <div className="relative aspect-[4/5] w-full rounded-2xl overflow-hidden bg-amber-50/50 border border-amber-300/60 shadow-inner flex flex-col items-center justify-center">
           {!hasError && photoUrl ? (

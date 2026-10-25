@@ -74,6 +74,24 @@
   will-change: transform;
 }
 
+/* Subtle slow cinematic float for the anime cloudscape wallpaper */
+@keyframes sky-anime-drift {
+  0% {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.07) translate3d(-1.2%, -0.6%, 0);
+  }
+  100% {
+    transform: scale(1.03) translate3d(0, 0, 0);
+  }
+}
+
+.animate-sky-anime {
+  animation: sky-anime-drift 32s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
 @keyframes cloud-float-gentle {
   0%, 100% {
     transform: translateY(0px);

@@ -48,126 +48,45 @@ const ScrollProgressRocket: React.FC<{ progress: number }> = ({ progress }) => {
 
 // ========================================================
 // ========================================================
-// 2. SKY CLOUDS BACKGROUND (Matching User Cloud Reference)
-// Stylized cartoon clouds with white tops & light-blue shading,
-// drifting slowly across a vibrant sky blue gradient background
+// 2. ANIME SKY CLOUDS BACKGROUND (Exact Match to User Reference)
+// Rich anime sky digital painting with volumetric cumulus clouds,
+// responsive widescreen & mobile art, and gentle breathing drift
 // ========================================================
-
-// Shape 1: Wide Cloud (Middle-left in reference image)
-const CloudShapeWide: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <svg viewBox="0 0 460 120" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Soft light-blue shaded base */}
-    <path
-      d="M30 102 C12 102 0 92 0 78 C0 66 10 56 22 54 C26 38 42 26 62 26 C68 26 76 28 82 31 C94 12 118 0 146 0 C168 0 188 9 201 24 C214 13 232 6 252 6 C280 6 304 20 316 40 C322 38 330 36 338 36 C358 36 376 47 382 64 C388 62 396 60 404 60 C422 60 438 72 440 88 C448 90 454 96 454 102 Z"
-      fill="#c2e3f8"
-    />
-    {/* Crisp pure white billowy puffs */}
-    <path
-      d="M30 92 C12 92 0 82 0 70 C0 58 10 49 22 47 C26 32 42 21 62 21 C68 21 76 23 82 26 C94 8 118 0 146 0 C168 0 188 8 201 22 C214 12 232 5 252 5 C280 5 304 18 316 37 C322 35 330 33 338 33 C358 33 376 44 382 60 C388 58 396 56 404 56 C422 56 438 67 440 82 C430 92 50 92 30 92 Z"
-      fill="#ffffff"
-    />
-  </svg>
-);
-
-// Shape 2: Large Billowing Cumulus Cloud (Bottom-right in reference image)
-const CloudShapeCumulus: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <svg viewBox="0 0 520 170" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Soft light-blue shaded base */}
-    <path
-      d="M35 152 C15 152 0 138 0 120 C0 105 12 92 28 90 C33 66 54 48 80 48 C86 48 93 50 100 52 C114 24 142 6 176 6 C195 6 213 13 228 24 C244 8 268 0 296 0 C336 0 370 22 384 55 C390 53 397 51 405 51 C428 51 448 66 454 88 C461 86 468 84 476 84 C498 84 516 99 518 118 C520 132 510 146 492 150 C480 152 50 152 35 152 Z"
-      fill="#c2e3f8"
-    />
-    {/* Crisp pure white billowy puffs */}
-    <path
-      d="M35 136 C15 136 0 123 0 106 C0 92 12 80 28 78 C33 56 54 40 80 40 C86 40 93 42 100 44 C114 18 142 2 176 2 C195 2 213 8 228 19 C244 5 268 0 296 0 C336 0 370 20 384 50 C390 48 397 46 405 46 C428 46 448 60 454 81 C461 79 468 77 476 77 C498 77 516 91 518 109 C490 136 50 136 35 136 Z"
-      fill="#ffffff"
-    />
-  </svg>
-);
-
-// Shape 3: High Medium Cloud (Top-right in reference image)
-const CloudShapeMedium: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <svg viewBox="0 0 340 105" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Soft light-blue shaded base */}
-    <path
-      d="M20 92 C8 92 0 84 0 74 C0 65 7 57 16 55 C20 40 34 28 52 28 C58 28 65 30 71 33 C82 14 104 2 128 2 C148 2 165 11 176 26 C186 16 202 9 220 9 C244 9 266 22 276 41 C282 39 288 37 296 37 C314 37 329 48 334 64 C338 68 340 76 338 84 C334 90 324 92 312 92 Z"
-      fill="#c2e3f8"
-    />
-    {/* Crisp pure white billowy puffs */}
-    <path
-      d="M20 80 C8 80 0 73 0 63 C0 55 7 48 16 46 C20 33 34 22 52 22 C58 22 65 24 71 27 C82 10 104 0 128 0 C148 0 165 9 176 22 C186 13 202 7 220 7 C244 7 266 19 276 36 C282 34 288 32 296 32 C314 32 329 42 334 56 C320 80 30 80 20 80 Z"
-      fill="#ffffff"
-    />
-  </svg>
-);
-
-// Shape 4: Small Wispy Cloud (Top-left, mid-right, horizon in reference image)
-const CloudShapeWisp: React.FC<{ className?: string }> = ({ className = '' }) => (
-  <svg viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    {/* Soft light-blue shaded base */}
-    <path
-      d="M12 52 C5 52 0 47 0 41 C0 35 4 30 9 29 C12 20 22 13 34 13 C38 13 42 14 46 16 C53 7 64 1 76 1 C88 1 98 7 104 17 C109 13 116 10 124 10 C136 10 146 17 150 26 C155 27 162 32 162 40 C162 48 155 52 144 52 Z"
-      fill="#c2e3f8"
-    />
-    {/* Crisp pure white billowy puffs */}
-    <path
-      d="M12 44 C5 44 0 40 0 34 C0 29 4 25 9 24 C12 16 22 10 34 10 C38 10 42 11 46 13 C53 5 64 0 76 0 C88 0 98 5 104 14 C109 11 116 8 124 8 C136 8 146 14 150 22 C155 23 162 28 162 34 C150 44 20 44 12 44 Z"
-      fill="#ffffff"
-    />
-  </svg>
-);
-
-const CLOUD_LAYERS = [
-  // 1. High altitude small wisp (matches top-left in reference image)
-  { type: 'wisp', top: '7%', width: '150px', duration: '115s', delay: '-26s', floatDuration: '6.5s', opacity: 0.95 },
-  // 2. High altitude medium cloud (matches top-right in reference image)
-  { type: 'medium', top: '10%', width: '310px', duration: '90s', delay: '-66s', floatDuration: '8s', opacity: 0.98 },
-  // 3. Mid-high wide cloud (matches mid-left in reference image)
-  { type: 'wide', top: '24%', width: '430px', duration: '72s', delay: '-18s', floatDuration: '7s', opacity: 1 },
-  // 4. Mid altitude small wisp (matches mid-right in reference image)
-  { type: 'wisp', top: '30%', width: '170px', duration: '130s', delay: '-95s', floatDuration: '6s', opacity: 0.95 },
-  // 5. Grand billowing cumulus cloud (matches bottom-right in reference image)
-  { type: 'cumulus', top: '40%', width: '560px', duration: '78s', delay: '-42s', floatDuration: '9s', opacity: 1 },
-  // 6. Mid-low small wisp pair (matches mid-left lower in reference image)
-  { type: 'wisp', top: '46%', width: '140px', duration: '105s', delay: '-10s', floatDuration: '7.5s', opacity: 0.9 },
-  // 7. Ambient mid-low medium cloud
-  { type: 'medium', top: '62%', width: '330px', duration: '85s', delay: '-52s', floatDuration: '8s', opacity: 0.95 },
-  // 8. Lower horizon wide cloud
-  { type: 'wide', top: '76%', width: '450px', duration: '64s', delay: '-24s', floatDuration: '7s', opacity: 0.95 },
-  // 9. Lower horizon small wisp
-  { type: 'wisp', top: '88%', width: '160px', duration: '120s', delay: '-72s', floatDuration: '6.5s', opacity: 0.9 },
-];
-
-const SkyCloudsAtmosphere: React.FC = () => {
+const AnimeSkyBackground: React.FC = () => {
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
-      {CLOUD_LAYERS.map((cfg, idx) => (
-        <div
-          key={idx}
-          className="absolute animate-cloud-drift"
-          style={{
-            top: cfg.top,
-            left: 0,
-            animationDuration: cfg.duration,
-            animationDelay: cfg.delay,
-            willChange: 'transform',
-          }}
-        >
-          <div
-            className="animate-cloud-float"
-            style={{
-              width: cfg.width,
-              opacity: cfg.opacity,
-              animationDuration: cfg.floatDuration,
-            }}
-          >
-            {cfg.type === 'wide' && <CloudShapeWide className="w-full h-auto drop-shadow-[0_8px_16px_rgba(2,132,199,0.12)]" />}
-            {cfg.type === 'cumulus' && <CloudShapeCumulus className="w-full h-auto drop-shadow-[0_12px_24px_rgba(2,132,199,0.14)]" />}
-            {cfg.type === 'medium' && <CloudShapeMedium className="w-full h-auto drop-shadow-[0_8px_16px_rgba(2,132,199,0.12)]" />}
-            {cfg.type === 'wisp' && <CloudShapeWisp className="w-full h-auto drop-shadow-[0_6px_12px_rgba(2,132,199,0.1)]" />}
-          </div>
-        </div>
-      ))}
+      {/* Underlying sky blue fill */}
+      <div className="absolute inset-0 bg-[#258bf5]" />
+
+      {/* Responsive Painterly Anime Cloud Wallpaper with subtle living drift */}
+      <div className="absolute -inset-4 sm:-inset-6 overflow-hidden">
+        <picture className="w-full h-full block animate-sky-anime">
+          {/* Mobile / Portrait viewports: exact portrait artwork uploaded by user */}
+          <source
+            media="(max-aspect-ratio: 1/1)"
+            srcSet="/assets/profile/sky_clouds_mobile.png"
+          />
+          {/* Desktop / Landscape viewports: 16:9 widescreen expansion of user artwork */}
+          <source
+            media="(min-aspect-ratio: 1/1)"
+            srcSet="/assets/profile/sky_clouds_desktop.jpg"
+          />
+          <img
+            src="/assets/profile/sky_clouds_desktop.jpg"
+            alt="Luminous Anime Sky with Volumetric Clouds"
+            className="w-full h-full object-cover object-center"
+          />
+        </picture>
+      </div>
+
+      {/* Gentle atmospheric depth overlay for contrast & readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-sky-950/20 via-transparent to-sky-950/30 pointer-events-none" />
+
+      {/* Floating Sparkle / Star Glints in the upper atmosphere */}
+      <div className="absolute top-[12%] left-[18%] text-white/70 text-xs animate-pulse">✦</div>
+      <div className="absolute top-[8%] right-[22%] text-cyan-200/80 text-sm animate-pulse delay-700">✧</div>
+      <div className="absolute top-[28%] right-[8%] text-white/60 text-xs animate-pulse delay-1000">✦</div>
+      <div className="absolute top-[35%] left-[6%] text-cyan-100/70 text-xs animate-pulse delay-500">✧</div>
     </div>
   );
 };
@@ -352,11 +271,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-40 text-slate-900 overflow-y-auto flex flex-col font-doodle-body selection:bg-cyan-400 selection:text-slate-950"
-        style={{
-          background: 'linear-gradient(180deg, #4aa6eb 0%, #5cb3f2 28%, #7bc5f6 60%, #a4daf9 90%, #b8e4fb 100%)',
-          backgroundAttachment: 'fixed',
-        }}
+        className="fixed inset-0 z-40 text-slate-900 overflow-y-auto flex flex-col font-doodle-body selection:bg-cyan-400 selection:text-slate-950 bg-[#1e6fcf]"
       >
         {/* ========================================================
             TOP ROCKET ORBIT PROGRESS BAR
@@ -364,9 +279,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         <ScrollProgressRocket progress={scrollProgress} />
 
         {/* ========================================================
-            SKY CLOUDS ATMOSPHERE (Moving Cartoon Clouds)
+            ANIME SKY CLOUDS BACKGROUND (Living Cloudscape Artwork)
            ======================================================== */}
-        <SkyCloudsAtmosphere />
+        <AnimeSkyBackground />
 
         {/* ========================================================
             FLOATING COSMIC AUTO-SCROLL CONTROLLER (Bottom-Right)
@@ -386,32 +301,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             )}
           </AnimatePresence>
 
-          {/* Speed Pills (Visible when auto-scrolling is active) */}
-          {isAutoScrolling && (
-            <motion.div
-              initial={{ opacity: 0, x: 12 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-1 bg-sky-950/90 backdrop-blur-md px-2 py-1.5 rounded-full border-2 border-cyan-400/40 text-xs text-sky-200 shadow-[0_4px_16px_rgba(2,132,199,0.4)]"
-            >
-              {[
-                { label: '0.8x', val: 0.8 },
-                { label: '1.3x', val: 1.3 },
-                { label: '2.2x', val: 2.2 },
-              ].map((s) => (
-                <button
-                  key={s.label}
-                  onClick={() => setScrollSpeed(s.val)}
-                  className={`px-2 py-0.5 rounded-full transition-colors cursor-pointer ${
-                    scrollSpeed === s.val
-                      ? 'bg-cyan-400 text-slate-950 font-black shadow-xs'
-                      : 'hover:text-white'
-                  }`}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </motion.div>
-          )}
 
           {/* Master Auto-Scroll Toggle Button */}
           <button
@@ -496,15 +385,45 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             </button>
           </nav>
 
-          {/* Right Action: Auto-Tour Pill & "Let's talk" Button */}
+          {/* Right Action: Auto-Tour Button + Speed Pills & "Let's talk" Button */}
           <div className="flex items-center gap-2">
             <button
               onClick={toggleAutoScroll}
-              className="hidden md:flex items-center gap-1.5 px-3 py-1 bg-sky-900/80 hover:bg-sky-800 text-sky-200 text-xs font-bold rounded-xl border border-cyan-400/40 cursor-pointer"
+              className={`hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold cursor-pointer transition-all ${
+                isAutoScrolling
+                  ? 'bg-cyan-400 text-slate-950 border-cyan-300 shadow-[0_0_12px_rgba(34,211,238,0.5)]'
+                  : 'bg-sky-900/80 hover:bg-sky-800 text-sky-100 border-cyan-400/40'
+              }`}
               title="Toggle cinematic auto-scroll"
             >
               <span>{isAutoScrolling ? '⏸ Tour Active' : '🚀 Auto-Tour'}</span>
             </button>
+
+            {/* Auto-Tour Speed Selector directly in Header near Auto-Tour button */}
+            <div className="hidden md:flex items-center gap-1 bg-sky-900/80 backdrop-blur-md px-1.5 py-1 rounded-xl border border-cyan-400/40 text-[11px] text-sky-200">
+              <span className="text-[10px] font-bold text-sky-300 pl-1 pr-0.5">Speed:</span>
+              {[
+                { label: '0.8x', val: 0.8 },
+                { label: '1.3x', val: 1.3 },
+                { label: '2.2x', val: 2.2 },
+              ].map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => {
+                    sound.playClick();
+                    setScrollSpeed(s.val);
+                  }}
+                  title={`Set auto-tour speed to ${s.label}`}
+                  className={`px-2 py-0.5 rounded-lg font-bold transition-all cursor-pointer ${
+                    scrollSpeed === s.val
+                      ? 'bg-cyan-400 text-slate-950 shadow-xs'
+                      : 'hover:text-white text-sky-200 hover:bg-sky-800/60'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
 
             <button
               onClick={handleEmailClick}
@@ -549,6 +468,29 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             >
               {isAutoScrolling ? '⏸ Pause Auto-Scroll' : '🚀 Launch Auto-Scroll Orbit'}
             </button>
+            <div className="flex items-center justify-center gap-2 pt-1 pb-1">
+              <span className="font-doodle-label text-sm font-bold text-slate-700">Speed:</span>
+              {[
+                { label: '0.8x', val: 0.8 },
+                { label: '1.3x', val: 1.3 },
+                { label: '2.2x', val: 2.2 },
+              ].map((s) => (
+                <button
+                  key={s.label}
+                  onClick={() => {
+                    sound.playClick();
+                    setScrollSpeed(s.val);
+                  }}
+                  className={`px-3 py-1 rounded-xl text-xs font-bold border border-slate-900 transition-all ${
+                    scrollSpeed === s.val
+                      ? 'bg-cyan-400 text-slate-950 font-black shadow-xs'
+                      : 'bg-white text-slate-800'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -569,7 +511,7 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             <div className="opacity-0 pointer-events-none select-none h-1" />
 
             {/* Central Composition: Polaroid Frame + Artistic Deva's Title */}
-            <div className="relative w-full max-w-3xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 my-auto">
+            <div className="relative w-full max-w-4xl flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 my-auto">
               {/* Handwritten Script Title "Deva's" with Space Tag */}
               <div className="order-2 md:order-1 flex flex-col items-center md:items-end z-10">
                 <ArtisticDevaTitle suffix="'s" textColor="text-white" accentColor="#38bdf8" />
