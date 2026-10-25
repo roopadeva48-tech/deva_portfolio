@@ -782,20 +782,20 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               <SquiggleUnderline color="#38bdf8" className="mt-1" />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card 1: Hand Crafting & Website Crafting */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Card 1: Website Crafting */}
               <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl">✂️</span>
+                  <span className="text-3xl">🌐</span>
                   <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-sky-100 text-sky-900 rounded-full border border-slate-900">
-                    Handmade & Web
+                    Web Craft
                   </span>
                 </div>
                 <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
-                  Hand Crafting & Website Crafting
+                  Website Crafting
                 </h3>
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
-                  Fusing tactile handmade creations, miniature models, and papercraft with modern interactive websites, responsive layouts, and delightful digital experiences.
+                  Crafting responsive web applications, interactive portfolios, and engaging landing pages with clean architectures and smooth navigation.
                 </p>
               </div>
 
@@ -860,6 +860,22 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </h3>
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
                   Crafting memorable brand marks, iconic emblems, minimalist vector symbols, and custom typographic identity systems that resonate across print and digital media.
+                </p>
+              </div>
+
+              {/* Card 6: Hand Crafting */}
+              <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-3xl">✂️</span>
+                  <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-sky-100 text-sky-900 rounded-full border border-slate-900">
+                    Tactile Craft
+                  </span>
+                </div>
+                <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
+                  Hand Crafting
+                </h3>
+                <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
+                  Creating tactile handmade artifacts, DIY papercraft, miniature diorama models, and physical creative sculptures that inspire playful imagination.
                 </p>
               </div>
             </div>
