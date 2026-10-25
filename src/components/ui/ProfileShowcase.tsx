@@ -873,22 +873,22 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                 </div>
               </div>
 
-              {/* Card 4: Generative AI & Next-Gen Systems */}
+              {/* Card 4: Poster Designing */}
               <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl">✨</span>
+                  <span className="text-3xl">🖼️</span>
                   <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-emerald-100 text-emerald-900 rounded-full border border-slate-900">
-                    Next-Gen
+                    Visual Art
                   </span>
                 </div>
                 <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
-                  AI & Agentic Workflows
+                  Poster Designing
                 </h3>
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
-                  Integrating intelligent developer assistants, automated pipelines, conversational agents, and generative assets into delightful user journeys.
+                  Creating eye-catching event posters, typographic compositions, promotional artwork, and creative digital graphics with bold visual hierarchy and color harmony.
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-2">
-                  {['Antigravity', 'Python', 'Prompt Craft', 'Automation', 'MCP'].map((tech) => (
+                  {['Photoshop', 'Illustrator', 'Typography', 'Visual Hierarchy', 'Print & Digital'].map((tech) => (
                     <span
                       key={tech}
                       className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
