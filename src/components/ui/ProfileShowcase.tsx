@@ -48,25 +48,107 @@ const ScrollProgressRocket: React.FC<{ progress: number }> = ({ progress }) => {
 
 // ========================================================
 // ========================================================
-// 2. ANIME SKY CLOUDS BACKGROUND (Exact Match to User Reference)
-// Rich anime sky digital painting with volumetric cumulus clouds,
-// responsive widescreen & mobile art, and gentle breathing drift
+// 2. ANIME SKY & EARTH SPACE BACKGROUND
+// - At top: Luminous anime sky with fluffy cumulus clouds
+// - When scrolling down: Clouds move downwards (parallax descent)
+//   and reveal deep space and planet Earth with atmospheric halo
+// - When scrolling up: Returns to the clouds and sky
 // ========================================================
-const AnimeSkyBackground: React.FC = () => {
+interface AnimeSkyBackgroundProps {
+  scrollProgress: number;
+}
+
+const AnimeSkyBackground: React.FC<AnimeSkyBackgroundProps> = ({ scrollProgress }) => {
+  // progress: 0 (top/hero) to 1 (bottom/contact)
+  const progress = Math.min(1, Math.max(0, scrollProgress / 100));
+
+  // 1. Cloud Layer Movement:
+  // Clouds move downwards when user moves screen from top to down
+  const cloudsTranslateY = progress * 62; // moves downwards up to 62vh
+  const cloudsOpacity = Math.max(0, 1 - Math.pow(progress, 1.15) * 1.35);
+
+  // 2. Cosmic Deep Space Atmosphere:
+  const spaceOpacity = Math.min(1, Math.max(0, (progress - 0.08) * 1.3));
+
+  // 3. Earth Globe Emergence:
+  // Starts emerging as clouds descend, settling into view in the lower/mid viewport
+  const earthProgress = Math.min(1, Math.max(0, (progress - 0.12) / 0.88));
+  const earthTranslateY = (1 - earthProgress) * 78 + 10; // moves from 88vh down to 10vh
+  const earthScale = 0.65 + earthProgress * 0.42; // scales from 0.65 to 1.07
+  const earthOpacity = Math.min(1, Math.max(0, earthProgress * 1.45));
+
+  // 4. Foreground Passing Cloud Wisps (Faster Parallax Descent)
+  const wispsTranslateY = progress * 92;
+  const wispsOpacity = Math.max(0, 1 - progress * 1.55);
+
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
       {/* Underlying sky blue fill */}
       <div className="absolute inset-0 bg-[#258bf5]" />
 
-      {/* Responsive Painterly Anime Cloud Wallpaper with subtle living drift */}
-      <div className="absolute -inset-4 sm:-inset-6 overflow-hidden">
+      {/* Deep Cosmic Space Layer (Fades in as user descends through clouds towards Earth) */}
+      <div
+        className="absolute inset-0 transition-opacity duration-300 pointer-events-none"
+        style={{
+          opacity: spaceOpacity,
+          background: 'radial-gradient(ellipse at 50% 85%, #0c2d66 0%, #06193d 40%, #020b1c 75%, #01040f 100%)',
+        }}
+      >
+        {/* Twinkling Cosmic Stars in Space */}
+        <div className="absolute top-[8%] left-[12%] text-cyan-200/90 text-sm animate-pulse">✦</div>
+        <div className="absolute top-[16%] right-[15%] text-white/80 text-xs animate-pulse delay-500">✧</div>
+        <div className="absolute top-[26%] left-[28%] text-sky-200/70 text-xs animate-pulse delay-1000">✦</div>
+        <div className="absolute top-[34%] right-[26%] text-white/90 text-sm animate-pulse delay-700">✧</div>
+        <div className="absolute top-[48%] left-[8%] text-cyan-300/80 text-xs animate-pulse delay-300">✦</div>
+        <div className="absolute top-[58%] right-[10%] text-sky-100/75 text-sm animate-pulse delay-1200">✧</div>
+        <div className="absolute top-[72%] left-[18%] text-white/60 text-xs animate-pulse delay-900">✦</div>
+        <div className="absolute top-[82%] right-[22%] text-cyan-200/90 text-xs animate-pulse delay-400">✧</div>
+      </div>
+
+      {/* Earth Globe Layer (Rises smoothly into view as user scrolls down to Earth) */}
+      <div
+        className="absolute left-1/2 -translate-x-1/2 transition-transform duration-150 ease-out will-change-transform flex flex-col items-center justify-center pointer-events-none"
+        style={{
+          top: 0,
+          transform: `translate3d(-50%, ${earthTranslateY}vh, 0) scale(${earthScale})`,
+          opacity: earthOpacity,
+        }}
+      >
+        {/* Glowing Atmospheric Cyan Halo behind Earth */}
+        <div className="absolute w-[360px] h-[360px] sm:w-[520px] sm:h-[520px] md:w-[680px] md:h-[680px] rounded-full bg-cyan-400/25 blur-3xl animate-earth-glow pointer-events-none" />
+
+        {/* Outer Orbital Line */}
+        <div className="absolute w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[650px] md:h-[650px] rounded-full border border-dashed border-cyan-400/30 -rotate-12 pointer-events-none" />
+
+        {/* Photorealistic 3D Earth Globe with Living Orbital Float */}
+        <div className="relative w-72 h-72 sm:w-96 sm:h-96 md:w-[480px] md:h-[480px] lg:w-[560px] lg:h-[560px] animate-earth-float">
+          <img
+            src="/assets/profile/earth_globe.png"
+            alt="Planet Earth"
+            className="w-full h-full object-contain drop-shadow-[0_25px_60px_rgba(2,132,199,0.5)]"
+          />
+
+          {/* Orbiting Satellite Transmission Badge */}
+          <div className="absolute -top-3 -right-2 bg-sky-950/85 border-2 border-cyan-400/60 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-mono font-bold text-cyan-200 flex items-center gap-1.5 shadow-lg select-none">
+            <span className="animate-spin text-sm" style={{ animationDuration: '8s' }}>🛰️</span>
+            <span>Station Earth</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Anime Clouds Layer (Moves downwards when user moves screen from top to down) */}
+      <div
+        className="absolute -inset-4 sm:-inset-6 overflow-hidden transition-transform duration-150 ease-out will-change-transform"
+        style={{
+          transform: `translate3d(0, ${cloudsTranslateY}vh, 0)`,
+          opacity: cloudsOpacity,
+        }}
+      >
         <picture className="w-full h-full block animate-sky-anime">
-          {/* Mobile / Portrait viewports: exact portrait artwork uploaded by user */}
           <source
             media="(max-aspect-ratio: 1/1)"
             srcSet="/assets/profile/sky_clouds_mobile.png"
           />
-          {/* Desktop / Landscape viewports: 16:9 widescreen expansion of user artwork */}
           <source
             media="(min-aspect-ratio: 1/1)"
             srcSet="/assets/profile/sky_clouds_desktop.jpg"
@@ -79,14 +161,21 @@ const AnimeSkyBackground: React.FC = () => {
         </picture>
       </div>
 
-      {/* Gentle atmospheric depth overlay for contrast & readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-950/20 via-transparent to-sky-950/30 pointer-events-none" />
+      {/* Passing Cloud Wisps (Faster Parallax Descent through the clouds) */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-transform duration-150 ease-out will-change-transform"
+        style={{
+          transform: `translate3d(0, ${wispsTranslateY}vh, 0)`,
+          opacity: wispsOpacity,
+        }}
+      >
+        <div className="absolute top-[20%] left-[-5%] w-[420px] h-[140px] bg-white/20 blur-2xl rounded-full" />
+        <div className="absolute top-[45%] right-[-8%] w-[480px] h-[160px] bg-cyan-100/25 blur-2xl rounded-full" />
+        <div className="absolute top-[70%] left-[10%] w-[520px] h-[180px] bg-white/25 blur-3xl rounded-full" />
+      </div>
 
-      {/* Floating Sparkle / Star Glints in the upper atmosphere */}
-      <div className="absolute top-[12%] left-[18%] text-white/70 text-xs animate-pulse">✦</div>
-      <div className="absolute top-[8%] right-[22%] text-cyan-200/80 text-sm animate-pulse delay-700">✧</div>
-      <div className="absolute top-[28%] right-[8%] text-white/60 text-xs animate-pulse delay-1000">✦</div>
-      <div className="absolute top-[35%] left-[6%] text-cyan-100/70 text-xs animate-pulse delay-500">✧</div>
+      {/* Subtle Atmospheric Depth Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-sky-950/15 via-transparent to-sky-950/25 pointer-events-none" />
     </div>
   );
 };
@@ -184,6 +273,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         // Sub-pixel continuous momentum
         const increment = (scrollSpeed * 60 * delta) / 1000;
         container.scrollTop += increment;
+        if (maxScroll > 0) {
+          setScrollProgress((container.scrollTop / maxScroll) * 100);
+        }
       }
 
       autoScrollAnimRef.current = requestAnimationFrame(autoScrollStep);
@@ -279,9 +371,9 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
         <ScrollProgressRocket progress={scrollProgress} />
 
         {/* ========================================================
-            ANIME SKY CLOUDS BACKGROUND (Living Cloudscape Artwork)
+            ANIME SKY & EARTH SPACE BACKGROUND (Scroll-Driven Descent)
            ======================================================== */}
-        <AnimeSkyBackground />
+        <AnimeSkyBackground scrollProgress={scrollProgress} />
 
         {/* ========================================================
             FLOATING COSMIC AUTO-SCROLL CONTROLLER (Bottom-Right)

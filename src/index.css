@@ -105,6 +105,36 @@
   animation: cloud-float-gentle 8s ease-in-out infinite;
 }
 
+/* Earth globe subtle floating & atmospheric glow animations */
+@keyframes earth-gentle-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(1.2deg);
+  }
+}
+
+.animate-earth-float {
+  animation: earth-gentle-float 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes earth-glow-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.03);
+  }
+}
+
+.animate-earth-glow {
+  animation: earth-glow-pulse 6s ease-in-out infinite;
+}
+
 /* Custom scrollbars for modals */
 ::-webkit-scrollbar {
   width: 6px;
