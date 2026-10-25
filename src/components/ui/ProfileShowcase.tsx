@@ -795,22 +795,22 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card 1: 3D Spatial */}
+              {/* Card 1: Hand Crafting & Website Crafting */}
               <div className="bg-white/95 backdrop-blur-md p-6 rounded-3xl border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] transition-all space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-3xl">🌐</span>
+                  <span className="text-3xl">✂️</span>
                   <span className="font-doodle-label text-xs font-bold px-3 py-1 bg-sky-100 text-sky-900 rounded-full border border-slate-900">
-                    Interactive 3D
+                    Handmade & Web
                   </span>
                 </div>
                 <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
-                  3D Spatial & WebGL Worlds
+                  Hand Crafting & Website Crafting
                 </h3>
                 <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
-                  Crafting interactive diorama globes, virtual hallway galleries, custom GLSL shaders, lighting systems, and butter-smooth Three.js camera choreographies.
+                  Fusing tactile handmade creations, miniature models, and papercraft with modern interactive websites, responsive layouts, and delightful digital experiences.
                 </p>
                 <div className="flex flex-wrap gap-1.5 pt-2">
-                  {['Three.js', 'React Three Fiber', 'GLSL', 'WebGL', 'Canvas'].map((tech) => (
+                  {['Handmade Crafts', 'Miniature Art', 'Web Design', 'UI/UX', 'TailwindCSS', 'Interactive Web'].map((tech) => (
                     <span
                       key={tech}
                       className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
