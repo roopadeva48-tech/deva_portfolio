@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ProfileData, ProjectItem, CertificateItem } from '../../types';
 import { sound } from '../../utils/audio';
-import { fallbackProjects } from '../../services/api';
 import {
   BeanbagGirlIllustration,
   JugglingGirlIllustration,
@@ -241,8 +240,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
   const autoScrollAnimRef = useRef<number | null>(null);
   const isAutoScrollingRef = useRef(isAutoScrolling);
   isAutoScrollingRef.current = isAutoScrolling;
-
-  const displayProjects = projects.length > 0 ? projects : fallbackProjects;
 
   // Track scroll position for top orbital rocket progress bar
   const handleContainerScroll = useCallback(() => {
@@ -504,12 +501,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
               Experience
             </button>
             <button
-              onClick={() => scrollToSection('projects')}
-              className="hover:text-cyan-300 transition-colors cursor-pointer"
-            >
-              Projects
-            </button>
-            <button
               onClick={() => scrollToSection('contact')}
               className="hover:text-cyan-300 transition-colors cursor-pointer"
             >
@@ -560,9 +551,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
             </button>
             <button onClick={() => scrollToSection('experience')} className="text-left py-1.5 hover:text-cyan-600">
               💼 Career Milestones
-            </button>
-            <button onClick={() => scrollToSection('projects')} className="text-left py-1.5 hover:text-cyan-600">
-              🎨 Featured Projects
             </button>
             <button onClick={() => scrollToSection('contact')} className="text-left py-1.5 hover:text-cyan-600">
               ✉️ Contact Transmission
@@ -1017,96 +1005,6 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
           {/* Orbital Divider */}
           <OrbitalFlybyDivider />
 
-          {/* ----------------------------------------------------
-              SECTION 6: FEATURED PROJECTS
-             ---------------------------------------------------- */}
-          <motion.section
-            id="projects"
-            initial={{ opacity: 0, y: 32 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="space-y-8 scroll-mt-24"
-          >
-            <div className="flex flex-col items-start">
-              <span className="font-doodle-label text-xl text-cyan-300 font-bold drop-shadow-sm">
-                Payload Deployments · Featured Projects
-              </span>
-              <h2 className="font-doodle-heading text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-md">
-                Featured <span className="text-cyan-400">Projects</span>
-              </h2>
-              <SquiggleUnderline color="#38bdf8" className="mt-1" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {displayProjects.map((prj: ProjectItem, pIdx: number) => (
-                <div
-                  key={prj.id || pIdx}
-                  className="bg-white/95 rounded-3xl p-6 border-2 border-slate-900 shadow-[4px_4px_0px_0px_#0284c7] hover:shadow-[6px_6px_0px_0px_#38bdf8] flex flex-col justify-between space-y-4 transition-all"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="px-3 py-0.5 bg-sky-100 text-sky-900 text-xs font-bold rounded-lg border border-slate-900">
-                        {prj.category}
-                      </span>
-                      <span className="font-doodle-body text-xs font-bold text-slate-500">
-                        {prj.year}
-                      </span>
-                    </div>
-
-                    <h3 className="font-doodle-heading text-2xl font-black text-slate-900">
-                      {prj.title}
-                    </h3>
-                    <p className="font-doodle-body text-base text-slate-700 leading-relaxed">
-                      {prj.tagline || prj.description}
-                    </p>
-
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {prj.technologies.map((tech: string, tIdx: number) => (
-                        <span
-                          key={tIdx}
-                          className="px-2.5 py-0.5 bg-sky-50 text-slate-900 text-xs font-bold rounded-md border border-slate-900"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="border-t-2 border-dashed border-slate-200 pt-3 flex items-center justify-between text-xs">
-                    <span className="font-doodle-body text-sm font-bold text-sky-600">
-                      ⚡ {prj.metrics}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      {prj.links?.github && (
-                        <a
-                          href={prj.links.github}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg font-bold text-xs border border-slate-900"
-                        >
-                          Code
-                        </a>
-                      )}
-                      {prj.links?.live && (
-                        <a
-                          href={prj.links.live}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1 bg-cyan-400 hover:bg-cyan-300 text-slate-950 rounded-lg font-bold text-xs border border-slate-900"
-                        >
-                          Live Demo ↗
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </motion.section>
-
-          {/* Orbital Divider */}
-          <OrbitalFlybyDivider flip />
 
           {/* ----------------------------------------------------
               SECTION 7: CONTACT
