@@ -903,15 +903,15 @@ export const ProfileShowcase: React.FC<ProfileShowcaseProps> = ({
                   {[
                     { initial: 'Ts', name: 'TypeScript' },
                     { initial: 'Re', name: 'React' },
-                    { initial: '3D', name: 'Three.js' },
+                    { initial: 'Sb', name: 'Supabase' },
                     { initial: 'Py', name: 'Python' },
-                    { initial: 'Fm', name: 'Motion' },
+                    { initial: 'Ca', name: 'Canva' },
                     { initial: 'Gl', name: 'WebGL' },
                     { initial: 'Nd', name: 'Node.js' },
                     { initial: 'Tw', name: 'Tailwind' },
                     { initial: 'Fg', name: 'Figma' },
                     { initial: 'Ps', name: 'Photoshop' },
-                    { initial: 'Ai', name: 'Illustrator' },
+                    { initial: 'Ai', name: 'Google AI Studio' },
                     { initial: 'Git', name: 'GitHub' },
                   ].map((tool, idx) => (
                     <div
