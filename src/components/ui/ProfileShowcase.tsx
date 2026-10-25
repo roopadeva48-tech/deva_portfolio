@@ -62,39 +62,42 @@ const AnimeSkyBackground: React.FC<AnimeSkyBackgroundProps> = ({ scrollProgress 
   // progress: 0 (top/hero) to 1 (bottom/contact)
   const progress = Math.min(1, Math.max(0, scrollProgress / 100));
 
-  // 1. Cloud Layer Movement:
-  // Clouds move downwards when user moves screen from top to down
-  const cloudsTranslateY = progress * 62; // moves downwards up to 62vh
-  const cloudsOpacity = Math.max(0, 1 - Math.pow(progress, 1.15) * 1.35);
+  // 1. Cloud Layer Parallax:
+  // Move downwards smoothly without ever exposing a top edge
+  const cloudsTranslateY = progress * 42; // moves downwards within extended container
+  const cloudsOpacity = Math.max(0, 1 - Math.pow(progress, 1.1) * 1.25);
 
-  // 2. Cosmic Deep Space Atmosphere:
-  const spaceOpacity = Math.min(1, Math.max(0, (progress - 0.08) * 1.3));
+  // 2. Cosmic Deep Space Atmosphere Transition:
+  const spaceOpacity = Math.min(1, Math.max(0, (progress - 0.05) * 1.3));
 
   // 3. Earth Globe Emergence:
-  // Starts emerging as clouds descend, settling into view in the lower/mid viewport
-  const earthProgress = Math.min(1, Math.max(0, (progress - 0.12) / 0.88));
-  const earthTranslateY = (1 - earthProgress) * 78 + 10; // moves from 88vh down to 10vh
-  const earthScale = 0.65 + earthProgress * 0.42; // scales from 0.65 to 1.07
-  const earthOpacity = Math.min(1, Math.max(0, earthProgress * 1.45));
+  const earthProgress = Math.min(1, Math.max(0, (progress - 0.1) / 0.9));
+  const earthTranslateY = (1 - earthProgress) * 70 + 8; // moves from 78vh down to 8vh
+  const earthScale = 0.7 + earthProgress * 0.38; // scales from 0.7 to ~1.08
+  const earthOpacity = Math.min(1, Math.max(0, earthProgress * 1.4));
 
   // 4. Foreground Passing Cloud Wisps (Faster Parallax Descent)
-  const wispsTranslateY = progress * 92;
-  const wispsOpacity = Math.max(0, 1 - progress * 1.55);
+  const wispsTranslateY = progress * 75;
+  const wispsOpacity = Math.max(0, 1 - progress * 1.4);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden select-none">
-      {/* Underlying sky blue fill */}
-      <div className="absolute inset-0 bg-[#258bf5]" />
+      {/* 1. Underlying Natural Atmospheric Sky Gradient (Seamless Color Shading from Cosmic Space to Daylight Blue) */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background: 'linear-gradient(180deg, #020817 0%, #06193d 28%, #0d3b84 55%, #1d72d6 80%, #38bdf8 100%)',
+        }}
+      />
 
-      {/* Deep Cosmic Space Layer (Fades in as user descends through clouds towards Earth) */}
+      {/* 2. Deep Cosmic Space & Twinkling Stars (Fades in smoothly as you descend) */}
       <div
         className="absolute inset-0 transition-opacity duration-300 pointer-events-none"
         style={{
           opacity: spaceOpacity,
-          background: 'radial-gradient(ellipse at 50% 85%, #0c2d66 0%, #06193d 40%, #020b1c 75%, #01040f 100%)',
+          background: 'radial-gradient(ellipse at 50% 90%, #0b2554 0%, #04122d 42%, #020817 78%, #01040f 100%)',
         }}
       >
-        {/* Twinkling Cosmic Stars in Space */}
         <div className="absolute top-[8%] left-[12%] text-cyan-200/90 text-sm animate-pulse">✦</div>
         <div className="absolute top-[16%] right-[15%] text-white/80 text-xs animate-pulse delay-500">✧</div>
         <div className="absolute top-[26%] left-[28%] text-sky-200/70 text-xs animate-pulse delay-1000">✦</div>
@@ -105,7 +108,7 @@ const AnimeSkyBackground: React.FC<AnimeSkyBackgroundProps> = ({ scrollProgress 
         <div className="absolute top-[82%] right-[22%] text-cyan-200/90 text-xs animate-pulse delay-400">✧</div>
       </div>
 
-      {/* Earth Globe Layer (Rises smoothly into view as user scrolls down to Earth) */}
+      {/* 3. Earth Globe Layer (Rises into view with Soft Atmospheric Cyan Shading — No Harsh Lines) */}
       <div
         className="absolute left-1/2 -translate-x-1/2 transition-transform duration-150 ease-out will-change-transform flex flex-col items-center justify-center pointer-events-none"
         style={{
@@ -114,11 +117,8 @@ const AnimeSkyBackground: React.FC<AnimeSkyBackgroundProps> = ({ scrollProgress 
           opacity: earthOpacity,
         }}
       >
-        {/* Glowing Atmospheric Cyan Halo behind Earth */}
-        <div className="absolute w-[360px] h-[360px] sm:w-[520px] sm:h-[520px] md:w-[680px] md:h-[680px] rounded-full bg-cyan-400/25 blur-3xl animate-earth-glow pointer-events-none" />
-
-        {/* Outer Orbital Line */}
-        <div className="absolute w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] md:w-[650px] md:h-[650px] rounded-full border border-dashed border-cyan-400/30 -rotate-12 pointer-events-none" />
+        {/* Soft Radial Atmospheric Cyan Halo (Pure Color Shading) */}
+        <div className="absolute w-[400px] h-[400px] sm:w-[560px] sm:h-[560px] md:w-[720px] md:h-[720px] rounded-full bg-gradient-to-tr from-cyan-400/30 via-sky-300/20 to-transparent blur-3xl animate-earth-glow pointer-events-none" />
 
         {/* Photorealistic 3D Earth Globe with Living Orbital Float */}
         <div className="relative w-72 h-72 sm:w-96 sm:h-96 md:w-[480px] md:h-[480px] lg:w-[560px] lg:h-[560px] animate-earth-float">
@@ -136,12 +136,16 @@ const AnimeSkyBackground: React.FC<AnimeSkyBackgroundProps> = ({ scrollProgress 
         </div>
       </div>
 
-      {/* Anime Clouds Layer (Moves downwards when user moves screen from top to down) */}
+      {/* 4. Anime Clouds Layer (Oversized & Feathered Mask — Seamlessly Shaded with Zero Hard Line Edges) */}
       <div
-        className="absolute -inset-4 sm:-inset-6 overflow-hidden transition-transform duration-150 ease-out will-change-transform"
+        className="absolute left-[-5%] right-[-5%] overflow-hidden transition-transform duration-150 ease-out will-change-transform"
         style={{
+          top: '-50vh',
+          height: '180vh',
           transform: `translate3d(0, ${cloudsTranslateY}vh, 0)`,
           opacity: cloudsOpacity,
+          WebkitMaskImage: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 15%, black 35%, black 75%, rgba(0,0,0,0.4) 90%, transparent 100%)',
+          maskImage: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.5) 15%, black 35%, black 75%, rgba(0,0,0,0.4) 90%, transparent 100%)',
         }}
       >
         <picture className="w-full h-full block animate-sky-anime">
@@ -161,7 +165,16 @@ const AnimeSkyBackground: React.FC<AnimeSkyBackgroundProps> = ({ scrollProgress 
         </picture>
       </div>
 
-      {/* Passing Cloud Wisps (Faster Parallax Descent through the clouds) */}
+      {/* 5. Smooth Atmospheric Gradient Shade Overlay (Melts dark space color into clouds) */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+        style={{
+          opacity: spaceOpacity,
+          background: 'linear-gradient(180deg, #020817 0%, rgba(3, 11, 28, 0.9) 20%, rgba(6, 25, 61, 0.6) 45%, rgba(13, 56, 128, 0.3) 70%, transparent 100%)',
+        }}
+      />
+
+      {/* 6. Passing Cloud Wisps (Soft feathered blur for depth) */}
       <div
         className="absolute inset-0 pointer-events-none transition-transform duration-150 ease-out will-change-transform"
         style={{
@@ -169,13 +182,10 @@ const AnimeSkyBackground: React.FC<AnimeSkyBackgroundProps> = ({ scrollProgress 
           opacity: wispsOpacity,
         }}
       >
-        <div className="absolute top-[20%] left-[-5%] w-[420px] h-[140px] bg-white/20 blur-2xl rounded-full" />
-        <div className="absolute top-[45%] right-[-8%] w-[480px] h-[160px] bg-cyan-100/25 blur-2xl rounded-full" />
+        <div className="absolute top-[20%] left-[-5%] w-[420px] h-[140px] bg-white/20 blur-3xl rounded-full" />
+        <div className="absolute top-[45%] right-[-8%] w-[480px] h-[160px] bg-cyan-100/25 blur-3xl rounded-full" />
         <div className="absolute top-[70%] left-[10%] w-[520px] h-[180px] bg-white/25 blur-3xl rounded-full" />
       </div>
-
-      {/* Subtle Atmospheric Depth Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-sky-950/15 via-transparent to-sky-950/25 pointer-events-none" />
     </div>
   );
 };
